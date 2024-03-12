@@ -66,8 +66,8 @@ export function arcadeEnvironmentThree(element) {
     ambiLight.position.add(5,5,5)
     // scene.add(ambiLight)
 
-    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight.position.set(-1,4,3)
+    const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+    pointLight.position.set(-2,5,0)
     scene.add(pointLight)
 
     const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
@@ -75,9 +75,24 @@ export function arcadeEnvironmentThree(element) {
 
 
 
+    const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
+    pointLight1.position.set(-1,4,3)
+    scene.add(pointLight1)
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
+    pointLight2.position.set(-1,4,-3)
+    scene.add(pointLight2)
+
+
+    const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight3.position.set( 2,4, 0)
+    scene.add(pointLight3)
 
    function animate() {
     requestAnimationFrame( animate );
+
+    torus.rotateX(0.05)
+    torus.rotateY(0.01)
 
     renderer.render(scene, camera)
    } 
