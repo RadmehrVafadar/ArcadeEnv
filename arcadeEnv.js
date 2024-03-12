@@ -47,7 +47,7 @@ export function arcadeEnvironmentThree(element) {
 
     const assetLoader = new GLTFLoader();
 
-    assetLoader.load('/model3.glb', function(gltf) {
+    assetLoader.load('/model4.glb', function(gltf) {
         const model = gltf.scene
         
 
@@ -67,7 +67,7 @@ export function arcadeEnvironmentThree(element) {
     // scene.add(ambiLight)
 
     const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-    pointLight.position.set(-2,5,0)
+    pointLight.position.set(0,5,2)
     scene.add(pointLight)
 
     const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
@@ -76,16 +76,16 @@ export function arcadeEnvironmentThree(element) {
 
 
     const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
-    pointLight1.position.set(-1,4,3)
+    pointLight1.position.set(3,3,0)
     scene.add(pointLight1)
 
     const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
-    pointLight2.position.set(-1,4,-3)
+    pointLight2.position.set(-3,3,0)
     scene.add(pointLight2)
 
 
     const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight3.position.set( 2,4, 0)
+    pointLight3.position.set(0,2, -3)
     scene.add(pointLight3)
 
    function animate() {
