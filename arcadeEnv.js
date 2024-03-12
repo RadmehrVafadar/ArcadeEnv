@@ -2,10 +2,13 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 
+import { createRoot } from 'react-dom/client'
+import React, { useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 
-export function arcadeEnvironment(element) {
 
-    const arcadeUrl = new URL('/model2.glb', import.meta.url);
+export function arcadeEnvironmentThree(element) {
+
 
 
     const scene = new THREE.Scene();
@@ -29,7 +32,6 @@ export function arcadeEnvironment(element) {
     // scene.add(torus)
 
 
-    const assetLoader = new GLTFLoader();
 
 
 
@@ -43,26 +45,34 @@ export function arcadeEnvironment(element) {
 
 
 
+    const assetLoader = new GLTFLoader();
 
-    assetLoader.load(arcadeUrl.href, function(gltf) {
+    assetLoader.load('/model3.glb', function(gltf) {
         const model = gltf.scene
+        
+
 
         scene.add(model);
-
         model.rotateY(1.56)
 
-
-
+        const object = model.getObjectByName('')
 
     }, undefined, function(error) {
         console.error(error);
     });
 
 
-    const ambiLight = new THREE.AmbientLight(0xffffff)
+    const ambiLight = new THREE.AmbientLight(0xffffff);
     ambiLight.position.add(5,5,5)
+    // scene.add(ambiLight)
 
-    scene.add(ambiLight)
+    const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+    pointLight.position.set(-1,4,3)
+    scene.add(pointLight)
+
+    const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
+    scene.add(pointLightHelper)
+
 
 
 
@@ -81,4 +91,6 @@ export function arcadeEnvironment(element) {
 
    animate()
 }
+
+
    
