@@ -8,18 +8,14 @@ import { Canvas, useFrame } from '@react-three/fiber'
 
 
 export function arcadeEnvironmentThree(element) {
-
-
-
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, (window.innerHeight/window.innerHeight), 0.1, 1000);
-
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGL1Renderer({
         canvas: element 
     });
 
-    renderer.setPixelRatio( window.devicePixelRatio);
-    renderer.setSize( window.innerWidth, window.innerHeight)
+    renderer.setPixelRatio( window.devicePixelRatio); 
+    renderer.setSize(window.innerWidth, window.innerHeight)
     
     camera.position.setZ(10)
     camera.position.setY(6)
@@ -73,8 +69,6 @@ export function arcadeEnvironmentThree(element) {
     const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
     scene.add(pointLightHelper)
 
-
-
     const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
     pointLight1.position.set(3,3,0)
     scene.add(pointLight1)
@@ -88,6 +82,8 @@ export function arcadeEnvironmentThree(element) {
     pointLight3.position.set(0,2, -3)
     scene.add(pointLight3)
 
+    
+
    function animate() {
     requestAnimationFrame( animate );
 
@@ -99,6 +95,7 @@ export function arcadeEnvironmentThree(element) {
 
    window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
    })
 
