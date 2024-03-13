@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
-
+import TWEEN from '@tweenjs/tween.js'
 import { createRoot } from 'react-dom/client'
 import React, { useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
@@ -9,7 +9,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 
 export function arcadeEnvironmentThree(element) {
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGL1Renderer({
         canvas: element 
     });
@@ -17,13 +17,10 @@ export function arcadeEnvironmentThree(element) {
     renderer.setPixelRatio( window.devicePixelRatio); 
     renderer.setSize(window.innerWidth, window.innerHeight)
     
-    camera.position.set(0,5,5)
+    // camera.position.set(0,7,10)
 
 
-    
-    // camera.position.set(0,4,3)
-    camera.lookAt(new THREE.Vector3(0,3,1.5))
-    
+
 
 
     const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
@@ -43,70 +40,100 @@ export function arcadeEnvironmentThree(element) {
     // const controls = new OrbitControls(camera, renderer.domElement);
     
 
-
-
-
     const assetLoader = new GLTFLoader();
 
-    assetLoader.load('/model5.glb', function(gltf) {
-        const model = gltf.scene
-        
+    assetLoader.load('/model7.glb', function(gltf) {
+        const model = gltf.scene;   
+        const camerFromGLTF = gltf.cameras[0]
+         
+        // Creates a constant aspect ratio for environment
+        camerFromGLTF.aspect = window.innerWidth / window.innerHeight;
+        camerFromGLTF.fov = 75
+        camerFromGLTF.updateProjectionMatrix()
 
 
-        scene.add(model);
+        scene.add(model)
 
-        const object = model.getObjectByName('')
 
-    }, undefined, function(error) {
+        // Find the camera animation clip
+        const clip = THREE.AnimationClip.findByName( gltf.animations, 'MyCameraAction.007')
+
+
+        // Create the animation mixer using the scene
+        const mixer = new THREE.AnimationMixer(scene);
+        const action = mixer.clipAction(clip);
+        action.setLoop(THREE.LoopOnce);
+        action.clampWhenFinished = true;
+
+
+ 
+        const raycaster = new THREE.Raycaster();
+   
+        document.addEventListener('click', onMouseDown);
+
+        function onMouseDown(event) {
+            const coords = new THREE.Vector2(
+                ( event.clientX  / renderer.domElement.clientWidth ) * 2 - 1,
+                -(( event.clientY  / renderer.domElement.clientHeight ) * 2 - 1),
+            );
+            raycaster.setFromCamera(coords, camerFromGLTF)
+
+            const intersections = raycaster.intersectObject(model, true)
+            
+            if (intersections.length > 0) {
+                // play the camera animation
+                action.play() 
+            }
+        }
+
+        const ambiLight = new THREE.AmbientLight(0xffffff);
+        ambiLight.position.add(5,5,5)
+        // scene.add(ambiLight)
+
+
+        // Scene Lighting
+        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        pointLight.position.set(0,5,2)
+        scene.add(pointLight)
+
+        const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
+        scene.add(pointLightHelper)
+
+        const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
+        pointLight1.position.set(3,3,0)
+        scene.add(pointLight1)
+
+        const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
+        pointLight2.position.set(-3,3,0)
+        scene.add(pointLight2)
+
+
+        const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight3.position.set(0,2, -3)
+        scene.add(pointLight3)
+
+    
+        // Initialize the clock and call the animate function
+        const clock = new THREE.Clock();
+        animate();
+
+        function animate() {
+            requestAnimationFrame( animate );
+            mixer.update(clock.getDelta())
+            renderer.render(scene, camerFromGLTF)
+        } 
+
+        window.addEventListener('resize', () => {
+            camerFromGLTF.aspect = window.innerWidth / window.innerHeight;
+            camerFromGLTF.updateProjectionMatrix()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+        })
+
+    }, 
+    
+        undefined, function(error) {
         console.error(error);
     });
 
 
-    const ambiLight = new THREE.AmbientLight(0xffffff);
-    ambiLight.position.add(5,5,5)
-    // scene.add(ambiLight)
-
-    const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-    pointLight.position.set(0,5,2)
-    scene.add(pointLight)
-
-    const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
-    scene.add(pointLightHelper)
-
-    const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
-    pointLight1.position.set(3,3,0)
-    scene.add(pointLight1)
-
-    const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
-    pointLight2.position.set(-3,3,0)
-    scene.add(pointLight2)
-
-
-    const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
-    pointLight3.position.set(0,2, -3)
-    scene.add(pointLight3)
-
-    
-
-   function animate() {
-    requestAnimationFrame( animate );
-
-    torus.rotateX(0.05)
-    torus.rotateY(0.01)
-
-    renderer.render(scene, camera)
-   } 
-
-   window.addEventListener('resize', function() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-   })
-
-
-
-   animate()
-}
-
-
-   
+} 
