@@ -17,8 +17,13 @@ export function arcadeEnvironmentThree(element) {
     renderer.setPixelRatio( window.devicePixelRatio); 
     renderer.setSize(window.innerWidth, window.innerHeight)
     
-    camera.position.setZ(10)
-    camera.position.setY(6)
+    camera.position.set(0,5,5)
+
+
+    
+    // camera.position.set(0,4,3)
+    camera.lookAt(new THREE.Vector3(0,3,1.5))
+    
 
 
     const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
@@ -35,7 +40,7 @@ export function arcadeEnvironmentThree(element) {
     const gridHelper = new THREE.GridHelper(200, 50);
     scene.add(gridHelper)
     
-    const controls = new OrbitControls(camera, renderer.domElement);
+    // const controls = new OrbitControls(camera, renderer.domElement);
     
 
 
@@ -43,13 +48,12 @@ export function arcadeEnvironmentThree(element) {
 
     const assetLoader = new GLTFLoader();
 
-    assetLoader.load('/model4.glb', function(gltf) {
+    assetLoader.load('/model5.glb', function(gltf) {
         const model = gltf.scene
         
 
 
         scene.add(model);
-        model.rotateY(1.56)
 
         const object = model.getObjectByName('')
 
