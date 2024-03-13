@@ -37,15 +37,18 @@ export function arcadeEnvironmentThree(element) {
     const gridHelper = new THREE.GridHelper(200, 50);
     scene.add(gridHelper)
     
-    // const controls = new OrbitControls(camera, renderer.domElement);
     
 
     const assetLoader = new GLTFLoader();
 
-    assetLoader.load('/model7.glb', function(gltf) {
+    assetLoader.load('/model8.glb', function(gltf) {
         const model = gltf.scene;   
         const camerFromGLTF = gltf.cameras[0]
          
+        const controls = new OrbitControls(camerFromGLTF, renderer.domElement);
+        
+        
+        
         // Creates a constant aspect ratio for environment
         camerFromGLTF.aspect = window.innerWidth / window.innerHeight;
         camerFromGLTF.fov = 75
@@ -69,7 +72,7 @@ export function arcadeEnvironmentThree(element) {
  
         const raycaster = new THREE.Raycaster();
    
-        document.addEventListener('click', onMouseDown);
+        document.addEventListener('mousedown', onMouseDown);
 
         function onMouseDown(event) {
             const coords = new THREE.Vector2(
@@ -93,11 +96,8 @@ export function arcadeEnvironmentThree(element) {
 
         // Scene Lighting
         const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-        pointLight.position.set(0,5,2)
+        pointLight.position.set(0,3,3)
         scene.add(pointLight)
-
-        const pointLightHelper = new THREE.PointLightHelper(pointLight, 1)
-        scene.add(pointLightHelper)
 
         const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
         pointLight1.position.set(3,3,0)
