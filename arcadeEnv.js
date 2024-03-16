@@ -91,7 +91,7 @@ export function arcadeEnvironmentThree(element) {
 
         const ambiLight = new THREE.AmbientLight(0xffffff);
         ambiLight.position.add(5,5,5)
-        // scene.add(ambiLight)
+        scene.add(ambiLight)
 
 
         // Scene Lighting
@@ -111,6 +111,20 @@ export function arcadeEnvironmentThree(element) {
         const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
         pointLight3.position.set(0,2, -3)
         scene.add(pointLight3)
+
+
+
+        // screen object
+        const screenGeometry = new THREE.PlaneGeometry(2,5,1)
+        const screenMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff})
+        const myScreen = new THREE.Mesh( screenGeometry, screenMaterial);
+        myScreen.position.set(3,0,3)
+
+        myScreen.
+
+
+        scene.add(myScreen)
+
 
     
         // Initialize the clock and call the animate function
