@@ -1,11 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
-import TWEEN from '@tweenjs/tween.js'
-import { createRoot } from 'react-dom/client'
-import React, { useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-
 
 export function arcadeEnvironmentThree(element) {
     const scene = new THREE.Scene();
@@ -21,24 +16,11 @@ export function arcadeEnvironmentThree(element) {
 
 
 
-
-
-    const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
-    const material = new THREE.MeshStandardMaterial({ color: 0xFF6347, wireframe: true})
-    const torus = new THREE.Mesh( geometry, material);
-
-    // scene.add(torus)
-
-
-
-
-
     // helpers
     const gridHelper = new THREE.GridHelper(200, 50);
     scene.add(gridHelper)
     
     
-
     const assetLoader = new GLTFLoader();
 
     assetLoader.load('/model8.glb', function(gltf) {
@@ -115,16 +97,15 @@ export function arcadeEnvironmentThree(element) {
 
 
         // screen object
-        const screenGeometry = new THREE.PlaneGeometry(2,5,1)
-        const screenMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff})
-        const myScreen = new THREE.Mesh( screenGeometry, screenMaterial);
-        myScreen.position.set(3,0,3)
+        const gameCanvas = document.getElementById('gameScreen');
+        const gameTexture = new THREE.CanvasTexture(gameCanvas);
 
-        myScreen.
-
-
-        scene.add(myScreen)
-
+        const screenGeometry = new THREE.PlaneGeometry(2, 2.4, 1);
+        const screenMaterial = new THREE.MeshBasicMaterial({ map: gameTexture });
+        const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
+        screenMesh.position.set(0, 3, 0.6)
+        screenMesh.rotateX(-0.75)
+        scene.add(screenMesh);
 
     
         // Initialize the clock and call the animate function
@@ -132,9 +113,14 @@ export function arcadeEnvironmentThree(element) {
         animate();
 
         function animate() {
-            requestAnimationFrame( animate );
+            gameTexture.needsUpdate = true;
+
+        
             mixer.update(clock.getDelta())
             renderer.render(scene, camerFromGLTF)
+            requestAnimationFrame( animate );
+
+
         } 
 
         window.addEventListener('resize', () => {
