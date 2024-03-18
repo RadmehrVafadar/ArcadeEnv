@@ -54,7 +54,7 @@ export function arcadeEnvironmentThree(element) {
  
         const raycaster = new THREE.Raycaster();
    
-        document.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('click', onMouseDown);
 
         function onMouseDown(event) {
             const coords = new THREE.Vector2(
@@ -73,7 +73,7 @@ export function arcadeEnvironmentThree(element) {
 
         const ambiLight = new THREE.AmbientLight(0xffffff);
         ambiLight.position.add(5,5,5)
-        scene.add(ambiLight)
+        // scene.add(ambiLight)
 
 
         // Scene Lighting
@@ -92,7 +92,7 @@ export function arcadeEnvironmentThree(element) {
 
         const pointLight3 = new THREE.PointLight(0xffffff, 1, 100);
         pointLight3.position.set(0,2, -3)
-        scene.add(pointLight3)
+        // scene.add(pointLight3)
 
 
 
