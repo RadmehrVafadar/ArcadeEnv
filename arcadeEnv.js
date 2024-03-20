@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
+import { CSS3DRenderer, CSS3DObject, CSS3DSprite, EventDispatcher } from 'three/examples/jsm/renderers/CSS3DRenderer';
 
 export function arcadeEnvironmentThree(element) {
     const scene = new THREE.Scene();
