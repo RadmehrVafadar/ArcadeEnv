@@ -11,7 +11,7 @@ export default function Arcade() {
         <>
         <Environment preset="warehouse" />
 
-        <PresentationControls global>
+        <PresentationControls >
             <primitive object={arcade.scene} position-y={-2}>
                 <Html 
                 occlude

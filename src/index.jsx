@@ -12,7 +12,7 @@ root.render(
       fov: 60,
       near: 0.1,
       far: 2000,
-      position: [-3, 1.5, 4]
+      position: [0, 3, 3]
     }}
   >
     <Arcade />
