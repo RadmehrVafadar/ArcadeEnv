@@ -1,8 +1,28 @@
+import {useState, useRef} from 'react';
+import { useFrame } from '@react-three/fiber';
 import React from 'react';
 import { Html, Environment, PresentationControls, useGLTF } from "@react-three/drei";
+import * as THREE from 'three'
+
 
 
 export default function Arcade() {
+
+
+    const [ clicked, setClicked ] = useState(false);
+    const markerRef = useRef();
+    const vec = new THREE.Vector3()
+
+    useFrame(state => {
+        if (clicked) {
+            state.camera.lookAt(markerRef.current.position)
+            state.camera.position.lerp(vec.set(3,3,3), 0.01)
+            state.camera.updateProjectionMatrix()
+        }
+        return null;
+    })
+
+
     const arcade = useGLTF(
         "/model9.glb"
         )
@@ -12,7 +32,15 @@ export default function Arcade() {
         <Environment preset="warehouse" />
 
         <PresentationControls >
-            <primitive object={arcade.scene} position-y={-2}>
+            <primitive 
+            object={arcade.scene} 
+            position-y={-2}
+            ref={markerRef}
+            onClick= {() => setClicked(!clicked)}
+
+            
+            >
+
                 <Html 
                 occlude
                 wrapperClass='arcade' 
