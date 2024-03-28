@@ -14,9 +14,10 @@ export default function Arcade() {
     const vec = new THREE.Vector3()
 
     useFrame(state => {
+        state.camera.lookAt(0,1,1)
+        
         if (clicked) {
-            state.camera.lookAt(markerRef.current.position)
-            state.camera.position.lerp(vec.set(3,3,3), 0.01)
+            state.camera.position.lerp(vec.set(0,3,3), 0.1)
             state.camera.updateProjectionMatrix()
         }
         return null;
@@ -31,12 +32,11 @@ export default function Arcade() {
         <>
         <Environment preset="warehouse" />
 
-        <PresentationControls >
-            <primitive 
+            <primitive
             object={arcade.scene} 
             position-y={-2}
             ref={markerRef}
-            onClick= {() => setClicked(!clicked)}
+            onClick = {() => setClicked(!clicked)}
 
             
             >
@@ -52,7 +52,6 @@ export default function Arcade() {
                     <iframe src="https://www.nytimes.com/games/wordle"/>
                 </Html>
             </primitive>
-        </PresentationControls>
        </>
     )
 };
