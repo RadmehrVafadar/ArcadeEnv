@@ -9,14 +9,14 @@ import * as THREE from 'three'
 export default function Arcade() {
 
 
-    const [ clicked, setClicked ] = useState(false);
+    const [ hovered, setHovered ] = useState(false);
     const markerRef = useRef();
     const vec = new THREE.Vector3()
 
     useFrame(state => {
         state.camera.lookAt(0,1,1)
         
-        if (clicked) {
+        if (hovered) {
             state.camera.position.lerp(vec.set(0,3,3), 0.1)
             state.camera.updateProjectionMatrix()
         }
@@ -36,8 +36,7 @@ export default function Arcade() {
             object={arcade.scene} 
             position-y={-2}
             ref={markerRef}
-            onClick = {() => setClicked(!clicked)}
-
+            onPointerOver={() => setHovered(true)}
             
             >
 
