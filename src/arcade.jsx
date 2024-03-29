@@ -17,7 +17,7 @@ export default function Arcade() {
         state.camera.lookAt(0,1,1)
         
         if (hovered) {
-            state.camera.position.lerp(vec.set(0,3,3), 0.1)
+            state.camera.position.lerp(vec.set(0,3,3), 0.05)
             state.camera.updateProjectionMatrix()
         }
         return null;
