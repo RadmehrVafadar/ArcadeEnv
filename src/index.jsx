@@ -9,7 +9,7 @@ const root = ReactDom.createRoot(document.querySelector("#root"));
 root.render(
       <Canvas
     camera={{
-      fov: 60,
+      fov: 70,
       near: 0.1,
       far: 2000,
       position: [0, 3, 8],

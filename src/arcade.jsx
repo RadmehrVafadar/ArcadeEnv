@@ -7,8 +7,6 @@ import * as THREE from 'three'
 
 
 export default function Arcade() {
-
-
     const [ hovered, setHovered ] = useState(false);
     const markerRef = useRef();
     const vec = new THREE.Vector3()
@@ -30,7 +28,7 @@ export default function Arcade() {
 
     return (
         <>
-        <Environment preset="warehouse" />
+        <Environment preset='warehouse'/>
 
             <primitive
             object={arcade.scene} 
