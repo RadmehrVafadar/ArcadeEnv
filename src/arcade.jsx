@@ -1,7 +1,7 @@
 import {useState, useRef} from 'react';
 import { useFrame } from '@react-three/fiber';
 import React from 'react';
-import { Html, Environment, PresentationControls, useGLTF } from "@react-three/drei";
+import { Html, Environment, PresentationControls, useGLTF, CameraControls } from "@react-three/drei";
 import * as THREE from 'three'
 
 
@@ -30,27 +30,29 @@ export default function Arcade() {
 
     return (
         <>
-        <Environment preset="warehouse" />
-
-            <primitive
-            object={arcade.scene} 
-            position-y={-2}
-            ref={markerRef}
-            onPointerOver={() => setHovered(true)}
-            
+        
+        <spotLight position={[0, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
+        
+        
+        <primitive
+        object={arcade.scene} 
+        position-y={-2}
+        ref={markerRef}
+        onPointerOver={() => setHovered(true)}
             >
 
-                <Html 
-                occlude
-                wrapperClass='arcade' 
-                position={[0, 2.83, 0.7]} 
-                transform 
-                distanceFactor={1.12}
-                rotation-x={-0.75}
-                >
-                    <iframe src="https://www.nytimes.com/games/wordle"/>
-                </Html>
-            </primitive>
+            <Html 
+            occlude
+            wrapperClass='arcade' 
+            position={[0, 2.83, 0.7]} 
+            transform 
+            distanceFactor={1.12}
+            rotation-x={-0.75}
+            >
+            <iframe src="https://www.nytimes.com/games/wordle"/>
+            </Html>
+        </primitive>
+       
        </>
     )
 };
