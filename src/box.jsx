@@ -7,14 +7,14 @@ export default function Box(){
 
     const texture = useTexture("/media/cube.png")
 
-    function myBox(xPosition) {
+    function myBox(xPosition, yPosition=2) {
         const max = 0.7
         const min = 0.1
        const randomNum = Math.random() * (max - min) + min;
 
         return (
         <Float speed={6} rotationIntensity={0}>
-            <mesh position={[xPosition, 3, 2]} rotation-y={randomNum} >
+            <mesh position={[xPosition, yPosition, 2]} rotation-y={randomNum} >
                 <meshStandardMaterial map={texture}/>  
                 <boxGeometry args={[1,1,1]}/>            
             </mesh>
@@ -23,8 +23,8 @@ export default function Box(){
     }
 
     const boxes = [
-        myBox(-2),
-        myBox(2.5)
+        myBox(-2, 3),
+        myBox(2.5, )
     ];
 
 
