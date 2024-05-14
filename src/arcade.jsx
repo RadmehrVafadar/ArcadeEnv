@@ -46,7 +46,7 @@ export default function Arcade() {
             distanceFactor={1.12}
             rotation-x={-0.75}
             >
-            <iframe src="https://www.nytimes.com/games/wordle"/>
+            <iframe src="http://localhost:5173/"/>
             </Html>
         </primitive>
        
