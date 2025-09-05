@@ -1,4 +1,4 @@
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import { useFrame } from '@react-three/fiber';
 import React from 'react';
 import { Html, Environment, PresentationControls, useGLTF, CameraControls } from "@react-three/drei";
@@ -26,6 +26,18 @@ export default function Arcade() {
         "/model9.glb"
         )
 
+    // Enable shadows on all meshes in the arcade model
+    useEffect(() => {
+        if (arcade.scene) {
+            arcade.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+        }
+    }, [arcade.scene]);
+
     return (
         <>
         
@@ -36,6 +48,8 @@ export default function Arcade() {
         position-y={-2}
         ref={markerRef}
         onPointerOver={() => setHovered(true)}
+        castShadow
+        receiveShadow
             >
 
             <Html 
@@ -46,7 +60,7 @@ export default function Arcade() {
             distanceFactor={1.12}
             rotation-x={-0.75}
             >
-            <iframe src="http://localhost:5173/"/>
+            <iframe src="http://localhost:5174/"/>
             </Html>
         </primitive>
        
