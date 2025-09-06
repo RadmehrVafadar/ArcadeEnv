@@ -63,7 +63,7 @@ root.render(
     
     {/* Ground plane to receive shadows */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-      <planeGeometry args={[30, 30]} />
+      <planeGeometry args={[50, 20]} />
       <meshStandardMaterial 
         color="#051821" 
         transparent 
