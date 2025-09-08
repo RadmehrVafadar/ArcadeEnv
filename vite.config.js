@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// If deploying to https://<USER>.github.io/<REPO>/, set base to '/<REPO>/'
-// This project folder name appears to be 'arcadeEnv'
+// Vercel serves at the root path; use default base '/'
 export default defineConfig({
   plugins: [react()],
-  base: '/arcadeEnv/',
+  base: '/',
 })
 
 
