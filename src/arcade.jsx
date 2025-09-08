@@ -23,7 +23,7 @@ export default function Arcade() {
 
 
     const arcade = useGLTF(
-        "/model9.glb"
+        import.meta.env.BASE_URL + "model9.glb"
         )
 
     // Enable shadows on all meshes in the arcade model
@@ -37,6 +37,9 @@ export default function Arcade() {
             });
         }
     }, [arcade.scene]);
+
+    const isDev = import.meta.env.DEV;
+    const iframeSrc = (import.meta.env.VITE_IFRAME_URL && String(import.meta.env.VITE_IFRAME_URL)) || "https://portfolio-website-omega-flame.vercel.app/";
 
     return (
         <>
@@ -60,7 +63,7 @@ export default function Arcade() {
             distanceFactor={1.12}
             rotation-x={-0.75}
             >
-            <iframe src="https://portfolio-website-omega-flame.vercel.app/"/>
+            <iframe src={iframeSrc}/>
             </Html>
         </primitive>
        

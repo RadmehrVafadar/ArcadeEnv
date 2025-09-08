@@ -5,7 +5,7 @@ import React from 'react';
 
 export default function Box(){
 
-    const texture = useTexture("/media/cube.png")
+    const texture = useTexture(new URL('../media/cube.png', import.meta.url).href)
 
     function myBox(xPosition, yPosition=2) {
         const max = 0.7
