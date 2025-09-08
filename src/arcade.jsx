@@ -39,7 +39,7 @@ export default function Arcade() {
     }, [arcade.scene]);
 
     const isDev = import.meta.env.DEV;
-    const iframeSrc = (import.meta.env.VITE_IFRAME_URL && String(import.meta.env.VITE_IFRAME_URL)) || (isDev ? "http://localhost:5174/" : "https://portfolio-website-omega-flame.vercel.app/");
+    const iframeSrc = (import.meta.env.VITE_IFRAME_URL && String(import.meta.env.VITE_IFRAME_URL)) || "https://portfolio-website-omega-flame.vercel.app/";
 
     return (
         <>
