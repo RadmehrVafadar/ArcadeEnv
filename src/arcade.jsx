@@ -60,7 +60,7 @@ export default function Arcade() {
             distanceFactor={1.12}
             rotation-x={-0.75}
             >
-            <iframe src="http://localhost:5174/"/>
+            <iframe src="https://portfolio-website-omega-flame.vercel.app/"/>
             </Html>
         </primitive>
        
