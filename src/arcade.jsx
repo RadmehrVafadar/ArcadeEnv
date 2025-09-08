@@ -23,7 +23,7 @@ export default function Arcade() {
 
 
     const arcade = useGLTF(
-        "/model9.glb"
+        import.meta.env.BASE_URL + "model9.glb"
         )
 
     // Enable shadows on all meshes in the arcade model
