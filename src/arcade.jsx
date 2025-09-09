@@ -1,15 +1,46 @@
 import {useState, useRef, useEffect} from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import React from 'react';
 import { Html, Environment, PresentationControls, useGLTF, CameraControls } from "@react-three/drei";
 import * as THREE from 'three'
 
+// Mobile detection utility
+const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+};
 
+
+
+// Fullscreen invisible mesh component for mobile clicks
+function MobileClickHandler({ onMobileClick }) {
+    const { size } = useThree();
+    
+    if (!isMobile()) return null;
+    
+    return (
+        <mesh 
+            position={[0, 0, 0]}
+            onClick={onMobileClick}
+            onPointerDown={onMobileClick} // Also handle touch events
+        >
+            <planeGeometry args={[100, 100]} />
+            <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+    );
+}
 
 export default function Arcade() {
     const [ hovered, setHovered ] = useState(false);
     const markerRef = useRef();
     const vec = new THREE.Vector3()
+    
+    // Handler for mobile clicks
+    const handleMobileClick = () => {
+        if (isMobile()) {
+            setHovered(true);
+        }
+    };
 
     useFrame(state => {
         state.camera.lookAt(0,1,1)
@@ -43,14 +74,14 @@ export default function Arcade() {
 
     return (
         <>
-        
-        
+        {/* Mobile click handler - invisible fullscreen mesh for mobile devices */}
+        <MobileClickHandler onMobileClick={handleMobileClick} />
         
         <primitive
         object={arcade.scene} 
         position-y={-2}
         ref={markerRef}
-        onPointerOver={() => setHovered(true)}
+        onPointerOver={() => !isMobile() && setHovered(true)}
         castShadow
         receiveShadow
             >
