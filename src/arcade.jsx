@@ -82,6 +82,7 @@ export default function Arcade() {
         position-y={-2}
         ref={markerRef}
         onPointerOver={() => !isMobile() && setHovered(true)}
+        onPointerOut={() => !isMobile() && setHovered(false)}
         castShadow
         receiveShadow
             >
