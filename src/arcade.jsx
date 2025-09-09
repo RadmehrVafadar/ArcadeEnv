@@ -46,13 +46,9 @@ export default function Arcade() {
         state.camera.lookAt(0,1,1)
         
         if (hovered) {
-            // Zoom in when hovered
             state.camera.position.lerp(vec.set(0,3,3), 0.05)
-        } else {
-            // Zoom out to original position when not hovered
-            state.camera.position.lerp(vec.set(0,3,8), 0.05)
+            state.camera.updateProjectionMatrix()
         }
-        state.camera.updateProjectionMatrix()
         return null;
     })
 
