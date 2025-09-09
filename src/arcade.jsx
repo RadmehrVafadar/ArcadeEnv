@@ -4,10 +4,18 @@ import React from 'react';
 import { Html, Environment, PresentationControls, useGLTF, CameraControls } from "@react-three/drei";
 import * as THREE from 'three'
 
+// Mobile detection utility
+const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           (window.innerWidth <= 768) || 
+           ('ontouchstart' in window);
+}
+
 
 
 export default function Arcade() {
     const [ hovered, setHovered ] = useState(false);
+    const [ isMobileDevice ] = useState(isMobile());
     const markerRef = useRef();
     const vec = new THREE.Vector3()
 
@@ -38,6 +46,32 @@ export default function Arcade() {
         }
     }, [arcade.scene]);
 
+    // Mobile click handler - add event listener for mobile devices
+    useEffect(() => {
+        if (isMobileDevice) {
+            const handleMobileClick = (event) => {
+                // Prevent default behavior and trigger hover state
+                event.preventDefault();
+                setHovered(true);
+                
+                // Optional: Reset hover state after animation completes
+                setTimeout(() => {
+                    setHovered(false);
+                }, 3000); // Adjust timing as needed
+            };
+
+            // Add click listener to the entire document
+            document.addEventListener('click', handleMobileClick);
+            document.addEventListener('touchstart', handleMobileClick);
+
+            // Cleanup
+            return () => {
+                document.removeEventListener('click', handleMobileClick);
+                document.removeEventListener('touchstart', handleMobileClick);
+            };
+        }
+    }, [isMobileDevice]);
+
     const isDev = import.meta.env.DEV;
     const iframeSrc = (import.meta.env.VITE_IFRAME_URL && String(import.meta.env.VITE_IFRAME_URL)) || "https://portfolio-website-omega-flame.vercel.app/";
 
@@ -50,7 +84,7 @@ export default function Arcade() {
         object={arcade.scene} 
         position-y={-2}
         ref={markerRef}
-        onPointerOver={() => setHovered(true)}
+        onPointerOver={() => !isMobileDevice && setHovered(true)}
         castShadow
         receiveShadow
             >
