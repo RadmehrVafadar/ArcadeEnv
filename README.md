@@ -13,7 +13,7 @@ A stunning 3D arcade environment built with React Three Fiber, featuring dynamic
 
 ## 🚀 Live Demo
 
-Visit the live deployment: [https://portfolio-website-omega-flame.vercel.app/](https://portfolio-website-omega-flame.vercel.app/)
+Visit the live deployment: [https://portfolio-website-omega-flame.vercel.app/](https://arcade-env.vercel.app/)
 
 ## 🛠️ Tech Stack
 
