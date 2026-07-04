@@ -1,11 +1,11 @@
 import "./style.css";
-import React from "react";
-import ReactDom from "react-dom/client"
+import React, { Suspense } from "react";
+import ReactDom from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
-import { Clouds, Cloud, Backdrop } from "@react-three/drei";
-import * as THREE from 'three';
+import { Clouds, Cloud } from "@react-three/drei";
+import * as THREE from "three";
 import Arcade from "./arcade.jsx";
-import Box from './box.jsx'
+import Box from "./box.jsx";
 
 // Cloud configuration - change these values to modify all clouds
 const cloudConfig = {
@@ -21,7 +21,10 @@ const cloudConfig = {
 const root = ReactDom.createRoot(document.querySelector("#root"));
 
 root.render(
-      <Canvas
+  <Canvas
+    shadows
+    dpr={[1, 1.5]}
+    gl={{ antialias: true, powerPreference: "high-performance" }}
     camera={{
       fov: 50,
       near: 0.1,
@@ -29,28 +32,27 @@ root.render(
       position: [0, 3, 8],
     }}
   >
+    <Suspense fallback={null}>
+      <Box />
+      <Arcade />
+      <Clouds material={THREE.MeshBasicMaterial}>
+        <Cloud
+          seed={1}
+          scale={cloudConfig.scale}
+          volume={cloudConfig.volume}
+          color={cloudConfig.color}
+          fade={cloudConfig.fade}
+          opacity={cloudConfig.opacity}
+          position={[0, cloudConfig.yPosition, cloudConfig.zPosition]}
+        />
+      </Clouds>
+    </Suspense>
 
-    <Box />
-    <Arcade />
-    <Clouds material={THREE.MeshBasicMaterial}>
-      <Cloud 
-      seed={1} 
-      scale={cloudConfig.scale} 
-      volume={cloudConfig.volume} 
-      color={cloudConfig.color} 
-      fade={cloudConfig.fade} 
-      opacity={cloudConfig.opacity}
-      position={[0, cloudConfig.yPosition, cloudConfig.zPosition]}
-      />
-    </Clouds>
-
-
-    
-    <spotLight 
-      position={[0, 20, 10]} 
-      angle={0.15} 
-      penumbra={1} 
-      decay={0} 
+    <spotLight
+      position={[0, 20, 10]}
+      angle={0.15}
+      penumbra={1}
+      decay={0}
       intensity={Math.PI}
       castShadow
       shadow-mapSize={[1024, 1024]}
@@ -60,18 +62,17 @@ root.render(
       shadow-camera-top={10}
       shadow-camera-bottom={-10}
     />
-    
+
     {/* Ground plane to receive shadows */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
       <planeGeometry args={[50, 20]} />
-      <meshStandardMaterial 
-        color="#051821" 
-        transparent 
+      <meshStandardMaterial
+        color="#051821"
+        transparent
         opacity={0.1}
         roughness={0.7}
-        metalness={10}
+        metalness={0.1}
       />
     </mesh>
   </Canvas>
-
 );
