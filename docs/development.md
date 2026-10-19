@@ -30,12 +30,24 @@ The external override project uses a separate dev server and intercepts only its
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, scene loading, zoom, and browser errors.
 Screenshots and failure traces are saved under ignored `test-results/`.
 
+`.github/workflows/check.yml` runs two parallel jobs for each opened or reopened pull request and whenever commits are pushed to it.
+The `Quality` job runs `npm run lint` and `npm run typecheck`.
+The `Tests` job installs Chromium with its system dependencies, runs `npm run build`, then runs all tests with `npm test`.
+Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
+Together, they run the same checks as local `npm run check`, keeping builds and their consuming tests in one job.
+New commits cancel an older run for the same pull request.
+Failed runs upload available browser screenshots and traces as the `browser-test-results` artifact, retained for seven days.
+After committing and pushing the workflow, results appear in the pull request's Checks tab.
+To require passing checks before merging, configure a GitHub branch ruleset for `master` that requires both the `Quality` and `Tests` status checks.
+Replace the former `Lint, types, build, and tests` required check with these two names if it was already configured.
+
 ## Key files
 
 - `package.json` and `package-lock.json` - commands, workspaces, and locked resolutions.
 - `scripts/dev.mjs` - development server lifecycle.
 - `scripts/assemble.mjs` - combined build output.
 - `playwright.config.js` - development, production, and override browser projects.
+- `.github/workflows/check.yml` - automatic pull request verification.
 - `tests/` - launcher and integration regressions.
 - `apps/arcade/eslint.config.js` and `apps/portfolio/.eslintrc.cjs` - separate app lint rules.
 
