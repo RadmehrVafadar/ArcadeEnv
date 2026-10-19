@@ -1,6 +1,30 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('game supports WASD movement and stops on key release', async ({ page }) => {
+  const position = () => page.locator('.character').evaluate(element => {
+    const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+    return { x: transform.m41, y: transform.m42 };
+  });
+  for (const [key, axis, sign] of [['w', 'y', -1], ['a', 'x', -1], ['s', 'y', 1], ['d', 'x', 1]]) {
+    await page.goto('/portfolio/src/portfolio-game/game.html');
+    const character = page.locator('.character');
+    await expect(character).toBeVisible();
+    await expect(page.locator('.dialogueBox')).toContainText('WASD');
+    const initial = (await position())[axis];
+    await page.keyboard.down(key);
+    try {
+      await expect.poll(async () => ((await position())[axis] - initial) * sign).toBeGreaterThan(0);
+    } finally {
+      await page.keyboard.up(key);
+    }
+    await expect(character).toHaveAttribute('walking', 'false');
+    const stopped = await position();
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(await position()).toEqual(stopped);
+  }
+});
+
 test('portfolio menu buttons have no underlines', async ({ page, isMobile }, testInfo) => {
   await page.goto('/portfolio/');
   await page.screenshot({ path: testInfo.outputPath('portfolio-menu.png') });

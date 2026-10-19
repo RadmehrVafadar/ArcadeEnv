@@ -10,7 +10,8 @@ Movement and proximity interactions let visitors explore the existing portfolio 
 
 `game.html` supplies the map, character, directional buttons, dialogue, and interaction prompt.
 `game.js` tracks held directions and updates the character and camera using `requestAnimationFrame`.
-Arrow keys and the on-screen directional buttons drive movement.
+Arrow keys, WASD, and the on-screen directional buttons drive movement.
+WASD works with either letter case, and releasing one keyboard alias keeps movement active while another key for that direction remains held.
 The player remains inside map limits and cannot enter statue rectangles.
 Statue coordinates are normalized so reversed rectangle endpoints work.
 An inflated rectangle controls each exhibit's interaction range.
@@ -34,7 +35,7 @@ CSS custom properties control pixel scaling at viewport breakpoints.
 ## Decisions and gotchas
 
 Movement is measured per frame, so speed depends on display refresh rate.
-The current controls do not implement WASD or touch buttons for reading and opening exhibits.
+The current controls do not implement touch buttons for reading and opening exhibits.
 Touch controls register press events but have no dedicated touch-release handler.
 These existing limitations are outside the cleanup scope.
 
