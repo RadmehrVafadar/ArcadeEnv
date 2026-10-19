@@ -124,10 +124,10 @@ const placeCharacter = () => {
    if (held_direction) {
       var dx = 0;
       var dy = 0;
-      if (held_direction === directions.left) { dx += speed; }
-      if (held_direction === directions.right) { dx -= speed; }
-      if (held_direction === directions.up) { dy += speed; }
-      if (held_direction === directions.down) { dy -= speed; }
+      if (held_direction === directions.left) { dx -= speed; }
+      if (held_direction === directions.right) { dx += speed; }
+      if (held_direction === directions.up) { dy -= speed; }
+      if (held_direction === directions.down) { dy += speed; }
 
       // Attempt horizontal move if not colliding with any statue
       if (dx !== 0) {
@@ -236,14 +236,14 @@ const directions = {
    right: "right",
 }
 const keys = {
-   40: directions.up,
-   39: directions.left,
-   37: directions.right,
-   38: directions.down,
-   87: directions.down,
-   65: directions.right,
-   83: directions.up,
-   68: directions.left,
+   40: directions.down,
+   39: directions.right,
+   37: directions.left,
+   38: directions.up,
+   87: directions.up,
+   65: directions.left,
+   83: directions.down,
+   68: directions.right,
 }
 const held_keys = new Set();
 document.addEventListener("keydown", (e) => {

@@ -14,11 +14,14 @@ function loadGame() {
     body: { addEventListener() {} },
     querySelector(selector) {
       if (!elements.has(selector)) {
-        elements.set(selector, { style: {}, setAttribute() {}, addEventListener() {} });
+        elements.set(selector, { style: {}, attributes: {}, classList: { add() {}, remove() {} }, setAttribute(name, value) { this.attributes[name] = value; }, addEventListener() {} });
       }
       return elements.get(selector);
     },
     addEventListener(name, handler) { listeners.set(name, handler); },
+    querySelectorAll() {
+      return [...elements].filter(([name]) => name.startsWith('.dpad-')).map(([, element]) => element);
+    },
   };
   const game = {
     document,
@@ -66,6 +69,16 @@ test('WASD and arrow keys move in every direction and stop on release', () => {
     listeners.get('keyup')({ which, key });
     runInNewContext('placeCharacter()', game);
     assert.equal(game[axis], initial + delta, `${key} release`);
+  }
+});
+
+test('directional buttons move and face the character toward their arrows', () => {
+  for (const [direction, axis, delta] of [['up', 'y', -2], ['down', 'y', 2], ['left', 'x', -2], ['right', 'x', 2]]) {
+    const { game, elements } = loadGame();
+    const initial = game[axis];
+    runInNewContext(`handleDpadPress('${direction}', true); placeCharacter()`, game);
+    assert.equal(game[axis], initial + delta, direction);
+    assert.equal(elements.get('.character').attributes.facing, direction);
   }
 });
 

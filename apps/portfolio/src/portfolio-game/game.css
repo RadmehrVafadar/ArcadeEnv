@@ -77,13 +77,13 @@ body {
    height: calc( var(--grid-cell)* 2 );
 }
 
-.character[facing="right"] .character_spritesheet {
+.character[facing="left"] .character_spritesheet {
    background-position-y: calc( var(--pixel-size) * -32 );
 }
-.character[facing="up"] .character_spritesheet {
+.character[facing="down"] .character_spritesheet {
    background-position-y: calc( var(--pixel-size) * -64 );
 }
-.character[facing="left"] .character_spritesheet {
+.character[facing="right"] .character_spritesheet {
    background-position-y: calc( var(--pixel-size) * -96 );
 }
 .character[walking="true"] .character_spritesheet {
