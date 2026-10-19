@@ -1,4 +1,4 @@
-# Arcade Environment + Portfolio
+# Rad's Portfolio
 
 A 3D arcade cabinet wraps Radmehr Vafadar's portfolio in one npm workspace and deployment.
 
