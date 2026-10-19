@@ -1,6 +1,22 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('portfolio menu buttons have no underlines', async ({ page, isMobile }, testInfo) => {
+  await page.goto('/portfolio/');
+  await page.screenshot({ path: testInfo.outputPath('portfolio-menu.png') });
+  for (const name of ['Start', 'Blog', 'Resume']) {
+    const link = page.getByRole('link', { name, exact: true });
+    await expect(link).toHaveCSS('text-decoration-line', 'none');
+    await link.focus();
+    await expect(link).toBeFocused();
+    await expect(link).toHaveCSS('text-decoration-line', 'none');
+    if (!isMobile) {
+      await link.hover();
+      await expect(link).toHaveCSS('text-decoration-line', 'none');
+    }
+  }
+});
+
 test('embedded portfolio navigates, loads the game, exits, and downloads the resume', async ({ page, context, request, isMobile }, testInfo) => {
   test.setTimeout(60000);
   const errors = [];
