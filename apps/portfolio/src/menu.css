@@ -1,0 +1,44 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+    position: fixed;
+    margin: auto; 
+    top: 0; 
+    right: 0; 
+    bottom: 0; 
+    left: 0; 
+    width: fit-content;
+    height: fit-content;
+    display: flex; 
+    flex-direction: row; 
+    justify-content: center;
+    align-items: center; 
+}
+
+.button {
+    margin-left: 1.3em;
+    border-radius: 9px;
+    font-family: 'Arcade Interlaced', cursive; 
+    font-size: 52px;
+    background: -webkit-linear-gradient(rgb(255, 98, 0) 40%, yellow 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.button:hover {
+  transform: scale(1.2); 
+}
+
+@media (max-width: 960px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .button {
+    margin-top: 1em;
+    margin-left: 0;
+  }
+}

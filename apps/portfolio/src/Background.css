@@ -1,0 +1,81 @@
+*{
+  margin: 0;
+  padding: 0;
+  z-index: -1;
+}
+
+.app-container {
+  position: fixed; 
+  top: 0; 
+  right: 0; 
+  bottom: 0; 
+  left: 0; 
+  background: linear-gradient(0deg, var(--myColor1)0%, var(--myColor2) 40%);
+  transition: --myColor1 1s, --myColor2 1s;
+}
+
+@property --myColor1 {
+  syntax: '<color>';
+  initial-value: rgba(34,91,195,1);
+  inherits: false;
+}
+
+@property --myColor2 {
+  syntax: '<color>';
+  initial-value: rgb(32, 133, 180);
+  inherits: false;
+}
+
+.night {
+  --myColor1: rgba(3,5,99,1);
+  --myColor2: rgba(11,12,15,1);
+}
+
+.sphear {
+  position: absolute;
+  left: 50px;
+  top: 50px;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+  border-radius: 50%;
+  background-color: rgb(252,189,70,1);
+  color: rgba(255, 255, 255, 0.2); /* semi-transparent white text */
+  transition:
+  background-color 0.5s ease-in-out, 
+  left 0.5s ease-in-out;
+}
+
+.moon {
+  background-color: rgb(78, 78, 77);
+  left: calc(100% - 150px)
+
+}
+
+.sun {
+  background-color: rgb(252,189,70,1);
+  left: 50px;
+}
+
+.clouds {
+  position: absolute;
+  background-image: url('./assets/clouds.png');
+  animation: animateBG 25s linear infinite;
+  background-size: 1000px;
+  width: 100%;
+  height: 40%;
+  bottom: 0px;
+}
+
+@keyframes animateBG 
+{
+  0%
+  {
+    background-position-x: 1000px;
+  }
+}
+
+
+
