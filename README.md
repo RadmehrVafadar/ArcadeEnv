@@ -1,40 +1,39 @@
-# Arcade Environment
+# Arcade Environment + Portfolio
 
-A React Three Fiber scene with a floating arcade cabinet and an embedded portfolio.
-
-[Live demo](https://arcade-env.vercel.app/)
+A 3D arcade cabinet wraps Radmehr Vafadar's portfolio in one npm workspace and deployment.
 
 ## Features
 
-- Interactive portfolio displayed inside a 3D arcade cabinet.
-- Camera zoom on desktop hover or a mobile scene tap.
-- Animated textured cubes and configurable magenta clouds.
-- Full-window canvas with a dark gradient background.
+- Arcade scene at `/` with hover and touch camera zoom.
+- Included portfolio at `/portfolio/` inside the cabinet screen.
+- Pixel-art showcase game, blog placeholder, and resume PDF.
+- One install, development command, build, and deployment.
 
 ## Quick start
 
-Use an active Node.js LTS release and npm.
+Use an active Node.js LTS release with npm.
 
 ```bash
-git clone https://github.com/RadmehrVafadar/ArcadeEnv.git
-cd ArcadeEnv
 npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite.
-The screen loads the deployed portfolio by default.
-Set `VITE_IFRAME_URL` in `.env.local` to embed another site or a local portfolio server.
+Open http://127.0.0.1:5173/ for the cabinet or http://127.0.0.1:5173/portfolio/ for the portfolio.
+The launcher starts both apps and proxies portfolio requests and hot reload through the arcade server.
+Set `VITE_IFRAME_URL` in root `.env.local` to embed an external site instead.
 
-```dotenv
-VITE_IFRAME_URL=http://localhost:5174/
+```bash
+npm run build
+npm run preview
 ```
 
-Build with `npm run build` and preview the output with `npm run preview`.
-Run `npx playwright install chromium` once, then `npm run check` to lint, build, and test desktop and mobile rendering.
-On Windows PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
+Deploy root `dist/` at the domain root using `npm run build` as the build command.
+`npm run deploy` builds and publishes the same combined output using gh-pages.
+Install Chromium once with `npx playwright install chromium`, then run `npm run check` for all checks.
+On PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
 
 ## Docs
 
-- [Scene](docs/scene.md) - assets, animation, styling, and embedded content.
-- [Development](docs/development.md) - checks, deployment, and known limitations.
+- [Development](docs/development.md) - commands, testing, deployment, and import provenance.
+- [Scene](docs/scene.md) - cabinet rendering and iframe configuration.
+- [Portfolio](apps/portfolio/README.md) - landing page, game, and content.

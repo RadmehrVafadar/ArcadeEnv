@@ -5,6 +5,15 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  envDir: '../..',
+  server: {
+    proxy: {
+      '/portfolio/': {
+        target: `http://127.0.0.1:${process.env.PORTFOLIO_PORT || 5174}`,
+        ws: true,
+      },
+    },
+  },
 })
 
 

@@ -4,23 +4,23 @@ The scene presents a portfolio iframe inside a textured 3D arcade cabinet.
 
 ## Why
 
-The cabinet provides the presentation layer while the embedded portfolio remains independently hosted.
+The cabinet provides the presentation layer while the embedded portfolio is a separate workspace app served by the same deployment.
 
 ## How it works
 
-`src/index.jsx` mounts a full-window Canvas containing the cabinet, two floating cubes, a cloud, a spotlight, and a ground plane.
+`apps/arcade/src/index.jsx` mounts a full-window Canvas containing the cabinet, two floating cubes, a cloud, a spotlight, and a ground plane.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
 Devices identified by a mobile user agent or multiple touch points activate the same zoom through an invisible scene-sized tap plane.
 
-`src/arcade.jsx` loads `public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
-`VITE_IFRAME_URL` overrides the default `https://portfolio-website-omega-flame.vercel.app/` at build time.
+`apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
+`VITE_IFRAME_URL` overrides the default `/portfolio/` at build time, using root `.env.local` or the process environment.
 This URL is public configuration, so do not put secrets in it.
 
-`src/box.jsx` loads `media/cube.png` through Vite and animates two cubes with Drei Float.
+`apps/arcade/src/box.jsx` loads `apps/arcade/media/cube.png` through Vite and animates two cubes with Drei Float.
 Each cube keeps its initial random rotation across rerenders.
-The `cloudConfig` object in `src/index.jsx` controls the magenta cloud's dimensions, density, opacity, and position.
-`src/style.css` controls the dark gradient and the iframe's internal dimensions.
+The `cloudConfig` object in `apps/arcade/src/index.jsx` controls the magenta cloud's dimensions, density, opacity, and position.
+`apps/arcade/src/style.css` controls the dark gradient and the iframe's internal dimensions.
 
 ## Tech
 
@@ -29,12 +29,12 @@ Drei provides GLTF and texture loading, clouds, floating animation, and the HTML
 
 ## Key files
 
-- `src/index.jsx` - renderer, cloud settings, lighting, and ground.
-- `src/arcade.jsx` - model, camera interaction, and portfolio iframe.
-- `src/box.jsx` - textured floating cubes.
-- `src/style.css` - viewport layout, background, and screen sizing.
-- `public/model9.glb` - arcade model.
-- `media/cube.png` - bundled cube texture.
+- `apps/arcade/src/index.jsx` - renderer, cloud settings, lighting, and ground.
+- `apps/arcade/src/arcade.jsx` - model, camera interaction, and portfolio iframe.
+- `apps/arcade/src/box.jsx` - textured floating cubes.
+- `apps/arcade/src/style.css` - viewport layout, background, and screen sizing.
+- `apps/arcade/public/model9.glb` - arcade model.
+- `apps/arcade/media/cube.png` - bundled cube texture.
 
 ## Decisions and gotchas
 

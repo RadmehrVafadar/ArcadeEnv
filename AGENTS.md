@@ -1,47 +1,51 @@
-# Arcade Environment
+# Arcade Environment + Portfolio
 
-An interactive 3D arcade scene wraps an external portfolio in an embedded screen.
-Keep scene behavior and the portfolio URL configurable without coupling this repository to the portfolio implementation.
-Stack: JavaScript, JSX, React, React Three Fiber, Drei, Three.js, Vite.
+An npm workspace serves a 3D arcade at `/` and its included portfolio at `/portfolio/`.
+The apps retain independent tooling and ship as one static deployment.
+Stack: JavaScript, TypeScript, React, React Three Fiber, Drei, Three.js, Vite.
 
 ## Commands
 
 ```bash
-npm ci                              # Install locked dependencies
-npm run dev                         # Start the Vite development server
-npm run lint                        # Check JavaScript, JSX, and hook usage
-npx playwright install chromium     # Install the browser used by the test suite
-npm test                            # Run desktop and mobile browser tests
-npm test -- --grep "labels"          # Run a single named regression test
-npm run build                       # Build the production site into dist/
-npm run preview                     # Serve the production build locally
-npm run check                       # Run lint, production build, and browser tests
+npm ci                                  # Install both apps from the root lockfile
+npm run dev                             # Start both apps with portfolio and HMR proxying
+npm run lint                            # Lint root scripts and both apps
+npm run typecheck                       # Check portfolio TypeScript
+npx playwright install chromium         # Install browser for integration tests
+npm test                                # Launcher, game, production-route, and browser tests
+npm run test:browser -- --grep "labels"   # Run a single browser regression
+npm run build                           # Build both apps and assemble root dist/
+npm run preview                         # Serve combined dist/
+npm run check                           # Lint, types, build, and all tests
+npm run deploy                          # Build and publish combined dist/ using gh-pages
 ```
 
 On PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
+Build before running browser tests because they also serve root `dist/`.
 
 ## Repo map
 
 ```text
-src/           Scene components and global CSS
-public/        Arcade model copied unchanged into the build
-media/         Cube texture bundled by Vite
-tests/         Playwright desktop and mobile regression tests
-docs/          Scene and development documentation
+apps/arcade/      Cabinet scene and Vite/ESLint tooling
+apps/portfolio/   Landing page, game, blog, resume, and app tests
+scripts/         Development launcher and combined build assembly
+tests/           Lifecycle and desktop/mobile integration tests
+docs/            Workspace development and scene documentation
 ```
 
 ## Conventions
 
-- Preserve the cabinet, cube positions, cloud settings, and camera targets during cleanup to avoid accidental visual changes.
-- Use `import.meta.env.BASE_URL` for public assets and module-relative URLs for bundled assets so Vite resolves them correctly.
-- Keep `VITE_IFRAME_URL` as the portfolio override so deployments can select their embedded content.
-- Keep hooks unconditional and give mapped React elements stable keys to preserve component identity.
-- Reproduce bugs with a failing test before changing implementation, then keep that test in the suite.
-- Run lint, build, and browser tests after changes; inspect desktop and mobile screenshots for scene changes.
-- Update relevant docs with code changes and put each full Markdown sentence on its own line.
-- Leave changes staged and uncommitted unless explicitly asked to commit.
+- Preserve scene positions, cloud settings, camera targets, portfolio content, and game controls.
+- Keep one root lockfile and each app's existing tooling versions and lint configuration.
+- Use the portfolio Vite base for navigation and downloads so prefixed routes work.
+- Keep `VITE_IFRAME_URL` as an explicit override in the root environment.
+- Reproduce bugs with a failing regression test before changing implementation.
+- Run lint, types, builds, and browser tests; inspect desktop and mobile screenshots for scene changes.
+- Update relevant docs alongside code, with each full Markdown sentence on its own line.
+- Leave changes staged and uncommitted; the owner handles commits and merges.
 
 ## Docs
 
-- Before changing assets, camera behavior, iframe integration, or styling, read [Scene](docs/scene.md).
-- Before changing checks, dependencies, or deployment, read [Development](docs/development.md).
+- Before changing commands, dependencies, tests, or deployment, read [Development](docs/development.md).
+- Before changing scene assets, camera behavior, iframe integration, or styling, read [Scene](docs/scene.md).
+- Before changing portfolio pages or controls, read its [instructions](apps/portfolio/AGENTS.md) and linked app docs.

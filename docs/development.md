@@ -1,52 +1,61 @@
 # Development
 
-Vite builds the static site, ESLint checks source code, and Playwright verifies desktop and mobile browser behavior.
+Two npm workspace apps retain independent toolchains and ship one static site.
 
 ## Why
 
-The 3D renderer and transformed iframe need browser checks in addition to a successful production build.
+The cabinet and portfolio install, run, test, build, and deploy together without an external portfolio deployment.
 
 ## How it works
 
-Install dependencies with `npm ci` and Chromium with `npx playwright install chromium`.
-Run `npm run check` to lint, build, and execute browser tests.
-Use `npm test -- --project=desktop` or `npm test -- --project=mobile` to select a viewport.
-Use `npm test -- --grep "labels"` to run the iframe accessibility regression alone.
+Run `npm ci` at the repository root using the single root lockfile.
+`npm run dev` runs `scripts/dev.mjs`, starting portfolio Vite first and arcade Vite second in one Node process.
+The arcade listens at `127.0.0.1:5173` and proxies `/portfolio/`, including WebSocket upgrades, to `127.0.0.1:5174`.
+The portfolio HMR client connects through the arcade port at `/portfolio/__hmr`.
+Override ports with `npm run dev -- --port 5180 --portfolio-port 5181`; `--host 0.0.0.0` permits LAN access.
+Ports are strict, and the launcher closes both servers on interruption or startup failure.
+Root `.env.local` supplies arcade configuration, including `VITE_IFRAME_URL`.
 
-Playwright starts Vite on `127.0.0.1:4173` with a strict port and one worker to limit competing software WebGL contexts.
-Tests replace the external portfolio response with a local HTML fixture while loading the actual model, cube texture, and cloud texture.
-Screenshots are saved in the ignored `test-results/` directory for visual review.
-Failures retain browser traces and screenshots.
+`npm run build` builds each workspace into its own `dist/`, then `scripts/assemble.mjs` replaces root `dist/` with arcade output and copies portfolio output under `dist/portfolio/`.
+`npm run preview` serves that combined directory.
+Deploy at the domain root with build command `npm run build` and output directory `dist/`.
+Vercel and the retained `npm run deploy` gh-pages command use this combined output.
+Subdirectory deployment requires revisiting both route bases.
 
-`npm run build` writes `dist/`; `npm run preview` serves it locally.
-Vercel can build with `npm run build` and publish `dist/`.
-The retained `npm run deploy` command publishes `dist/` through gh-pages.
-The current Vite base is `/`; subdirectory hosting requires configuring an appropriate base path first.
-
-## Tech
-
-ESLint checks unused variables, mapped element keys, hook ordering, and effect dependencies.
-Playwright runs Chromium using desktop and Pixel viewport profiles with software WebGL.
+Install Chromium with `npx playwright install chromium`, then run `npm run check` for lint, portfolio types, both builds, launcher checks, game tests, production HTTP checks, and browser integration tests.
+`npm test` expects an existing root build; `npm run check` creates it first.
+Browser projects exercise development and production on desktop and Pixel mobile profiles using one worker and software WebGL.
+Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
+The external override project uses a separate dev server and intercepts only its external portfolio fixture.
+Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, scene loading, zoom, and browser errors.
+Screenshots and failure traces are saved under ignored `test-results/`.
 
 ## Key files
 
-- `package.json` - commands and dependency ranges.
-- `package-lock.json` - reproducible dependency resolution.
-- `eslint.config.js` - JavaScript and JSX checks.
-- `playwright.config.js` - browser projects and local server.
-- `tests/arcade.spec.js` - loading, accessibility, assets, and interaction checks.
-- `vite.config.js` - React plugin and root deployment base.
+- `package.json` and `package-lock.json` - commands, workspaces, and locked resolutions.
+- `scripts/dev.mjs` - development server lifecycle.
+- `scripts/assemble.mjs` - combined build output.
+- `playwright.config.js` - development, production, and override browser projects.
+- `tests/` - launcher and integration regressions.
+- `apps/arcade/eslint.config.js` and `apps/portfolio/.eslintrc.cjs` - separate app lint rules.
 
 ## Decisions and gotchas
 
-The existing Three.js dependency predates some transitive Drei requirements; installation reports peer warnings and the build reports a missing BatchedMesh export in an unused dependency path.
-The current scene renders in the browser tests, but dependency modernization requires compatibility testing beyond this cleanup.
-The cleanup baseline also reports 17 npm audit findings, including 12 high-severity findings; dependency security upgrades remain outstanding.
-The production bundle exceeds Vite's default chunk warning threshold because it includes the 3D renderer.
-Browser checks still require access to Drei's remote cloud texture.
-External portfolio behavior is outside this repository's test coverage.
-The README's former monorepo note did not define an implementation spec; this repository remains a standalone scene.
+Each app retains its existing tooling ranges and locked versions; no dependency modernization is included.
+Root lint configuration lives in `scripts/` so the portfolio's legacy ESLint config has no competing ancestor flat config.
+The existing Three.js dependency still produces a missing BatchedMesh export warning in an unused dependency path, and the arcade bundle still exceeds Vite's chunk warning threshold.
+Clouds and portfolio fonts require access to their existing external hosts.
+Existing dependency security findings remain outside this migration.
+
+The portfolio was imported from local `portfolio-website-rad` without history.
+Its source is [RadmehrVafadar/portfolio-website-rad](https://github.com/RadmehrVafadar/portfolio-website-rad) at commit `8991c8be3ced38466600de41666167abc7de2e0f`.
+All tracked files were SHA-256 verified before edits.
+Ignored `.local-backups/portfolio.git` retains its Git metadata, `.local-backups/portfolio-import.json` records its commit and hashes, and both original lockfiles are saved beside it.
+The original remote was not modified.
+Rollback consists of switching to the pre-migration branch; the ignored backup can restore the original clone separately.
+Do not publish `.local-backups/` or use it as deployment input.
 
 ## Related
 
 - [Scene](scene.md)
+- [Portfolio testing](../apps/portfolio/docs/testing.md)

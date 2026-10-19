@@ -1,12 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-test.beforeEach(async ({ page }) => {
-  // Keep the embedded site independent of its deployment and network availability.
-  await page.route('https://portfolio-website-omega-flame.vercel.app/**', route =>
-    route.fulfill({ contentType: 'text/html', body: '<h1>Portfolio fixture</h1>' }),
-  );
-});
-
 test('loads the arcade without application errors', async ({ page }, testInfo) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -16,7 +9,8 @@ test('loads the arcade without application errors', async ({ page }, testInfo) =
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('iframe')).toBeVisible({ timeout: 30000 });
-  await expect(page.frameLocator('iframe').getByRole('heading')).toHaveText('Portfolio fixture');
+  await expect(page.locator('iframe')).toHaveAttribute('src', '/portfolio/');
+  await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('arcade.png') });
   expect(errors).toEqual([]);
 });

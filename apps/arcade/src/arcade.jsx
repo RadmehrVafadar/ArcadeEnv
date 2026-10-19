@@ -24,7 +24,7 @@ export default function Arcade() {
   const target = useMemo(() => new Vector3(0, 3, 3), []);
   const arcade = useGLTF(import.meta.env.BASE_URL + 'model9.glb');
   const iframeSrc = import.meta.env.VITE_IFRAME_URL ||
-    'https://portfolio-website-omega-flame.vercel.app/';
+    '/portfolio/';
 
   useFrame(({ camera }) => {
     camera.lookAt(0, 1, 1);

@@ -1,38 +1,28 @@
 {
-  "name": "arcade-env",
+  "name": "arcade-portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "predeploy": "vite build",
-    "deploy": "gh-pages -d dist",
-    "preview": "vite preview",
-    "lint": "eslint . --max-warnings=0",
-    "test": "playwright test",
-    "check": "npm run lint && npm run build && npm test"
-  },
-  "dependencies": {
-    "@react-three/drei": "^9.56.24",
-    "@react-three/fiber": "^8.11.0",
-    "@types/three": "^0.149.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "three": "^0.149.0"
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build --workspaces && node scripts/assemble.mjs",
+    "preview": "npm run preview --workspace=arcade-env -- --outDir ../../dist",
+    "lint": "eslint --config scripts/eslint.config.js scripts tests playwright.config.js --max-warnings=0 && npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspace=portfolio-website",
+    "test": "node --test tests/launcher.test.mjs && npm run test --workspace=portfolio-website && npm run test:browser",
+    "test:browser": "playwright test",
+    "check": "npm run lint && npm run typecheck && npm run build && npm test",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.64.1",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^3.1.0",
-    "eslint": "^9.39.5",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
     "gh-pages": "^6.1.1",
-    "globals": "^17.13.0",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0"
   }
 }
