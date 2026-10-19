@@ -1,3 +1,6 @@
+# Note:
+ - Need to merge with Rad-portfolio website repo into one monorepo.
+
 # 🎮 Arcade Environment
 
 A stunning 3D arcade environment built with React Three Fiber, featuring dynamic clouds, atmospheric lighting, and an interactive arcade machine display.
