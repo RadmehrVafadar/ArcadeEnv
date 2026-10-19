@@ -12,6 +12,7 @@ Each page must be included in the production build so menu links work after depl
 The background chooses daytime before 18:00 in the browser's local time and toggles when its sun or moon is clicked.
 CSS animates clouds and background colors; the menu switches from a row to a column on narrow screens.
 The menu links directly to the arcade, the static blog placeholder, and the resume.
+Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
 

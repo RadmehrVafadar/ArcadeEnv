@@ -19,6 +19,7 @@
 }
 
 .button {
+    text-decoration: none;
     margin-left: 1.3em;
     border-radius: 9px;
     font-family: 'Arcade Interlaced', cursive; 
