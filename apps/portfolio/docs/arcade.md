@@ -11,6 +11,7 @@ Movement and proximity interactions let visitors explore the existing portfolio 
 `game.html` supplies the map, character, directional buttons, dialogue, and interaction prompt.
 `game.js` tracks held directions and updates the character and camera using `requestAnimationFrame`.
 Arrow keys, WASD, and the on-screen directional buttons drive movement.
+Each on-screen arrow moves the character in its indicated direction using mouse or touch, matching keyboard movement and sprite facing.
 WASD works with either letter case, and releasing one keyboard alias keeps movement active while another key for that direction remains held.
 The player remains inside map limits and cannot enter statue rectangles.
 Statue coordinates are normalized so reversed rectangle endpoints work.
