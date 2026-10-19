@@ -13,7 +13,7 @@ function getCurrentPixelSize() {
 //start in the middle of the map
 var x = 100;
 var y = 120;
-var held_directions = []; //State of which arrow keys we are holding down
+var held_directions = []; //State of which directions we are holding down
 var speed = 2; //How fast the character moves in pixels per frame
 
 // Track if player has moved from spawn position
@@ -172,7 +172,7 @@ const placeCharacter = () => {
    
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
-      dialogueBox.innerHTML = "Welcome to my portfolio showcase game! Navigate with the arrow keys. Press Spacebar or E to interact. To exit, interact with the door.";
+      dialogueBox.innerHTML = "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {
@@ -240,9 +240,15 @@ const keys = {
    39: directions.left,
    37: directions.right,
    38: directions.down,
+   87: directions.down,
+   65: directions.right,
+   83: directions.up,
+   68: directions.left,
 }
+const held_keys = new Set();
 document.addEventListener("keydown", (e) => {
    var dir = keys[e.which];
+   if (dir) { held_keys.add(e.which); }
 
    // Exit area interaction (top of the map)
    if ((e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) && x > 70 && x < 130 && y < 100) {
@@ -267,8 +273,9 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("keyup", (e) => {
    var dir = keys[e.which];
+   held_keys.delete(e.which);
    var index = held_directions.indexOf(dir);
-   if (index > -1) {
+   if (index > -1 && !Array.from(held_keys).some(key => keys[key] === dir)) {
       held_directions.splice(index, 1)
    }
 

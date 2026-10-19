@@ -49,6 +49,41 @@ test('statue collisions and interaction padding support reversed coordinates', (
   assert.equal(game.getNearbyStatue(100, 120), null);
 });
 
+test('WASD and arrow keys move in every direction and stop on release', () => {
+  for (const [key, which, axis, delta] of [
+    ['w', 87, 'y', -2], ['a', 65, 'x', -2],
+    ['s', 83, 'y', 2], ['d', 68, 'x', 2],
+    ['W', 87, 'y', -2], ['A', 65, 'x', -2],
+    ['S', 83, 'y', 2], ['D', 68, 'x', 2],
+    ['ArrowUp', 38, 'y', -2], ['ArrowLeft', 37, 'x', -2],
+    ['ArrowDown', 40, 'y', 2], ['ArrowRight', 39, 'x', 2],
+  ]) {
+    const { game, listeners } = loadGame();
+    const initial = game[axis];
+    listeners.get('keydown')({ which, key });
+    runInNewContext('placeCharacter()', game);
+    assert.equal(game[axis], initial + delta, key);
+    listeners.get('keyup')({ which, key });
+    runInNewContext('placeCharacter()', game);
+    assert.equal(game[axis], initial + delta, `${key} release`);
+  }
+});
+
+test('releasing one movement alias keeps the other held key moving', () => {
+  for (const releaseFirst of [87, 38]) {
+    const { game, listeners } = loadGame();
+    listeners.get('keydown')({ which: 87, key: 'w' });
+    listeners.get('keydown')({ which: 38, key: 'ArrowUp' });
+    listeners.get('keydown')({ which: 87, key: 'w', repeat: true });
+    listeners.get('keyup')({ which: releaseFirst });
+    runInNewContext('placeCharacter()', game);
+    assert.equal(game.y, 118);
+    listeners.get('keyup')({ which: releaseFirst === 87 ? 38 : 87 });
+    runInNewContext('placeCharacter()', game);
+    assert.equal(game.y, 118);
+  }
+});
+
 test('door returns to the portfolio landing page for both interaction keys', () => {
   for (const key of [' ', 'e']) {
     const { game, listeners } = loadGame();
