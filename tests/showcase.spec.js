@@ -8,7 +8,8 @@ test('showcase links open on one E press after releasing E in the previous tab',
   await page.goto('/portfolio/src/portfolio-game/game.html');
   const position = () => page.locator('.character').evaluate(element => {
     const pixelSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
-    return new DOMMatrixReadOnly(getComputedStyle(element).transform).m41 / pixelSize;
+    const playerCenter = matchMedia('(pointer: coarse)').matches ? 16 : 0;
+    return new DOMMatrixReadOnly(getComputedStyle(element).transform).m41 / pixelSize + playerCenter;
   });
   for (const [direction, target, url] of [
     ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],

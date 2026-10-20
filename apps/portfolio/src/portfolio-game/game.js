@@ -2,12 +2,21 @@ var character = document.querySelector(".character");
 var map = document.querySelector(".map");
 var previousInteract = false;
 var interact = false
+var mobileControls = window.matchMedia('(pointer: coarse)').matches;
+var camera = document.querySelector('.camera');
+
+function resizeMobileWorld() {
+   if (mobileControls) {
+      // Use the same fractional scale for artwork, sprites, and world coordinates.
+      document.documentElement.style.setProperty('--pixel-size', `${camera.clientWidth / 208}px`);
+   }
+}
+resizeMobileWorld();
 
 // Get current pixel size for scaling calculations
 function getCurrentPixelSize() {
-   return parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
-   );
+   var value = getComputedStyle(document.documentElement).getPropertyValue('--pixel-size');
+   return mobileControls ? parseFloat(value) : parseInt(value);
 }
 
 //start in the middle of the map
@@ -94,6 +103,10 @@ function inflateRect(rect, padding) {
 }
 
 function isCollidingWithAnyStatue(nextX, nextY) {
+   if (mobileControls) {
+      nextX += 16;
+      nextY += 28;
+   }
    for (var i = 0; i < statues.length; i++) {
       var s = statues[i];
       if (pointInRect(nextX, nextY, s.rect)) {
@@ -104,6 +117,10 @@ function isCollidingWithAnyStatue(nextX, nextY) {
 }
 
 function getNearbyStatue(px, py) {
+   if (mobileControls) {
+      px += 16;
+      py += 28;
+   }
    for (var i = 0; i < statues.length; i++) {
       var s = statues[i];
       var padding = (typeof s.interactPadding === 'number') ? s.interactPadding : STATUE_DEFAULT_INTERACT_PADDING;
@@ -159,6 +176,10 @@ const placeCharacter = () => {
    var rightLimit = (16 * 12) + 12;
    var topLimit = 90;
    var bottomLimit = (16 * 36.7);
+   if (mobileControls) {
+      rightLimit = 208 - 32;
+      bottomLimit = 544 - 32 - 16;
+   }
    if (x < leftLimit) { x = leftLimit; }
    if (x > rightLimit) { x = rightLimit; }
    if (y < topLimit) { y = topLimit; }
@@ -171,7 +192,9 @@ const placeCharacter = () => {
    
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
-      dialogueBox.innerHTML = "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+      dialogueBox.innerHTML = mobileControls
+         ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD."
+         : "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {
@@ -210,6 +233,11 @@ const placeCharacter = () => {
       
       var camera_left = pixelSize * 66;
       var camera_top = pixelSize * 42;
+      if (mobileControls) {
+         // Follow the player while keeping every camera edge inside the artwork.
+         camera_left = x * pixelSize + Math.min(0, Math.max(camera.clientWidth - map.offsetWidth, camera.clientWidth / 2 - (x + 16) * pixelSize));
+         camera_top = y * pixelSize + Math.min(0, Math.max(camera.clientHeight - map.offsetHeight, camera.clientHeight / 2 - (y + 16) * pixelSize));
+      }
       
       map.style.transform = `translate3d( ${-x*pixelSize+camera_left}px, ${-y*pixelSize+camera_top}px, 0 )`;
       character.style.transform = `translate3d( ${x*pixelSize}px, ${y*pixelSize}px, 0 )`;  
@@ -245,21 +273,22 @@ const keys = {
    68: directions.right,
 }
 const held_keys = new Set();
+function activateInteraction(open, repeat = false) {
+   if (x > 70 && x < 130 && y < 100) {
+      window.location.href = import.meta.env.BASE_URL;
+   }
+   var nearbyForOpen = getNearbyStatue(x, y);
+   if (open && nearbyForOpen && nearbyForOpen.url && !repeat) {
+      window.open(nearbyForOpen.url, '_blank', 'noopener');
+   }
+}
+
 document.addEventListener("keydown", (e) => {
    var dir = keys[e.which];
    if (dir) { held_keys.add(e.which); }
 
-   // Exit area interaction (top of the map)
-   if ((e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) && x > 70 && x < 130 && y < 100) {
-    window.location.href = import.meta.env.BASE_URL
-   }
-
-   // If pressing 'e' near a statue with a URL, open it
-   if (typeof e.key === 'string' && e.key.toLowerCase() === 'e') {
-      var nearbyForOpen = getNearbyStatue(x, y);
-      if (nearbyForOpen && nearbyForOpen.url && !e.repeat) {
-         window.open(nearbyForOpen.url, '_blank', 'noopener');
-      }
+   if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) {
+      activateInteraction(e.key !== ' ', e.repeat);
    }
 
    if (dir && held_directions.indexOf(dir) === -1) {
@@ -311,7 +340,43 @@ const handleDpadPress = (direction, click) => {
 
 
 
-//Bind a ton of events for the dpad
+if (mobileControls) {
+   var activePointer = null;
+   const stopMovement = () => {
+      activePointer = null;
+      isPressed = false;
+      held_directions = [];
+      removePressedAll();
+   };
+   for (const direction of Object.values(directions)) {
+      const button = document.querySelector('.dpad-' + direction);
+      button.addEventListener('pointerdown', event => {
+         event.preventDefault();
+         if (activePointer !== null) { return; }
+         activePointer = event.pointerId;
+         button.setPointerCapture(event.pointerId);
+         handleDpadPress(direction, true);
+      });
+      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+         button.addEventListener(type, event => {
+            if (event.pointerId === activePointer) { stopMovement(); }
+         });
+      }
+   }
+   window.addEventListener('blur', stopMovement);
+   document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { stopMovement(); }
+   });
+   for (const [selector, open] of [['.action-read', false], ['.action-open', true]]) {
+      document.querySelector(selector).addEventListener('click', () => {
+         activateInteraction(open);
+         interact = true;
+         placeCharacter();
+         interact = false;
+         previousInteract = false;
+      });
+   }
+} else {
 document.querySelector(".dpad-left").addEventListener("touchstart", () => handleDpadPress(directions.left, true));
 document.querySelector(".dpad-up").addEventListener("touchstart", () => handleDpadPress(directions.up, true));
 document.querySelector(".dpad-right").addEventListener("touchstart", () => handleDpadPress(directions.right, true));
@@ -326,11 +391,13 @@ document.querySelector(".dpad-left").addEventListener("mouseover", () => handleD
 document.querySelector(".dpad-up").addEventListener("mouseover", () => handleDpadPress(directions.up));
 document.querySelector(".dpad-right").addEventListener("mouseover", () => handleDpadPress(directions.right));
 document.querySelector(".dpad-down").addEventListener("mouseover", () => handleDpadPress(directions.down));
+}
 
 // Handle window resize to maintain proper scaling
 window.addEventListener('resize', () => {
    // Force a recalculation on the next frame
    window.requestAnimationFrame(() => {
+      resizeMobileWorld();
       placeCharacter();
    });
 });
