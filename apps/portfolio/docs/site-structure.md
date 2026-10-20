@@ -14,6 +14,8 @@ CSS animates clouds and background colors; the menu switches from a row to a col
 The menu links directly to the arcade, the Markdown blog, and the resume.
 The Blog link opens a new browser tab, leaving the portfolio and arcade in place.
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
+Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
+The labels remain still when the visitor prefers reduced motion.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
 

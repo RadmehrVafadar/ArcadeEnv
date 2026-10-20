@@ -24,9 +24,24 @@
     border-radius: 9px;
     font-family: 'Arcade Interlaced', cursive; 
     font-size: 52px;
+}
+
+.button span {
+    display: inline-block;
     background: -webkit-linear-gradient(rgb(255, 98, 0) 40%, yellow 90%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+@keyframes menu-bop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button span {
+    animation: menu-bop 600ms steps(1, end) infinite;
+  }
 }
 
 .button:hover {
