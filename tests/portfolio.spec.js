@@ -36,7 +36,7 @@ test('directional buttons move toward their arrows with mouse or touch', async (
   await page.screenshot({ path: testInfo.outputPath('directional-controls.png') });
 });
 
-test('game supports WASD movement and stops on key release', async ({ page }) => {
+test('game supports WASD movement and stops on key release', async ({ page, isMobile }) => {
   const position = () => page.locator('.character').evaluate(element => {
     const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
     return { x: transform.m41, y: transform.m42 };
@@ -45,7 +45,7 @@ test('game supports WASD movement and stops on key release', async ({ page }) =>
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
     await expect(character).toBeVisible();
-    await expect(page.locator('.dialogueBox')).toContainText('WASD');
+    await expect(page.locator('.dialogueBox')).toContainText(isMobile ? 'on-screen arrows' : 'WASD');
     const initial = (await position())[axis];
     await page.keyboard.down(key);
     try {
@@ -169,4 +169,18 @@ test('welcome and exhibit dialogue stay above controls and interaction guidance'
     expect(bounds.promptBottom).toBeLessThan(bounds.dpadTop);
     await page.screenshot({ fullPage: true, path: testInfo.outputPath(`exhibit-${landscape ? 'landscape' : 'portrait'}.png`) });
   }
+});
+
+
+test('welcome instructions describe the controls available on this device', async ({ page, isMobile }, testInfo) => {
+  await page.goto('/portfolio/src/portfolio-game/game.html');
+  const dialogue = page.locator('.dialogueBox');
+  if (isMobile) {
+    await expect(dialogue).toContainText('on-screen arrows');
+    await expect(dialogue).toContainText('require a keyboard');
+    await expect(dialogue).not.toContainText('WASD');
+  } else {
+    await expect(dialogue).toHaveText('Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.');
+  }
+  await page.screenshot({ fullPage: true, path: testInfo.outputPath('welcome-instructions.png') });
 });

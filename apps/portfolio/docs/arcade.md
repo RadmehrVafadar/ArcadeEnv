@@ -20,6 +20,8 @@ Space displays exhibit text; E opens its external link once per press.
 Repeated keydown events are ignored, so returning from a showcase tab does not require a second E press even when the key was released in that tab.
 Space or E near the door returns to the `/portfolio/` landing page inside the current iframe.
 The welcome dialogue appears at the top of the game viewport and disappears after the player first moves.
+Phones and tablets, including iPads using a desktop user agent, receive instructions for the on-screen arrows and a note that reading exhibits, opening links, and using the exit door require a keyboard.
+Desktop visitors, including touch laptops, retain the arrow-key and WASD instructions.
 The frame stays centered when it fits and aligns to the top in shorter viewports so the dialogue remains reachable.
 Exhibit dialogue uses the same top position, with interaction guidance below it so both remain clear of the directional controls.
 Exhibit dialogue appears only after interaction and hides when the player leaves the exhibit.

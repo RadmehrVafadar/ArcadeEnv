@@ -1,3 +1,9 @@
+const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+   (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const welcomeMessage = mobile
+   ? "Welcome! Move with the on-screen arrows. Reading exhibits (Space), opening links (E), and the exit door require a keyboard."
+   : "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+
 var character = document.querySelector(".character");
 var map = document.querySelector(".map");
 var previousInteract = false;
@@ -171,7 +177,7 @@ const placeCharacter = () => {
    
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
-      dialogueBox.innerHTML = "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+      dialogueBox.innerHTML = welcomeMessage;
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {

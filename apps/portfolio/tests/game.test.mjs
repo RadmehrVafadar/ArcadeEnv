@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const source = (await readFile(new URL('../src/portfolio-game/game.js', import.meta.url), 'utf8'))
   .replaceAll('import.meta.env.BASE_URL', JSON.stringify('/portfolio/'));
 
-function loadGame() {
+function loadGame(navigator = { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', maxTouchPoints: 0 }) {
   const elements = new Map();
   const listeners = new Map();
   const document = {
@@ -25,6 +25,7 @@ function loadGame() {
   };
   const game = {
     document,
+    navigator,
     getComputedStyle: () => ({ getPropertyValue: () => '3.5px' }),
     window: { requestAnimationFrame() {}, addEventListener() {}, location: { href: '' } },
   };
@@ -142,4 +143,26 @@ test('E opens once per press and Space only reads the exhibit', () => {
     listeners.get('keyup')({ key });
   }
   assert.equal(opened.length, 2);
+});
+
+
+test('welcome instructions match mobile devices without treating touch laptops as mobile', () => {
+  for (const [userAgent, maxTouchPoints, mobile] of [
+    ['Mozilla/5.0 (Linux; Android 13) Mobile', 5, true],
+    ['Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)', 5, true],
+    ['Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)', 5, true],
+    ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)', 5, true],
+    ['Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 10, false],
+    ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)', 0, false],
+  ]) {
+    const { elements } = loadGame({ userAgent, maxTouchPoints });
+    const message = elements.get('.dialogueBox').innerHTML;
+    if (mobile) {
+      assert.match(message, /on-screen arrows/, userAgent);
+      assert.match(message, /require a keyboard/, userAgent);
+      assert.doesNotMatch(message, /WASD|tap.*exhibit/i, userAgent);
+    } else {
+      assert.equal(message, 'Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.');
+    }
+  }
 });
