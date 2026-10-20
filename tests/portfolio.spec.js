@@ -7,10 +7,12 @@ test('directional buttons move toward their arrows with mouse or touch', async (
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
     await expect(page.locator('.dialogueBox')).toContainText('Welcome');
-    // Move once to dismiss the welcome overlay covering the directional pad.
-    await page.keyboard.down('s');
-    await expect(page.locator('.dialogueBox')).toBeHidden();
-    await page.keyboard.up('s');
+    if (!isMobile) {
+      // Desktop retains its original welcome overlay and layout.
+      await page.keyboard.down('s');
+      await expect(page.locator('.dialogueBox')).toBeHidden();
+      await page.keyboard.up('s');
+    }
     const position = () => character.evaluate((element, axis) => {
       const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
       return axis === 'x' ? transform.m41 : transform.m42;
@@ -34,7 +36,7 @@ test('directional buttons move toward their arrows with mouse or touch', async (
       if (isMobile) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       else await page.mouse.up();
     }
-    if (!isMobile) await expect(character).toHaveAttribute('walking', 'false');
+    await expect(character).toHaveAttribute('walking', 'false');
   }
   await page.screenshot({ path: testInfo.outputPath('directional-controls.png') });
 });

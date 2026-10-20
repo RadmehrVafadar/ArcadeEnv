@@ -6,15 +6,20 @@ import { runInNewContext } from 'node:vm';
 const source = (await readFile(new URL('../src/portfolio-game/game.js', import.meta.url), 'utf8'))
   .replaceAll('import.meta.env.BASE_URL', JSON.stringify('/portfolio/'));
 
-function loadGame() {
+function loadGame({ mobile = false } = {}) {
   const elements = new Map();
   const listeners = new Map();
   const document = {
-    documentElement: {},
+    documentElement: { style: { setProperty(name, value) { this[name] = value; } } },
     body: { addEventListener() {} },
     querySelector(selector) {
       if (!elements.has(selector)) {
-        elements.set(selector, { style: {}, attributes: {}, classList: { add() {}, remove() {} }, setAttribute(name, value) { this.attributes[name] = value; }, addEventListener() {} });
+        elements.set(selector, {
+          clientWidth: 390, clientHeight: 600, offsetWidth: 390, offsetHeight: 1020,
+          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {} },
+          setAttribute(name, value) { this.attributes[name] = value; },
+          addEventListener(name, handler) { this.listeners.set(name, handler); },
+        });
       }
       return elements.get(selector);
     },
@@ -25,8 +30,8 @@ function loadGame() {
   };
   const game = {
     document,
-    getComputedStyle: () => ({ getPropertyValue: () => '3.5px' }),
-    window: { requestAnimationFrame() {}, addEventListener() {}, location: { href: '' } },
+    getComputedStyle: () => ({ getPropertyValue: name => document.documentElement.style[name] || '3.5px' }),
+    window: { matchMedia: () => ({ matches: mobile }), requestAnimationFrame() {}, addEventListener() {}, location: { href: '' } },
   };
   runInNewContext(source, game);
   return { game, elements, listeners };
@@ -142,4 +147,37 @@ test('E opens once per press and Space only reads the exhibit', () => {
     listeners.get('keyup')({ key });
   }
   assert.equal(opened.length, 2);
+});
+
+test('mobile artwork and movement share their fractional scale and world bounds', () => {
+  const { game, elements } = loadGame({ mobile: true });
+  assert.equal(game.getCurrentPixelSize(), 1.875);
+  assert.equal(elements.get('.character').style.transform, 'translate3d( 187.5px, 225px, 0 )');
+  game.x = 999;
+  game.y = 999;
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.x, 176);
+  assert.equal(game.y, 496);
+  assert.equal(elements.get('.map').style.transform, 'translate3d( 0px, -420px, 0 )');
+  assert.equal(game.isCollidingWithAnyStatue(140, 100), true);
+  assert.equal(game.isCollidingWithAnyStatue(136, 100), false);
+});
+
+test('mobile action buttons can read and open every exhibit within world limits', () => {
+  const { game, elements } = loadGame({ mobile: true });
+  const opened = [];
+  game.window.open = (...args) => opened.push(args);
+  game.hasPlayerMoved = true;
+  for (const statue of game.statues) {
+    game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
+      ? Math.max(statue.rect.x1, statue.rect.x2) + 10 - 16
+      : Math.min(statue.rect.x1, statue.rect.x2) - 10 - 16;
+    game.y = Math.min(496, (statue.rect.y1 + statue.rect.y2) / 2 - 28);
+    elements.get('.action-read').listeners.get('click')();
+    assert.equal(elements.get('.dialogueBox').innerHTML, statue.text, statue.id);
+    assert.equal(opened.length, game.statues.indexOf(statue));
+    elements.get('.action-open').listeners.get('click')();
+    assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
+    assert.equal(opened.length, game.statues.indexOf(statue) + 1);
+  }
 });

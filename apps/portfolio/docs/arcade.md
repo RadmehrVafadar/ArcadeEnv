@@ -21,6 +21,16 @@ Repeated keydown events are ignored, so returning from a showcase tab does not r
 Space or E near the door returns to the `/portfolio/` landing page inside the current iframe.
 The welcome message disappears after the player first moves.
 
+On devices with a coarse primary pointer, the game fills the available viewport, including safe-area padding.
+Portrait mode places the D-pad and Space/Read and E/Open buttons below the world; landscape mode places them beside it.
+Messages stay inside the world area and cannot cover these controls.
+Touch movement uses pointer capture and stops on release, cancellation, lost capture, or focus loss.
+The action buttons use the same exhibit and door interactions as the keyboard.
+Mobile artwork, sprites, movement, and collision coordinates share a fractional scale based on the camera width.
+The mobile camera stays inside the 208-by-544 map, and player bounds keep the sprite above the bottom wall.
+Mobile collision and exhibit detection use the character's feet rather than the sprite's top-left corner.
+Desktop layout, camera offsets, bounds, and mouse controls retain their existing behavior.
+
 ## Tech
 
 Plain JavaScript uses DOM events and CSS sprite animations.
@@ -37,9 +47,7 @@ CSS custom properties control pixel scaling at viewport breakpoints.
 ## Decisions and gotchas
 
 Movement is measured per frame, so speed depends on display refresh rate.
-The current controls do not implement touch buttons for reading and opening exhibits.
-Touch controls register press events but have no dedicated touch-release handler.
-These existing limitations are outside the cleanup scope.
+Mobile mode follows the primary pointer media query, so desktop laptops with a mouse or trackpad retain the desktop presentation.
 
 ## Related
 

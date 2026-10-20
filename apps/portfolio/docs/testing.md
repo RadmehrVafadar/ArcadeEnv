@@ -21,6 +21,7 @@ Production tests write to `dist/`; avoid concurrent builds against that director
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
+- `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
 - `tests/blog.test.mjs` - Markdown catalog and relative content links.
 - `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
@@ -35,7 +36,8 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 VM tests do not replace browser rendering or real pointer and touch checks.
 Before changing UI behavior, inspect desktop and narrow-screen layouts, toggle the background, navigate every menu link, and check the browser console.
 For the arcade, check movement, exhibit prompts, Space/E interactions, and the exit door.
-The cleanup preserves the current UI and leaves existing mobile limitations documented in the arcade guide.
+Mobile browser regressions use Chromium device emulation and CDP touch input in development and production, covering small phones, portrait and landscape phones, and tablets.
+They do not replace physical iOS and Android testing.
 
 ## Related
 
