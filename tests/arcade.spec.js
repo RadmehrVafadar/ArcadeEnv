@@ -16,7 +16,28 @@ test('loads the arcade without application errors', async ({ page, isMobile }, t
   await expect(page.locator('iframe')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('iframe')).toHaveAttribute('src', '/portfolio/');
   await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath('arcade.png') });
+  const screenshot = await page.screenshot({ path: testInfo.outputPath('arcade.png') });
+  const lighting = await page.evaluate(async base64 => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${base64}`;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+    const green = (x, y) => context.getImageData(
+      Math.floor(image.width * x), Math.floor(image.height * y), 1, 1,
+    ).data[1];
+    return {
+      floor: green(0.5, 0.94),
+      floorSide: green(0.1, 0.94),
+      background: green(0.5, 0.1),
+      backgroundSide: green(0.1, 0.1),
+    };
+  }, screenshot.toString('base64'));
+  expect(lighting.floor).toBeGreaterThan(lighting.floorSide + 10);
+  expect(Math.abs(lighting.background - lighting.backgroundSide)).toBeLessThan(3);
   expect(errors).toEqual([]);
   expect(decorationRequests).toEqual([]);
 });

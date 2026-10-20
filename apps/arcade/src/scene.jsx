@@ -27,5 +27,15 @@ createRoot(document.querySelector('#root')).render(
       shadow-camera-top={10}
       shadow-camera-bottom={-10}
     />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
+      <planeGeometry args={[50, 20]} />
+      <meshStandardMaterial
+        color="#051821"
+        transparent
+        opacity={0.1}
+        roughness={0.7}
+        metalness={10}
+      />
+    </mesh>
   </Canvas>,
 );

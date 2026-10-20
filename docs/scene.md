@@ -9,8 +9,9 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 ## How it works
 
 `apps/arcade/src/index.jsx` sends phones and tablets directly to `/portfolio/` before importing the scene, avoiding Three.js, WebGL, and scene assets on mobile.
-Desktop browsers, including touch laptops, dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing only the cabinet and its spotlight.
-The cabinet stands directly against the dark background without floating cubes, smoke, a ground plane, or an enclosing box.
+Desktop browsers, including touch laptops, dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, its spotlight, and a horizontal floor.
+The floor catches the spotlight beneath the cabinet; the background has no wall or enclosing box.
+Floating cubes and background smoke are omitted.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
 
@@ -28,7 +29,7 @@ Drei provides GLTF loading and the HTML screen transform.
 ## Key files
 
 - `apps/arcade/src/index.jsx` - mobile redirect and deferred desktop scene import.
-- `apps/arcade/src/scene.jsx` - renderer and cabinet lighting.
+- `apps/arcade/src/scene.jsx` - renderer, cabinet lighting, and floor.
 - `apps/arcade/src/arcade.jsx` - model, camera interaction, and portfolio iframe.
 - `apps/arcade/src/style.css` - viewport layout, background, and screen sizing.
 - `apps/arcade/public/model9.glb` - arcade model.
