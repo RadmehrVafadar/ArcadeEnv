@@ -22,6 +22,13 @@ Open http://127.0.0.1:5173/ for the cabinet or http://127.0.0.1:5173/portfolio/ 
 The launcher starts both apps and proxies portfolio requests and hot reload through the arcade server.
 Set `VITE_IFRAME_URL` in root `.env.local` to use an external site for the desktop iframe and mobile destination.
 
+Install Chromium once with `npx playwright install chromium`, then run `npm run check` for all checks.
+On PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
+
+## Production build
+
+Build both apps into root `dist/` and preview the production site locally:
+
 ```bash
 npm run build
 npm run preview
@@ -29,8 +36,6 @@ npm run preview
 
 Deploy root `dist/` at the domain root using `npm run build` as the build command.
 `npm run deploy` builds and publishes the same combined output using gh-pages.
-Install Chromium once with `npx playwright install chromium`, then run `npm run check` for all checks.
-On PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
 
 ## Docs
 
