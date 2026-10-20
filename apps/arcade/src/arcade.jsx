@@ -41,7 +41,9 @@ export default function Arcade() {
           distanceFactor={1.12}
           rotation-x={-0.75}
         >
-          <iframe src={iframeSrc} title="Radmehr Vafadar portfolio" />
+          <div className="crt-screen">
+            <iframe src={iframeSrc} title="Radmehr Vafadar portfolio" />
+          </div>
         </Html>
       </primitive>
     </>
