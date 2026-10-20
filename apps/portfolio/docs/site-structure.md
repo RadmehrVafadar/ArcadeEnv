@@ -11,7 +11,8 @@ Each page must be included in the production build so menu links work after depl
 `index.html` loads `src/main.tsx`, which renders `Background` and `Menu` inside React strict mode.
 The background chooses daytime before 18:00 in the browser's local time and toggles when its sun or moon is clicked.
 CSS animates clouds and background colors; the menu switches from a row to a column on narrow screens.
-The menu links directly to the arcade, the static blog placeholder, and the resume.
+The menu links directly to the arcade, the Markdown blog, and the resume.
+The Blog link opens a new browser tab, leaving the portfolio and arcade in place.
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
@@ -19,7 +20,7 @@ Files in `public/`, including the resume, are copied unchanged into `dist/`.
 ## Tech
 
 React and TypeScript power the landing page.
-The arcade uses plain JavaScript and CSS; the blog uses static HTML and CSS.
+The arcade uses plain JavaScript and CSS; the blog mounts its own React reader from a standalone HTML entry.
 
 ## Key files
 
@@ -29,7 +30,7 @@ The arcade uses plain JavaScript and CSS; the blog uses static HTML and CSS.
 - `src/Background.css` - sky, clouds, and sun/moon styles.
 - `src/menu.tsx` - navigation links.
 - `src/menu.css` - responsive menu styles.
-- `src/blog-website/blog.html` - blog placeholder.
+- `src/blog-website/blog.html` - Markdown blog entry.
 - `public/RVafadar_Resume.pdf` - downloadable resume.
 
 ## Decisions and gotchas
@@ -39,9 +40,10 @@ Vite uses `/portfolio/` as its base.
 Menu destinations, the resume link, and the game exit use `import.meta.env.BASE_URL`.
 Development requests and HMR are proxied through the root arcade server; production files live under root `dist/portfolio/`.
 Fonts load from external providers and require network access.
-The blog has no article implementation.
+The blog discovers Markdown articles at build time and uses hash routes for static-host compatibility.
 
 ## Related
 
 - [Arcade](arcade.md)
 - [Testing](testing.md)
+- [Blog](blog.md)

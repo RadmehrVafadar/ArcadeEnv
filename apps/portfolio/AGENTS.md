@@ -1,7 +1,7 @@
 # Radmehr Vafadar Portfolio
 
 A personal portfolio with a React landing page and a standalone arcade showcase.
-The blog page is currently a static placeholder.
+The blog reads Markdown articles from category folders.
 Stack: TypeScript, JavaScript, React, Vite, and CSS.
 
 ## Commands
@@ -25,7 +25,7 @@ Deploy only root `dist/` using the root build command.
 ```text
 src/                  React landing page and shared image assets
 src/portfolio-game/   Standalone arcade HTML, JavaScript, and CSS
-src/blog-website/     Static blog placeholder
+src/blog-website/     Markdown blog and category content
 public/               Files copied unchanged to the build output
 tests/                Game behavior and production navigation checks
 docs/                 Architecture and verification guidance
@@ -47,3 +47,4 @@ docs/                 Architecture and verification guidance
 - Before changing entry points, navigation, assets, or styling, read `docs/site-structure.md`.
 - Before changing arcade movement, collision, or interactions, read `docs/arcade.md`.
 - Before changing verification commands or tests, read `docs/testing.md`.
+- Before adding articles or changing the blog, read `docs/blog.md`.
