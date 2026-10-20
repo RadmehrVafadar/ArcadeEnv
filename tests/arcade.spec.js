@@ -50,6 +50,40 @@ test('labels the embedded portfolio for assistive technology', async ({ page, is
   });
 });
 
+test('CRT glass keeps the portfolio clickable and respects screen dimensions', async ({ page, isMobile }, testInfo) => {
+  test.skip(isMobile, 'Mobile opens the portfolio without CRT glass.');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const glass = page.locator('.crt-screen');
+  await expect(glass).toBeVisible({ timeout: 30000 });
+  await expect(glass).toHaveCSS('width', '624px');
+  await expect(glass).toHaveCSS('height', '780px');
+  await expect(glass).toHaveCSS('overflow', 'hidden');
+  await expect(glass).toHaveCSS('border-top-left-radius', '5% 4%');
+  for (const layer of ['::before', '::after']) {
+    const styles = await glass.evaluate((element, layer) => {
+      const css = getComputedStyle(element, layer);
+      return { pointerEvents: css.pointerEvents, animation: css.animationName, background: css.backgroundImage };
+    }, layer);
+    expect(styles.pointerEvents).toBe('none');
+    expect(styles.animation).toBe('none');
+    expect(styles.background).not.toBe('none');
+  }
+  const viewport = page.viewportSize();
+  const screen = page.locator('iframe');
+  const initialWidth = (await screen.boundingBox()).width;
+  await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
+  await expect.poll(async () => (await screen.boundingBox()).width).toBeGreaterThan(initialWidth * 1.5);
+  const blog = page.frameLocator('iframe').getByRole('link', { name: 'Blog', exact: true });
+  await expect(blog).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('crt-screen.png') });
+  const popupPromise = page.waitForEvent('popup');
+  await blog.click();
+  const popup = await popupPromise;
+  await expect(popup.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await popup.close();
+});
+
 test('zooms toward the cabinet on hover', async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Mobile opens the portfolio directly.');
   await page.goto('/');

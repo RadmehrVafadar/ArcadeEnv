@@ -20,6 +20,10 @@ Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`
 This URL is public configuration, so do not put secrets in it.
 
 `apps/arcade/src/style.css` controls the dark gradient and the iframe's internal dimensions.
+The desktop iframe sits inside a fixed-size CRT glass wrapper with static scanlines, a faint RGB phosphor grille, and tiled monochrome grain from `apps/arcade/src/crt-grain.svg`.
+Elliptical corner clipping, inset edge shading, and a soft reflection suggest gently curved glass without warping the live page or moving the screen.
+Both decorative layers ignore pointer events, and the effect uses no animation or WebGL postprocessing.
+The direct mobile portfolio remains free of the CRT treatment.
 
 ## Tech
 
