@@ -32,9 +32,9 @@ function loadGame() {
   return { game, elements, listeners };
 }
 
-test('game starts, displays its welcome message, and moves on arrow input', () => {
+test('game starts without a welcome overlay and moves on arrow input', () => {
   const { game, elements, listeners } = loadGame();
-  assert.match(elements.get('.dialogueBox').innerHTML, /Welcome/);
+  assert.equal(elements.get('.dialogueBox').style.display, 'none');
   listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
   runInNewContext('placeCharacter()', game);
   assert.equal(game.x, 102);
@@ -130,7 +130,6 @@ test('E opens once per press and Space only reads the exhibit', () => {
   game.window.open = (...args) => opened.push(args);
   game.x = 40;
   game.y = 130;
-  game.hasPlayerMoved = true;
   listeners.get('keydown')({ key: ' ' });
   runInNewContext('placeCharacter()', game);
   assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
@@ -142,4 +141,20 @@ test('E opens once per press and Space only reads the exhibit', () => {
     listeners.get('keyup')({ key });
   }
   assert.equal(opened.length, 2);
+});
+
+test('exhibit dialogue still opens on interaction and hides after leaving', () => {
+  const { game, elements, listeners } = loadGame();
+  game.x = 150;
+  game.y = 130;
+  runInNewContext('placeCharacter()', game);
+  assert.equal(elements.get('.dialogueBox').style.display, 'none');
+  listeners.get('keydown')({ key: ' ' });
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /bird simulation/);
+  assert.equal(elements.get('.dialogueBox').style.display, 'block');
+  listeners.get('keyup')({ key: ' ' });
+  game.x = 100;
+  runInNewContext('placeCharacter()', game);
+  assert.equal(elements.get('.dialogueBox').style.display, 'none');
 });

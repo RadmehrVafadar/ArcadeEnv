@@ -16,10 +16,6 @@ var y = 120;
 var held_directions = []; //State of which directions we are holding down
 var speed = 2; //How fast the character moves in pixels per frame
 
-// Track if player has moved from spawn position
-var hasPlayerMoved = false;
-var initialX = x;
-var initialY = y;
 
 
 
@@ -146,10 +142,6 @@ const placeCharacter = () => {
 
       character.setAttribute("facing", held_direction);
 
-      // Check if player has moved from initial position
-      if (!hasPlayerMoved && (x !== initialX || y !== initialY)) {
-         hasPlayerMoved = true;
-      }
    }
    character.setAttribute("walking", held_direction ? "true" : "false");
 
@@ -169,40 +161,32 @@ const placeCharacter = () => {
    var dialogueBox = document.querySelector('.dialogueBox');
    var actionPrompt = document.querySelector('.actionPrompt');
    
-   // Show welcome message automatically at spawn, hide when player moves
-   if (!hasPlayerMoved) {
-      dialogueBox.innerHTML = "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+   var nearbyStatue = getNearbyStatue(x, y);
+   if (nearbyStatue && interact && !previousInteract) {
+      dialogueBox.innerHTML = nearbyStatue.text || "";
       dialogueBox.style.display = 'block';
-      if (actionPrompt) { actionPrompt.style.display = 'none'; }
-   } else {
-      // Handle other interactions after player has moved
-      var nearbyStatue = getNearbyStatue(x, y);
-      if (nearbyStatue && interact && !previousInteract) {
-         dialogueBox.innerHTML = nearbyStatue.text || "";
-         dialogueBox.style.display = 'block';
-      } else if (!nearbyStatue) {
-         dialogueBox.style.display = 'none';
-      }
+   } else if (!nearbyStatue) {
+      dialogueBox.style.display = 'none';
+   }
 
-      // Action prompt guidance
-      if (actionPrompt) {
-         var promptShown = false;
-         if (nearbyStatue) {
-            var msg = 'Press Space to read';
-            if (nearbyStatue.url) { msg += ' or Press E to open'; }
-            actionPrompt.textContent = msg;
-            actionPrompt.style.display = 'block';
-            promptShown = true;
-         }
-         // Exit area prompt
-         if (!promptShown && x > 70 && x < 130 && y < 100) {
-            actionPrompt.textContent = 'Press Space or E to exit';
-            actionPrompt.style.display = 'block';
-            promptShown = true;
-         }
-         if (!promptShown) {
-            actionPrompt.style.display = 'none';
-         }
+   // Action prompt guidance
+   if (actionPrompt) {
+      var promptShown = false;
+      if (nearbyStatue) {
+         var msg = 'Press Space to read';
+         if (nearbyStatue.url) { msg += ' or Press E to open'; }
+         actionPrompt.textContent = msg;
+         actionPrompt.style.display = 'block';
+         promptShown = true;
+      }
+      // Exit area prompt
+      if (!promptShown && x > 70 && x < 130 && y < 100) {
+         actionPrompt.textContent = 'Press Space or E to exit';
+         actionPrompt.style.display = 'block';
+         promptShown = true;
+      }
+      if (!promptShown) {
+         actionPrompt.style.display = 'none';
       }
    }
       previousInteract = interact;

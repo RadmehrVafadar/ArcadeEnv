@@ -6,11 +6,7 @@ test('directional buttons move toward their arrows with mouse or touch', async (
   for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
-    await expect(page.locator('.dialogueBox')).toContainText('Welcome');
-    // Move once to dismiss the welcome overlay covering the directional pad.
-    await page.keyboard.down('s');
     await expect(page.locator('.dialogueBox')).toBeHidden();
-    await page.keyboard.up('s');
     const position = () => character.evaluate((element, axis) => {
       const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
       return axis === 'x' ? transform.m41 : transform.m42;
@@ -48,7 +44,7 @@ test('game supports WASD movement and stops on key release', async ({ page }) =>
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
     await expect(character).toBeVisible();
-    await expect(page.locator('.dialogueBox')).toContainText('WASD');
+    await expect(page.locator('.dialogueBox')).toBeHidden();
     const initial = (await position())[axis];
     await page.keyboard.down(key);
     try {
@@ -101,7 +97,7 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
+  await expect(portfolio.locator('.dialogueBox')).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');

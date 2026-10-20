@@ -19,7 +19,8 @@ An inflated rectangle controls each exhibit's interaction range.
 Space displays exhibit text; E opens its external link once per press.
 Repeated keydown events are ignored, so returning from a showcase tab does not require a second E press even when the key was released in that tab.
 Space or E near the door returns to the `/portfolio/` landing page inside the current iframe.
-The welcome message disappears after the player first moves.
+The game starts without a welcome dialogue so directional controls are available immediately, including on mobile.
+Exhibit dialogue appears only after interaction and hides when the player leaves the exhibit.
 
 ## Tech
 
