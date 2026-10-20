@@ -1,0 +1,34 @@
+import { test, expect } from '@playwright/test';
+
+test('showcase links open on one E press after releasing E in the previous tab', async ({ page, context }) => {
+  await context.route(/^https:\/\/(radmehrvafadar\.github\.io|www\.linkedin\.com)\//, route => route.fulfill({
+    contentType: 'text/html', body: '<title>Showcase</title><p>Showcase fixture</p>',
+  }));
+  const keyboard = await context.newCDPSession(page);
+  await page.goto('/portfolio/src/portfolio-game/game.html');
+  const position = () => page.locator('.character').evaluate(element => {
+    const pixelSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
+    return new DOMMatrixReadOnly(getComputedStyle(element).transform).m41 / pixelSize;
+  });
+  for (const [direction, target, url] of [
+    ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
+    ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehr-vafadar-3b89391a1/'],
+    ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
+  ]) {
+    await page.keyboard.down(direction);
+    try {
+      await expect.poll(async () => direction === 'ArrowRight' ? (await position()) >= target : (await position()) <= target).toBe(true);
+    } finally {
+      await page.keyboard.up(direction);
+    }
+    await expect(page.locator('.actionPrompt')).toContainText('Press E to open');
+    const popupPromise = page.waitForEvent('popup');
+    await keyboard.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'e', code: 'KeyE', windowsVirtualKeyCode: 69, autoRepeat: false });
+    const popup = await popupPromise;
+    await expect(popup).toHaveURL(url);
+    await popup.bringToFront();
+    await popup.keyboard.up('e');
+    await popup.close();
+    await page.bringToFront();
+  }
+});

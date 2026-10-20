@@ -20,7 +20,6 @@ var speed = 2; //How fast the character moves in pixels per frame
 var hasPlayerMoved = false;
 var initialX = x;
 var initialY = y;
-var openedLinkThisPress = false;
 
 
 
@@ -258,9 +257,8 @@ document.addEventListener("keydown", (e) => {
    // If pressing 'e' near a statue with a URL, open it
    if (typeof e.key === 'string' && e.key.toLowerCase() === 'e') {
       var nearbyForOpen = getNearbyStatue(x, y);
-      if (nearbyForOpen && nearbyForOpen.url && !openedLinkThisPress) {
+      if (nearbyForOpen && nearbyForOpen.url && !e.repeat) {
          window.open(nearbyForOpen.url, '_blank', 'noopener');
-         openedLinkThisPress = true;
       }
    }
 
@@ -280,7 +278,6 @@ document.addEventListener("keyup", (e) => {
    }
 
    if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) { interact = false }
-   if (typeof e.key === 'string' && e.key.toLowerCase() === 'e') { openedLinkThisPress = false }
 });
 
 

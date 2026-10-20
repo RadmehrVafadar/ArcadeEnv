@@ -105,3 +105,41 @@ test('door returns to the portfolio landing page for both interaction keys', () 
     assert.equal(game.window.location.href, '/portfolio/');
   }
 });
+
+test('every showcase opens on the first E press after a popup receives the key release', () => {
+  const { game, listeners } = loadGame();
+  const opened = [];
+  game.window.open = (...args) => opened.push(args);
+  for (const statue of game.statues) {
+    game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
+      ? Math.max(statue.rect.x1, statue.rect.x2) + 2
+      : Math.min(statue.rect.x1, statue.rect.x2) - 2;
+    game.y = (statue.rect.y1 + statue.rect.y2) / 2;
+    listeners.get('keydown')({ key: 'e', repeat: false });
+    assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
+    assert.equal(opened.length, game.statues.indexOf(statue) + 1, statue.id);
+    // Opening the new tab takes focus; its keyup never reaches the game.
+    listeners.get('keydown')({ key: 'e', repeat: true });
+    assert.equal(opened.length, game.statues.indexOf(statue) + 1, `${statue.id} held E`);
+  }
+});
+
+test('E opens once per press and Space only reads the exhibit', () => {
+  const { game, elements, listeners } = loadGame();
+  const opened = [];
+  game.window.open = (...args) => opened.push(args);
+  game.x = 40;
+  game.y = 130;
+  game.hasPlayerMoved = true;
+  listeners.get('keydown')({ key: ' ' });
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
+  assert.equal(opened.length, 0);
+  listeners.get('keyup')({ key: ' ' });
+  for (const key of ['e', 'E']) {
+    listeners.get('keydown')({ key, repeat: false });
+    listeners.get('keydown')({ key, repeat: true });
+    listeners.get('keyup')({ key });
+  }
+  assert.equal(opened.length, 2);
+});
