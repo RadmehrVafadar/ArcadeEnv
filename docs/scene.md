@@ -8,18 +8,18 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 
 ## How it works
 
-`apps/arcade/src/index.jsx` mounts a full-window Canvas containing the cabinet, two floating cubes, a cloud, a spotlight, and a ground plane.
+`apps/arcade/src/index.jsx` sends phones and tablets directly to `/portfolio/` before importing the scene, avoiding Three.js, WebGL, and scene assets on mobile.
+Desktop browsers, including touch laptops, dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, two floating cubes, a cloud, a spotlight, and a ground plane.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
-Devices identified by a mobile user agent or multiple touch points activate the same zoom through an invisible scene-sized tap plane.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
-`VITE_IFRAME_URL` overrides the default `/portfolio/` at build time, using root `.env.local` or the process environment.
+`VITE_IFRAME_URL` overrides both the desktop iframe and mobile destination at build time, using root `.env.local` or the process environment.
 This URL is public configuration, so do not put secrets in it.
 
 `apps/arcade/src/box.jsx` loads `apps/arcade/media/cube.png` through Vite and animates two cubes with Drei Float.
 Each cube keeps its initial random rotation across rerenders.
-The `cloudConfig` object in `apps/arcade/src/index.jsx` controls the magenta cloud's dimensions, density, opacity, and position.
+The `cloudConfig` object in `apps/arcade/src/scene.jsx` controls the magenta cloud's dimensions, density, opacity, and position.
 `apps/arcade/src/style.css` controls the dark gradient and the iframe's internal dimensions.
 
 ## Tech
@@ -29,7 +29,8 @@ Drei provides GLTF and texture loading, clouds, floating animation, and the HTML
 
 ## Key files
 
-- `apps/arcade/src/index.jsx` - renderer, cloud settings, lighting, and ground.
+- `apps/arcade/src/index.jsx` - mobile redirect and deferred desktop scene import.
+- `apps/arcade/src/scene.jsx` - renderer, cloud settings, lighting, and ground.
 - `apps/arcade/src/arcade.jsx` - model, camera interaction, and portfolio iframe.
 - `apps/arcade/src/box.jsx` - textured floating cubes.
 - `apps/arcade/src/style.css` - viewport layout, background, and screen sizing.
@@ -43,7 +44,8 @@ Clouds use Drei's default remote texture, so rendering requires network access t
 The embedded site must allow framing, and HTTPS deployments need an HTTPS iframe URL.
 Shadow flags are configured on scene objects, but Canvas does not enable shadow maps.
 The camera zoom remains active after pointer exit, matching the original interaction.
-The mobile detection heuristic also treats laptops with multiple touch points as mobile.
+Mobile detection uses the mobile user agent and the desktop-user-agent iPad signature (Macintosh with multiple touch points).
+Touch support alone does not redirect desktop laptops.
 
 ## Related
 

@@ -79,26 +79,24 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('embedded portfolio navigates, loads the game, exits, and downloads the resume', async ({ page, context, request, isMobile }, testInfo) => {
+test('portfolio entry navigates, loads the game, exits, and downloads the resume', async ({ page, context, request, isMobile }, testInfo) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   await page.goto('/');
   const screen = page.locator('iframe');
-  await expect(screen).toBeVisible({ timeout: 30000 });
-  const portfolio = page.frameLocator('iframe');
+  if (!isMobile) await expect(screen).toBeVisible({ timeout: 30000 });
+  const portfolio = isMobile ? page : page.frameLocator('iframe');
   const start = portfolio.getByRole('link', { name: 'Start', exact: true });
   await expect(start).toHaveAttribute('href', '/portfolio/src/portfolio-game/game.html');
-  const frame = page.frames().find(frame => new URL(frame.url()).pathname === '/portfolio/');
-  const initialWidth = (await screen.boundingBox()).width;
-  const viewport = page.viewportSize();
-  if (isMobile) {
-    await page.touchscreen.tap(viewport.width * 0.1, viewport.height * 0.9);
-  } else {
+  const frame = isMobile ? page.mainFrame() : page.frames().find(frame => new URL(frame.url()).pathname === '/portfolio/');
+  if (!isMobile) {
+    const initialWidth = (await screen.boundingBox()).width;
+    const viewport = page.viewportSize();
     await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
+    await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
   }
-  await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
   await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
@@ -110,7 +108,7 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   await page.keyboard.press('e');
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
-  expect(new URL(page.url()).pathname).toBe('/');
+  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
   const blogPromise = page.waitForEvent('popup');
   await portfolio.getByRole('link', { name: 'Blog', exact: true }).click();
   const blog = await blogPromise;
@@ -118,7 +116,7 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   await expect(blog.getByRole('heading', { name: "rad's blog" })).toBeVisible();
   expect(await blog.evaluate(() => window.self === window.top && window.opener === null)).toBe(true);
   expect(frame.url()).toMatch(/\/portfolio\/$/);
-  expect(new URL(page.url()).pathname).toBe('/');
+  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
   await blog.close();
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');

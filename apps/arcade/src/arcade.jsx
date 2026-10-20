@@ -3,22 +3,6 @@ import { useFrame } from '@react-three/fiber';
 import { Html, useGLTF } from '@react-three/drei';
 import { Vector3 } from 'three';
 
-function isMobile() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-    navigator.maxTouchPoints > 1;
-}
-
-function MobileClickHandler({ onMobileClick }) {
-  if (!isMobile()) return null;
-
-  return (
-    <mesh onPointerDown={onMobileClick}>
-      <planeGeometry args={[100, 100]} />
-      <meshBasicMaterial transparent opacity={0} />
-    </mesh>
-  );
-}
-
 export default function Arcade() {
   const [hovered, setHovered] = useState(false);
   const target = useMemo(() => new Vector3(0, 3, 3), []);
@@ -42,11 +26,10 @@ export default function Arcade() {
 
   return (
     <>
-      <MobileClickHandler onMobileClick={() => setHovered(true)} />
       <primitive
         object={arcade.scene}
         position-y={-2}
-        onPointerOver={() => !isMobile() && setHovered(true)}
+        onPointerOver={() => setHovered(true)}
         castShadow
         receiveShadow
       >
