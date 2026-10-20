@@ -27,7 +27,7 @@ Install Chromium with `npx playwright install chromium`, then run `npm run check
 Browser projects exercise development and production on desktop and Pixel mobile profiles using one worker and software WebGL.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
-Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, scene loading, zoom, and browser errors.
+Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
 Screenshots and failure traces are saved under ignored `test-results/`.
 
 `.github/workflows/check.yml` runs two parallel jobs for each opened or reopened pull request and whenever commits are pushed to it.

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('loads the arcade without application errors', async ({ page }, testInfo) => {
+test('loads the arcade without application errors', async ({ page, isMobile }, testInfo) => {
+  test.skip(isMobile, 'Mobile opens the portfolio directly.');
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => {
@@ -15,25 +16,23 @@ test('loads the arcade without application errors', async ({ page }, testInfo) =
   expect(errors).toEqual([]);
 });
 
-test('labels the embedded portfolio for assistive technology', async ({ page }) => {
+test('labels the embedded portfolio for assistive technology', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Mobile opens the portfolio directly.');
   await page.goto('/');
   await expect(page.locator('iframe')).toHaveAttribute('title', 'Radmehr Vafadar portfolio', {
     timeout: 30000,
   });
 });
 
-test('zooms toward the cabinet on hover or touch', async ({ page, isMobile }, testInfo) => {
+test('zooms toward the cabinet on hover', async ({ page, isMobile }, testInfo) => {
+  test.skip(isMobile, 'Mobile opens the portfolio directly.');
   await page.goto('/');
   const screen = page.locator('iframe');
   await expect(screen).toBeVisible({ timeout: 30000 });
   const initialWidth = (await screen.boundingBox()).width;
   const viewport = page.viewportSize();
 
-  if (isMobile) {
-    await page.touchscreen.tap(viewport.width * 0.1, viewport.height * 0.9);
-  } else {
-    await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
-  }
+  await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
 
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 })
     .toBeGreaterThan(initialWidth * 1.5);
