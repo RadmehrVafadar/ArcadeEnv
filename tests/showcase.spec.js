@@ -12,7 +12,7 @@ test('showcase links open on one E press after releasing E in the previous tab',
   });
   for (const [direction, target, url] of [
     ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
-    ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehr-vafadar-3b89391a1/'],
+    ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehrv/'],
     ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
   ]) {
     await page.keyboard.down(direction);
