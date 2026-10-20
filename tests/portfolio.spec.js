@@ -111,9 +111,15 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe('/');
+  const blogPromise = page.waitForEvent('popup');
   await portfolio.getByRole('link', { name: 'Blog', exact: true }).click();
-  await expect.poll(() => frame.url()).toMatch(/\/portfolio\/src\/blog-website\/blog.html$/);
-  await frame.goto(new URL('/portfolio/', page.url()).href);
+  const blog = await blogPromise;
+  await expect(blog).toHaveURL(/\/portfolio\/src\/blog-website\/blog.html$/);
+  await expect(blog.getByRole('heading', { name: "rad's blog" })).toBeVisible();
+  expect(await blog.evaluate(() => window.self === window.top && window.opener === null)).toBe(true);
+  expect(frame.url()).toMatch(/\/portfolio\/$/);
+  expect(new URL(page.url()).pathname).toBe('/');
+  await blog.close();
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
   const downloadPromise = new Promise(resolve => {

@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T17:59:45.897Z",
+  "title": "Design System: rad's blog",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "displayName": "Warm Paper",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.012 85)",
+          "oklch(27% 0.012 85)",
+          "oklch(38% 0.012 85)",
+          "oklch(49% 0.012 85)",
+          "oklch(61% 0.012 85)",
+          "oklch(72% 0.012 85)",
+          "oklch(84% 0.012 85)",
+          "oklch(95% 0.012 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "charcoal": {
+        "displayName": "Charcoal",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.009 85)",
+          "oklch(27% 0.009 85)",
+          "oklch(38% 0.009 85)",
+          "oklch(49% 0.009 85)",
+          "oklch(61% 0.009 85)",
+          "oklch(72% 0.009 85)",
+          "oklch(84% 0.009 85)",
+          "oklch(95% 0.009 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "muted": {
+        "displayName": "Muted Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.018 85)",
+          "oklch(27% 0.018 85)",
+          "oklch(38% 0.018 85)",
+          "oklch(49% 0.018 85)",
+          "oklch(61% 0.018 85)",
+          "oklch(72% 0.018 85)",
+          "oklch(84% 0.018 85)",
+          "oklch(95% 0.018 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "interaction": {
+        "displayName": "Interaction Brown",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15% 0.055 65)",
+          "oklch(27% 0.055 65)",
+          "oklch(38% 0.055 65)",
+          "oklch(49% 0.055 65)",
+          "oklch(61% 0.055 65)",
+          "oklch(72% 0.055 65)",
+          "oklch(84% 0.055 65)",
+          "oklch(95% 0.055 65)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "selection": {
+        "displayName": "Selection Paper",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.028 85)",
+          "oklch(27% 0.028 85)",
+          "oklch(38% 0.028 85)",
+          "oklch(49% 0.028 85)",
+          "oklch(61% 0.028 85)",
+          "oklch(72% 0.028 85)",
+          "oklch(84% 0.028 85)",
+          "oklch(95% 0.028 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "selected-ink": {
+        "displayName": "Selected Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.009 85)",
+          "oklch(27% 0.009 85)",
+          "oklch(38% 0.009 85)",
+          "oklch(49% 0.009 85)",
+          "oklch(61% 0.009 85)",
+          "oklch(72% 0.009 85)",
+          "oklch(84% 0.009 85)",
+          "oklch(95% 0.009 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "code-paper": {
+        "displayName": "Code Paper",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.018 85)",
+          "oklch(27% 0.018 85)",
+          "oklch(38% 0.018 85)",
+          "oklch(49% 0.018 85)",
+          "oklch(61% 0.018 85)",
+          "oklch(72% 0.018 85)",
+          "oklch(84% 0.018 85)",
+          "oklch(95% 0.018 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "quote-rule": {
+        "displayName": "Quote Rule",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.025 85)",
+          "oklch(27% 0.025 85)",
+          "oklch(38% 0.025 85)",
+          "oklch(49% 0.025 85)",
+          "oklch(61% 0.025 85)",
+          "oklch(72% 0.025 85)",
+          "oklch(84% 0.025 85)",
+          "oklch(95% 0.025 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      },
+      "divider": {
+        "displayName": "Divider",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% 0.023 85)",
+          "oklch(27% 0.023 85)",
+          "oklch(38% 0.023 85)",
+          "oklch(49% 0.023 85)",
+          "oklch(61% 0.023 85)",
+          "oklch(72% 0.023 85)",
+          "oklch(84% 0.023 85)",
+          "oklch(95% 0.023 85)"
+        ],
+        "rampPurpose": "Synthesized preview ramp; not additional production tokens."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Home Title",
+        "purpose": "Centered home heading."
+      },
+      "headline": {
+        "displayName": "Article Title",
+        "purpose": "Reading view title."
+      },
+      "title": {
+        "displayName": "Folder Title",
+        "purpose": "Right-aligned folder heading."
+      },
+      "body": {
+        "displayName": "Reading Text",
+        "purpose": "Article prose."
+      },
+      "label": {
+        "displayName": "Folder Path",
+        "purpose": "Home navigation."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "480px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Folder Navigation",
+      "kind": "nav",
+      "refersTo": "folder-link",
+      "description": "Plain vertical folder paths.",
+      "html": "<nav class=\"ds-folder\" aria-label=\"Folders\"><a href=\"#/tech\">/tech</a><a href=\"#/hobbies\">/hobbies</a><a href=\"#/work\">/work</a></nav>",
+      "css": ".ds-folder{color:#33312c;background:#f7f5ef;font-family:var(--mono,'SFMono-Regular',Consolas,'Liberation Mono',monospace);font-size:15px;line-height:1.75}.ds-folder a{display:block;min-height:44px;padding:8px 12px;color:inherit;text-decoration:none}.ds-folder a:hover{color:#796044;text-decoration:underline;text-underline-offset:.24em;text-decoration-thickness:1px}.ds-folder a:focus-visible,.ds-parent a:focus-visible,.ds-list a:focus-visible{outline:2px solid #796044;outline-offset:5px}"
+    },
+    {
+      "name": "Parent Navigation",
+      "kind": "nav",
+      "description": "Return to the enclosing folder.",
+      "html": "<nav class=\"ds-parent\" aria-label=\"Parent folder\"><a href=\"#/\" aria-label=\"Back to blog\">../</a></nav>",
+      "css": ".ds-parent{color:#33312c;background:#f7f5ef;font-family:var(--mono,'SFMono-Regular',Consolas,'Liberation Mono',monospace);font-size:16px;line-height:1.75;margin-bottom:36px}.ds-parent a{display:inline-flex;align-items:center;min-width:44px;min-height:44px;color:inherit;text-decoration:none}.ds-parent a:hover{color:#796044;text-decoration:underline;text-underline-offset:.24em}.ds-folder a:focus-visible,.ds-parent a:focus-visible,.ds-list a:focus-visible{outline:2px solid #796044;outline-offset:5px}"
+    },
+    {
+      "name": "Article List Link",
+      "kind": "custom",
+      "description": "Preview-only example of an article link; not published content.",
+      "html": "<div class=\"ds-list\"><a href=\"#/tech/preview\">Article title</a></div>",
+      "css": ".ds-list{color:#33312c;background:#f7f5ef;font:18px/1.75 Georgia,'Times New Roman',serif}.ds-list a{display:inline-block;padding-block:10px;color:inherit;text-decoration-thickness:1px;text-underline-offset:.24em}.ds-list a:hover{color:#796044}.ds-folder a:focus-visible,.ds-parent a:focus-visible,.ds-list a:focus-visible{outline:2px solid #796044;outline-offset:5px}"
+    },
+    {
+      "name": "Empty Folder",
+      "kind": "custom",
+      "description": "Quiet, honest empty state.",
+      "html": "<p class=\"ds-empty\">No articles yet.</p>",
+      "css": ".ds-empty{margin:0;background:#f7f5ef;color:var(--muted,#716b60);font:17px/1.75 Georgia,'Times New Roman',serif}"
+    },
+    {
+      "name": "Code Block",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Plain shaded code surface.",
+      "html": "<pre class=\"ds-code\"><code>const example = true</code></pre>",
+      "css": ".ds-code{overflow-x:auto;padding:20px;background:#eeebe2;color:#33312c;font-size:18px}.ds-code code{font-family:var(--mono,'SFMono-Regular',Consolas,'Liberation Mono',monospace);font-size:.82em;line-height:1.65}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Warm paper folders",
+    "overview": "A quiet, stripped-down reading surface pairs warm paper with charcoal text and system serif typography.\nSmall monospace paths provide the folder metaphor without decorative effects.\nThis system applies only to the blog and does not govern the portfolio landing page or arcade.",
+    "keyCharacteristics": [
+      "Warm paper and charcoal.",
+      "Serif reading with monospace navigation.",
+      "Centered, narrow columns and generous whitespace.",
+      "Flat surfaces without animation or effects."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep this visual system scoped to the blog.",
+      "Do preserve visible keyboard focus and comfortable reading spacing.",
+      "Do use real published articles and honest empty states."
+    ],
+    "donts": [
+      "Don't add decorative effects or animation.",
+      "Don't publish sample content to fill the layout."
+    ]
+  }
+}

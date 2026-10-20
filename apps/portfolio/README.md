@@ -9,7 +9,7 @@ Run it locally using the quick start below.
 - Animated clouds and a clickable day/night background.
 - Arcade map with six interactive portfolio exhibits.
 - Arrow-key and on-screen direction controls.
-- Resume download and a static blog placeholder.
+- Resume download and a minimal Markdown blog organized by topic.
 
 ## Quick start
 
@@ -28,13 +28,13 @@ Root `npm run build` assembles the complete site in root `dist/`; root `npm run 
 - [Site structure](docs/site-structure.md) - pages, styling, navigation, and assets.
 - [Arcade](docs/arcade.md) - movement, collisions, and exhibit interactions.
 - [Testing](docs/testing.md) - checks and manual browser verification.
+- [Blog](docs/blog.md) - adding Markdown articles, images, and categories.
 
 ## Backlog
 
 These ideas from the original README remain outside the cleanup scope:
 
 - Merge the portfolio and arcade environment into one monorepo.
-- Build the blog page.
 - Simplify the UI and fix menu link underlines.
 - Automatically zoom the arcade on mobile.
 - Support WASD movement alongside arrow keys.

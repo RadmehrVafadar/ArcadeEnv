@@ -22,6 +22,11 @@ Production tests write to `dist/`; avoid concurrent builds against that director
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
+- `tests/blog.test.mjs` - Markdown catalog and relative content links.
+- `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
+
+Blog browser checks verify that the portfolio link opens a separate top-level tab and leaves the originating page in place.
+The embedded portfolio regression checks the same behavior from inside the arcade cabinet.
 - `.eslintrc.cjs` - lint rules and environment configuration.
 - `package.json` - verification commands.
 
