@@ -11,11 +11,22 @@ test('loads the arcade without application errors', async ({ page, isMobile }, t
   page.on('console', message => {
     if (message.type() === 'error') errors.push(message.text());
   });
+  const roomResponse = page.waitForResponse(response => response.url().endsWith('/arcade-room.glb'));
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('iframe')).toBeVisible({ timeout: 30000 });
   await expect(page.locator('iframe')).toHaveAttribute('src', '/portfolio/');
   await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
+  const room = await (await roomResponse).body();
+  expect(room.length).toBeLessThan(256 * 1024);
+  expect(room.toString('ascii', 0, 4)).toBe('glTF');
+  const gltf = JSON.parse(room.toString('utf8', 20, 20 + room.readUInt32LE(12)));
+  expect(gltf.images ?? []).toHaveLength(0);
+  const primitives = gltf.meshes.flatMap(mesh => mesh.primitives);
+  expect(primitives.length).toBeLessThanOrEqual(7);
+  const triangles = primitives
+    .reduce((count, primitive) => count + gltf.accessors[primitive.indices].count / 3, 0);
+  expect(triangles).toBeLessThan(5000);
   const screenshot = await page.screenshot({ path: testInfo.outputPath('arcade.png') });
   const lighting = await page.evaluate(async base64 => {
     const image = new Image();
@@ -26,18 +37,21 @@ test('loads the arcade without application errors', async ({ page, isMobile }, t
     canvas.height = image.height;
     const context = canvas.getContext('2d');
     context.drawImage(image, 0, 0);
-    const green = (x, y) => context.getImageData(
-      Math.floor(image.width * x), Math.floor(image.height * y), 1, 1,
-    ).data[1];
-    return {
-      floor: green(0.5, 0.94),
-      floorSide: green(0.1, 0.94),
-      background: green(0.5, 0.1),
-      backgroundSide: green(0.1, 0.1),
-    };
+    const pixels = context.getImageData(0, 0, image.width, image.height).data;
+    let cyan = 0;
+    let coral = 0;
+    for (let y = 0; y < image.height; y++) {
+      for (let x = 0; x < image.width; x++) {
+        const i = (y * image.width + x) * 4;
+        const [r, g, b] = pixels.slice(i, i + 3);
+        if (x < image.width * 0.4 && g > 100 && b > 120 && b > r * 1.2) cyan++;
+        if (x > image.width * 0.6 && r > 120 && b > 70 && r > g * 1.3) coral++;
+      }
+    }
+    return { cyan, coral };
   }, screenshot.toString('base64'));
-  expect(lighting.floor).toBeGreaterThan(lighting.floorSide + 10);
-  expect(Math.abs(lighting.background - lighting.backgroundSide)).toBeLessThan(3);
+  expect(lighting.cyan).toBeGreaterThan(100);
+  expect(lighting.coral).toBeGreaterThan(100);
   expect(errors).toEqual([]);
   expect(decorationRequests).toEqual([]);
 });

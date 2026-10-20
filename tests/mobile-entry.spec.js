@@ -8,7 +8,7 @@ test('mobile opens the portfolio without loading the arcade scene', async ({ pag
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await expect(page.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   await expect(page.locator('canvas, iframe')).toHaveCount(0);
-  expect(requests.filter(url => /scene[.-]|model9\.glb|cube\.png|three|drei|fiber/i.test(url))).toEqual([]);
+  expect(requests.filter(url => /scene[.-]|model9\.glb|arcade-room\.glb|cube\.png|three|drei|fiber/i.test(url))).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('mobile-portfolio.png') });
 });
 

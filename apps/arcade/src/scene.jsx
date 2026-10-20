@@ -1,10 +1,17 @@
 import './style.css';
 import { createRoot } from 'react-dom/client';
 import { Canvas } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import Arcade from './arcade.jsx';
+
+function Room() {
+  const room = useGLTF(import.meta.env.BASE_URL + 'arcade-room.glb');
+  return <primitive object={room.scene} position-y={-2} />;
+}
 
 createRoot(document.querySelector('#root')).render(
   <Canvas
+    dpr={[1, 1.5]}
     camera={{
       fov: 50,
       near: 0.1,
@@ -12,6 +19,12 @@ createRoot(document.querySelector('#root')).render(
       position: [0, 3, 8],
     }}
   >
+    <color attach="background" args={['#080d17']} />
+    <ambientLight intensity={0.3} color="#a8c6e8" />
+    <directionalLight position={[0, 6, 5]} intensity={0.6} color="#d6e7ff" />
+    <pointLight position={[-4, 1, 0]} intensity={1.5} distance={9} color="#16cfee" />
+    <pointLight position={[4, 1, 0]} intensity={1.5} distance={9} color="#ff285d" />
+    <Room />
     <Arcade />
     <spotLight
       position={[0, 20, 10]}
@@ -27,15 +40,5 @@ createRoot(document.querySelector('#root')).render(
       shadow-camera-top={10}
       shadow-camera-bottom={-10}
     />
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-      <planeGeometry args={[50, 20]} />
-      <meshStandardMaterial
-        color="#051821"
-        transparent
-        opacity={0.1}
-        roughness={0.7}
-        metalness={10}
-      />
-    </mesh>
   </Canvas>,
 );
