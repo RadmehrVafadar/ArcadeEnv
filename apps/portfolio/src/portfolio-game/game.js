@@ -36,7 +36,7 @@ var statues = [
       id: "Mirror", 
       rect: { x1: 0, y1: 110, x2: 30, y2: 160 }, 
       text: "Hey a mirror! Maybe I can see what I look like in it.", 
-      url: 'https://www.linkedin.com/in/radmehrv',
+      url: 'https://www.linkedin.com/in/radmehrv/',
       interactPadding: 10 },
 
    { 
