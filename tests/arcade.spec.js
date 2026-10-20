@@ -3,6 +3,10 @@ import { test, expect } from '@playwright/test';
 test('loads the arcade without application errors', async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Mobile opens the portfolio directly.');
   const errors = [];
+  const decorationRequests = [];
+  page.on('request', request => {
+    if (/cube(?:[-.]|\.png)|cloud\.png/i.test(request.url())) decorationRequests.push(request.url());
+  });
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => {
     if (message.type() === 'error') errors.push(message.text());
@@ -14,6 +18,7 @@ test('loads the arcade without application errors', async ({ page, isMobile }, t
   await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('arcade.png') });
   expect(errors).toEqual([]);
+  expect(decorationRequests).toEqual([]);
 });
 
 test('labels the embedded portfolio for assistive technology', async ({ page, isMobile }) => {

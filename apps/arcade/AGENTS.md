@@ -19,12 +19,11 @@ npm run test:browser -- --grep "zooms"        # Run camera regressions after roo
 ```text
 src/      Scene components and global CSS
 public/   Unprocessed cabinet model
-media/    Bundled cube texture
 ```
 
 ## Conventions
 
-- Preserve cabinet and cube positions, cloud settings, and camera targets to avoid visual changes.
+- Preserve the cabinet position and camera targets to avoid visual changes.
 - Use `import.meta.env.BASE_URL` for public assets and module-relative URLs for bundled assets.
 - Keep the default iframe at `/portfolio/` and root `VITE_IFRAME_URL` as an override.
 - Keep hooks unconditional and mapped React elements keyed to preserve identity.
