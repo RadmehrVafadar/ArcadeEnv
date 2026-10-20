@@ -6,7 +6,7 @@ test('directional buttons move toward their arrows with mouse or touch', async (
   for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
-    await expect(page.locator('.dialogueBox')).toBeHidden();
+    await expect(page.locator('.dialogueBox')).toContainText('Welcome');
     const position = () => character.evaluate((element, axis) => {
       const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
       return axis === 'x' ? transform.m41 : transform.m42;
@@ -26,6 +26,7 @@ test('directional buttons move toward their arrows with mouse or touch', async (
       await expect.poll(async () => ((await position()) - initial) * sign).toBeGreaterThan(0);
       await expect(character).toHaveAttribute('facing', direction);
       await expect(button).toHaveClass(/pressed/);
+      await expect(page.locator('.dialogueBox')).toBeHidden();
     } finally {
       if (isMobile) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       else await page.mouse.up();
@@ -44,7 +45,7 @@ test('game supports WASD movement and stops on key release', async ({ page }) =>
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
     await expect(character).toBeVisible();
-    await expect(page.locator('.dialogueBox')).toBeHidden();
+    await expect(page.locator('.dialogueBox')).toContainText('WASD');
     const initial = (await position())[axis];
     await page.keyboard.down(key);
     try {
@@ -97,7 +98,7 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toBeHidden();
+  await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
   await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
@@ -131,4 +132,41 @@ test('embedded portfolio navigates, loads the game, exits, and downloads the res
   expect(await pdf.body()).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
   await page.screenshot({ path: testInfo.outputPath('embedded-portfolio.png') });
   expect(errors).toEqual([]);
+});
+
+test('welcome and exhibit dialogue stay above controls and interaction guidance', async ({ page }, testInfo) => {
+  for (const landscape of [false, true]) {
+    if (landscape) await page.setViewportSize({ width: 854, height: 393 });
+    await page.goto('/portfolio/src/portfolio-game/game.html');
+    const dialogue = page.locator('.dialogueBox');
+    await expect(dialogue).toContainText('Welcome');
+    const camera = await page.locator('.camera').boundingBox();
+    expect(camera.y).toBeGreaterThanOrEqual(0);
+    const box = await dialogue.boundingBox();
+    const dpad = await page.locator('.dpad').boundingBox();
+    expect(box.y - camera.y).toBeLessThan(10);
+    expect(box.y + box.height).toBeLessThan(dpad.y);
+    await page.screenshot({ fullPage: true, path: testInfo.outputPath(`welcome-${landscape ? 'landscape' : 'portrait'}.png`) });
+    await page.keyboard.down('d');
+    try {
+      await expect(page.locator('.actionPrompt')).toContainText('Press E to open');
+    } finally {
+      await page.keyboard.up('d');
+    }
+    await page.keyboard.down(' ');
+    try {
+      await expect(dialogue).toContainText('bird simulation');
+    } finally {
+      await page.keyboard.up(' ');
+    }
+    const bounds = await page.locator('.camera').evaluate(camera => {
+      const dialogue = camera.querySelector('.dialogueBox').getBoundingClientRect();
+      const prompt = camera.querySelector('.actionPrompt').getBoundingClientRect();
+      const dpad = camera.querySelector('.dpad').getBoundingClientRect();
+      return { dialogueBottom: dialogue.bottom, promptTop: prompt.top, promptBottom: prompt.bottom, dpadTop: dpad.top };
+    });
+    expect(bounds.dialogueBottom).toBeLessThanOrEqual(bounds.promptTop);
+    expect(bounds.promptBottom).toBeLessThan(bounds.dpadTop);
+    await page.screenshot({ fullPage: true, path: testInfo.outputPath(`exhibit-${landscape ? 'landscape' : 'portrait'}.png`) });
+  }
 });
