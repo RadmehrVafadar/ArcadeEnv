@@ -56,7 +56,7 @@ Replace the former `Lint, types, build, and tests` required check with these two
 Each app retains its existing tooling ranges and locked versions; no dependency modernization is included.
 Root lint configuration lives in `scripts/` so the portfolio's legacy ESLint config has no competing ancestor flat config.
 The existing Three.js dependency still produces a missing BatchedMesh export warning in an unused dependency path, and the arcade bundle still exceeds Vite's chunk warning threshold.
-Clouds and portfolio fonts require access to their existing external hosts.
+Portfolio fonts require access to their existing external hosts.
 Existing dependency security findings remain outside this migration.
 
 The portfolio was imported from local `portfolio-website-rad` without history.

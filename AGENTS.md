@@ -35,7 +35,7 @@ docs/            Workspace development and scene documentation
 
 ## Conventions
 
-- Preserve scene positions, cloud settings, camera targets, portfolio content, and game controls.
+- Preserve the cabinet position, camera targets, portfolio content, and game controls.
 - Keep one root lockfile and each app's existing tooling versions and lint configuration.
 - Use the portfolio Vite base for navigation and downloads so prefixed routes work.
 - Keep `VITE_IFRAME_URL` as an explicit override in the root environment.
