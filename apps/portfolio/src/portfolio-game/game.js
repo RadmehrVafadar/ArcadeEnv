@@ -194,7 +194,7 @@ const placeCharacter = () => {
    if (!hasPlayerMoved) {
       dialogueBox.innerHTML = mobileControls
          ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD."
-         : "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+         : "Move: WASD or ← ↑ ↓→<br>Exit: Q";
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {

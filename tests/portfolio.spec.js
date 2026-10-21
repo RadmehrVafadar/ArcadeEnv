@@ -1,6 +1,33 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('game startup instructions match desktop and touch controls', async ({ page, isMobile }, testInfo) => {
+  await page.goto('/portfolio/src/portfolio-game/game.html');
+  const dialogue = page.locator('.dialogueBox');
+  if (isMobile) {
+    await expect(dialogue).toContainText('Use the arrows to move. Tap Space to read or E to open.');
+  } else {
+    await expect(dialogue).toHaveText('Move: WASD or ← ↑ ↓→Exit: Q');
+    expect(await dialogue.innerText()).toBe('Move: WASD or ← ↑ ↓→\nExit: Q');
+    await page.evaluate(() => document.fonts.ready);
+    const lines = await dialogue.evaluate(element => {
+      return [...element.childNodes].filter(node => node.nodeType === Node.TEXT_NODE).map(node => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right }));
+      });
+    });
+    expect(lines.map(line => line.length)).toEqual([1, 1]);
+    expect(lines[1][0].top).toBeGreaterThan(lines[0][0].top);
+    const bounds = await dialogue.boundingBox();
+    for (const line of lines) expect(line[0].right).toBeLessThan(bounds.x + bounds.width);
+  }
+  await page.screenshot({ path: testInfo.outputPath('game-startup-instructions.png') });
+  await page.keyboard.down('s');
+  await expect(dialogue).toBeHidden();
+  await page.keyboard.up('s');
+});
+
 test('production portfolio serves the assembled build', async ({ request }, testInfo) => {
   test.skip(testInfo.project.name !== 'production-desktop', 'Check the production HTTP server once.');
   for (const file of ['index.html', 'src/portfolio-game/game.html', 'src/blog-website/blog.html']) {
@@ -15,9 +42,9 @@ test('directional buttons move toward their arrows with mouse or touch', async (
   for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
-    await expect(page.locator('.dialogueBox')).toContainText('Welcome');
+    await expect(page.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
     if (!isMobile) {
-      // Desktop retains its original welcome overlay and layout.
+      // Dismiss the desktop instructions before clicking the D-pad.
       await page.keyboard.down('s');
       await expect(page.locator('.dialogueBox')).toBeHidden();
       await page.keyboard.up('s');
@@ -110,7 +137,7 @@ test('portfolio entry navigates, loads the game, exits, and downloads the resume
   }
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
   await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');

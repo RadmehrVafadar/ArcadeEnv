@@ -37,9 +37,9 @@ function loadGame({ mobile = false } = {}) {
   return { game, elements, listeners };
 }
 
-test('game starts, displays its welcome message, and moves on arrow input', () => {
+test('desktop starts with movement and exit instructions, then hides them on movement', () => {
   const { game, elements, listeners } = loadGame();
-  assert.match(elements.get('.dialogueBox').innerHTML, /Welcome/);
+  assert.equal(elements.get('.dialogueBox').innerHTML, 'Move: WASD or ← ↑ ↓→<br>Exit: Q');
   listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
   runInNewContext('placeCharacter()', game);
   assert.equal(game.x, 102);
@@ -47,6 +47,11 @@ test('game starts, displays its welcome message, and moves on arrow input', () =
   listeners.get('keyup')({ which: 39, key: 'ArrowRight' });
   runInNewContext('placeCharacter()', game);
   assert.equal(game.x, 102);
+});
+
+test('mobile keeps its touch and keyboard welcome instructions', () => {
+  const { elements } = loadGame({ mobile: true });
+  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD.');
 });
 
 test('statue collisions and interaction padding support reversed coordinates', () => {
