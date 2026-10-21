@@ -104,14 +104,13 @@ test('CRT glass keeps the embedded portfolio clickable after zoom', { tag: '@web
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await loadArcade(page);
   await zoomArcade(page);
-  await test.step('Open Blog through the CRT glass', async () => {
-    const blog = page.frameLocator('iframe').getByRole('link', { name: 'Blog', exact: true });
-    const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
-    await blog.click({ timeout: 10000 });
-    const popup = await popupPromise;
-    await expect(popup.getByRole('heading', { name: "rad's blog", exact: true }))
+  await test.step('Navigate to Blog inside the CRT glass', async () => {
+    const portfolio = page.frameLocator('iframe');
+    await portfolio.getByRole('link', { name: 'Blog', exact: true }).click({ timeout: 10000 });
+    await expect(portfolio.getByRole('heading', { name: "rad's blog", exact: true }))
       .toBeVisible({ timeout: 10000 });
-    await popup.close();
+    await expect(page).toHaveURL(/\/$/);
+    expect(page.context().pages()).toHaveLength(1);
   });
 });
 

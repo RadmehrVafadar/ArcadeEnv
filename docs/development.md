@@ -30,7 +30,7 @@ The `development-hmr` dependency project finishes its stylesheet mutation and re
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
 Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
-CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and popup steps in traces.
+CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and embedded navigation steps in traces.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
