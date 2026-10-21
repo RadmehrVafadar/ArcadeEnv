@@ -16,7 +16,7 @@ function loadGame({ mobile = false } = {}) {
       if (!elements.has(selector)) {
         elements.set(selector, {
           clientWidth: 390, clientHeight: 600, offsetWidth: 390, offsetHeight: 1020,
-          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {} },
+          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
           setAttribute(name, value) { this.attributes[name] = value; },
           addEventListener(name, handler) { this.listeners.set(name, handler); },
         });
@@ -39,7 +39,7 @@ function loadGame({ mobile = false } = {}) {
 
 test('desktop starts with movement and exit instructions, then hides them on movement', () => {
   const { game, elements, listeners } = loadGame();
-  assert.equal(elements.get('.dialogueBox').innerHTML, 'Move: WASD or ← ↑ ↓→<br>Exit: Q');
+  assert.equal(elements.get('.dialogueBox').innerHTML, '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>');
   listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
   runInNewContext('placeCharacter()', game);
   assert.equal(game.x, 102);

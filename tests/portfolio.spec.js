@@ -7,24 +7,47 @@ test('game startup instructions match desktop and touch controls', async ({ page
   if (isMobile) {
     await expect(dialogue).toContainText('Use the arrows to move. Tap Space to read or E to open.');
   } else {
-    await expect(dialogue).toHaveText('Move: WASD or ← ↑ ↓→Exit: Q');
-    expect(await dialogue.innerText()).toBe('Move: WASD or ← ↑ ↓→\nExit: Q');
+    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Exit: Q');
+    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nExit: Q');
     await page.evaluate(() => document.fonts.ready);
     const lines = await dialogue.evaluate(element => {
-      return [...element.childNodes].filter(node => node.nodeType === Node.TEXT_NODE).map(node => {
+      return [...element.children].map(node => {
         const range = document.createRange();
         range.selectNodeContents(node);
         return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right }));
       });
     });
-    expect(lines.map(line => line.length)).toEqual([1, 1]);
+    expect(lines.map(line => line.length)).toEqual([1, 1, 1]);
     expect(lines[1][0].top).toBeGreaterThan(lines[0][0].top);
     const bounds = await dialogue.boundingBox();
     for (const line of lines) expect(line[0].right).toBeLessThan(bounds.x + bounds.width);
+    const sizes = await dialogue.evaluate(element => ({
+      controls: parseFloat(getComputedStyle(element.querySelector('.startupControl')).fontSize),
+      welcome: parseFloat(getComputedStyle(element.querySelector('.startupWelcome')).fontSize),
+      clientHeight: element.clientHeight, scrollHeight: element.scrollHeight,
+    }));
+    expect(sizes.controls).toBeGreaterThan(16);
+    expect(sizes.controls).toBeGreaterThan(sizes.welcome);
+    expect(bounds.height).toBeLessThan(150);
+    expect(sizes.scrollHeight).toBe(sizes.clientHeight);
+    for (const viewport of [{ width: 1280, height: 720 }, { width: 800, height: 600 }, { width: 624, height: 780 }]) {
+      await page.setViewportSize(viewport);
+      const panel = await dialogue.boundingBox();
+      expect(panel.y).toBeGreaterThanOrEqual(0);
+      expect(panel.y + panel.height).toBeLessThanOrEqual(viewport.height);
+      const content = await dialogue.evaluate(element => ({
+        width: element.clientWidth, scrollWidth: element.scrollWidth,
+        height: element.clientHeight, scrollHeight: element.scrollHeight,
+      }));
+      expect(content.scrollWidth).toBe(content.width);
+      expect(content.scrollHeight).toBe(content.height);
+      await page.screenshot({ path: testInfo.outputPath(`game-startup-${viewport.width}x${viewport.height}.png`) });
+    }
   }
   await page.screenshot({ path: testInfo.outputPath('game-startup-instructions.png') });
   await page.keyboard.down('s');
   await expect(dialogue).toBeHidden();
+  await expect(dialogue).not.toHaveClass(/startupInstructions/);
   await page.keyboard.up('s');
 });
 
