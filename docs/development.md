@@ -18,14 +18,17 @@ Root `.env.local` supplies arcade configuration, including `VITE_IFRAME_URL`.
 
 `npm run build` builds each workspace into its own `dist/`, then `scripts/assemble.mjs` replaces root `dist/` with arcade output and copies portfolio output under `dist/portfolio/`.
 `npm run preview` serves that combined directory.
+Its proxy is explicitly empty so Vite preview cannot inherit the development portfolio proxy and accidentally serve source files instead of the assembled build.
 Deploy at the domain root with build command `npm run build` and output directory `dist/`.
 Vercel and the retained `npm run deploy` gh-pages command use this combined output.
 Subdirectory deployment requires revisiting both route bases.
 
 Install Chromium with `npx playwright install chromium`, then run `npm run check` for lint, portfolio types, both builds, launcher checks, game tests, production HTTP checks, and browser integration tests.
 `npm test` expects an existing root build; `npm run check` creates it first.
-Browser projects exercise development and production on desktop and Pixel mobile profiles using one worker and software WebGL.
-Both hover zoom assertions allow up to 15 seconds for frame-based camera movement under software WebGL, polling until the width threshold is reached without a fixed delay.
+Browser projects exercise development and production on desktop and Pixel mobile profiles using two workers and software WebGL.
+The `development-hmr` dependency project finishes its stylesheet mutation and restoration before the other projects start, so parallel tests cannot observe the temporary stylesheet.
+Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
+All hover zoom assertions allow up to 15 seconds for frame-based camera movement under software WebGL, polling until the width threshold is reached without a fixed delay.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
@@ -57,7 +60,7 @@ Replace the former `Lint, types, build, and tests` required check with these two
 Each app retains its existing tooling ranges and locked versions; no dependency modernization is included.
 Root lint configuration lives in `scripts/` so the portfolio's legacy ESLint config has no competing ancestor flat config.
 The existing Three.js dependency still produces a missing BatchedMesh export warning in an unused dependency path, and the arcade bundle still exceeds Vite's chunk warning threshold.
-Portfolio fonts require access to their existing external hosts.
+Portfolio fonts are bundled locally, so page loads and browser tests do not depend on external font hosts.
 Existing dependency security findings remain outside this migration.
 
 The portfolio was imported from local `portfolio-website-rad` without history.

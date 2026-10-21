@@ -10,7 +10,8 @@ Stack: TypeScript, JavaScript, React, Vite, and CSS.
 npm ci                                      # Install at repository root
 npm run dev                                 # Run at repository root for integrated development
 npm run lint                                # Lint application, configuration, and tests
-npm test                                    # Run all tests, including production checks
+npm test                                    # Run all tests against an existing build
+npm run test:build                          # Build and run all tests independently
 node --test tests/game.test.mjs              # Run a single test file
 node --test --test-name-pattern="statue" tests/game.test.mjs # Run a single named test
 npm run build                               # Type-check and build all pages into dist

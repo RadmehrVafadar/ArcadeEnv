@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 
-test('portfolio hot reload passes through the arcade proxy', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'development-desktop', 'HMR is a development-only check.');
+test('portfolio hot reload passes through the arcade proxy', async ({ page }) => {
   const stylesheet = new URL('../apps/portfolio/src/menu.css', import.meta.url);
   const original = await readFile(stylesheet);
   const connected = new Promise(resolve => page.on('websocket', socket => {
