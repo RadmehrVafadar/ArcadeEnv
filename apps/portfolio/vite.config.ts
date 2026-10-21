@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         main: 'index.html',
         game: 'src/portfolio-game/game.html',
+        demo: 'src/portfolio-game/demo.html',
         blog: 'src/blog-website/blog.html',
       },
     },

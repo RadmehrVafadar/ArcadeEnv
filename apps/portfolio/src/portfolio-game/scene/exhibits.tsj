@@ -1,0 +1,67 @@
+{
+  "type": "tileset", "version": "1.10", "tiledversion": "1.11.2",
+  "name": "Showcase exhibits", "objectalignment": "topleft",
+  "tilewidth": 84, "tileheight": 94, "tilecount": 6, "columns": 0,
+  "tiles": [
+    {
+      "id": 0, "type": "Exhibit", "image": "assets/mirror.png", "imagewidth": 59, "imageheight": 74,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 4, "y": 59, "width": 50, "height": 13 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "Mirror" },
+        { "name": "text", "type": "string", "value": "Hey a mirror! Maybe I can see what I look like in it." },
+        { "name": "url", "type": "string", "value": "https://www.linkedin.com/in/radmehrv/" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    },
+    {
+      "id": 1, "type": "Exhibit", "image": "assets/boids.png", "imagewidth": 74, "imageheight": 85,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 7, "y": 52, "width": 64, "height": 23 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "Boids-Algorithm" },
+        { "name": "text", "type": "string", "value": "A bird simulation? Maybe I can learn something from it." },
+        { "name": "url", "type": "string", "value": "https://radmehrvafadar.github.io/Boids-algorithm-demo/" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    },
+    {
+      "id": 2, "type": "Exhibit", "image": "assets/fake-news.png", "imagewidth": 49, "imageheight": 78,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 3, "y": 49, "width": 43, "height": 25 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "Fake News" },
+        { "name": "text", "type": "string", "value": "An AI fake news detector? I wonder how it works." },
+        { "name": "url", "type": "string", "value": "https://github.com/RadmehrVafadar/AI-fake-news-detector" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    },
+    {
+      "id": 3, "type": "Exhibit", "image": "assets/music-orb.png", "imagewidth": 84, "imageheight": 94,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 14, "y": 33, "width": 56, "height": 44 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "Music Ord" },
+        { "name": "text", "type": "string", "value": "A magical orb that visualises my favourite songs." },
+        { "name": "url", "type": "string", "value": "https://github.com/RadmehrVafadar/voiceEmotionVisualizer" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    },
+    {
+      "id": 4, "type": "Exhibit", "image": "assets/video-player.png", "imagewidth": 79, "imageheight": 91,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 5, "y": 50, "width": 70, "height": 28 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "Distributed-Video-Player" },
+        { "name": "text", "type": "string", "value": "A distributed video player that can play videos from multiple sources." },
+        { "name": "url", "type": "string", "value": "https://github.com/RadmehrVafadar/Distributed-Video-Streaming" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    },
+    {
+      "id": 5, "type": "Exhibit", "image": "assets/minesweeper.png", "imagewidth": 58, "imageheight": 70,
+      "objectgroup": { "type": "objectgroup", "objects": [{ "id": 1, "x": 3, "y": 23, "width": 52, "height": 31 }] },
+      "properties": [
+        { "name": "id", "type": "string", "value": "MineSweeper" },
+        { "name": "text", "type": "string", "value": "A recreation of the classic game Minesweeper from scratch in python using pygame." },
+        { "name": "url", "type": "string", "value": "https://github.com/RadmehrVafadar/mine-sweeper" },
+        { "name": "interactionPadding", "type": "float", "value": 24 }
+      ]
+    }
+  ]
+}

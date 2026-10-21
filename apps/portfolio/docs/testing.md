@@ -25,6 +25,8 @@ Font regressions verify that both portfolio fonts load successfully without exte
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
+- `tests/scene.test.mjs` - demo scene validation, derived geometry, collision substeps, reachable exhibits and exit, floor bounds, and artwork dimensions.
+- `../../tests/showcase-demo.spec.js` - demo collision, object dragging, keyboard placement, actions, cancellation, and responsive controls in development and production on desktop and mobile.
 - `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
 - `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.

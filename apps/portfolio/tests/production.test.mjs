@@ -16,7 +16,7 @@ after(async () => {
 });
 
 test('production includes every existing menu destination and the resume', async () => {
-  for (const href of ['/portfolio/', '/portfolio/src/portfolio-game/game.html', '/portfolio/src/blog-website/blog.html', '/portfolio/RVafadar_Resume.pdf']) {
+  for (const href of ['/portfolio/', '/portfolio/src/portfolio-game/game.html', '/portfolio/src/portfolio-game/demo.html', '/portfolio/src/blog-website/blog.html', '/portfolio/RVafadar_Resume.pdf']) {
     const response = await fetch(new URL(href, origin));
     assert.equal(response.status, 200, href);
     if (href.endsWith('.pdf')) {

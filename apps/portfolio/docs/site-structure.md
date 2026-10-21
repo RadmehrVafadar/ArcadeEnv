@@ -18,7 +18,8 @@ The Resume link uses the current page's native PDF navigation or download behavi
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.
-Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
+Vite builds the landing page, original game, blog, and scene demo, processing their scripts, stylesheets, and referenced images.
+An additional opt-in scene demo is built at `/portfolio/src/portfolio-game/demo.html`; it does not change the menu destinations.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
 
 ## Tech

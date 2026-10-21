@@ -51,5 +51,6 @@ Mobile mode follows the primary pointer media query, so desktop laptops with a m
 
 ## Related
 
+- [Scene demo](scene-demo.md) - opt-in alternative with Tiled-authored objects and shared physics.
 - [Site structure](site-structure.md)
 - [Testing](testing.md)
