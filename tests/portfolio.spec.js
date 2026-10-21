@@ -125,8 +125,13 @@ test('portfolio entry navigates, loads the game, exits, and downloads the resume
   expect(frame.url()).toMatch(/\/portfolio\/src\/blog-website\/blog.html$/);
   expect(context.pages()).toHaveLength(1);
   expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/src/blog-website/blog.html' : '/');
-  // Browser history can navigate only the iframe, without a top-level load event.
-  await page.evaluate(() => history.back());
+  if (isMobile) {
+    // A top-level navigation can destroy an evaluate call's execution context.
+    await page.goBack();
+  } else {
+    // Iframe history does not trigger the top-level load event goBack waits for.
+    await page.evaluate(() => history.back());
+  }
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
