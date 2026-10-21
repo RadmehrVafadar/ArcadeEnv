@@ -90,7 +90,7 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('portfolio entry navigates, loads the game, exits, and downloads the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }, testInfo) => {
+test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }, testInfo) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -137,12 +137,23 @@ test('portfolio entry navigates, loads the game, exits, and downloads the resume
   expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
-  await expect(resume).not.toHaveAttribute('target', '_blank');
-  const downloadPromise = page.waitForEvent('download');
+  await expect(resume).toHaveAttribute('target', '_blank');
+  await expect(resume).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(resume).toHaveAccessibleDescription('Opens in a new tab');
+  const resumeResponse = context.waitForEvent('response', response => response.url().endsWith('/portfolio/RVafadar_Resume.pdf'));
   await resume.click();
-  const download = await downloadPromise;
-  expect(download.url()).toContain('/portfolio/RVafadar_Resume.pdf');
-  expect(await readFile(await download.path())).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
+  await resumeResponse;
+  // Headless Chromium can download PDFs instead of opening a viewer tab.
+  for (const opened of context.pages()) {
+    if (opened !== page) await opened.close();
+  }
+  await expect(start).toBeVisible();
+  expect(frame.url()).toMatch(/\/portfolio\/$/);
+  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
+  await portfolio.locator('.sphear').click();
+  const background = await portfolio.locator('.app-container').getAttribute('class');
+  await portfolio.locator('.sphear').click();
+  await expect(portfolio.locator('.app-container')).not.toHaveAttribute('class', background);
   const pdf = await request.get('/portfolio/RVafadar_Resume.pdf');
   expect(pdf.headers()['content-type']).toContain('application/pdf');
   expect(await pdf.body()).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
