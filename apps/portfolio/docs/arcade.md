@@ -19,6 +19,8 @@ An inflated rectangle controls each exhibit's interaction range.
 Space displays exhibit text; E opens its external link once per press.
 Repeated keydown events are ignored, so returning from a showcase tab does not require a second E press even when the key was released in that tab.
 Space or E near the door returns to the `/portfolio/` landing page inside the current iframe.
+Q returns to the portfolio menu from anywhere in the game, including before the first move, and stays inside the current iframe when embedded.
+The shortcut accepts either letter case and is active only on the game page.
 The welcome message disappears after the player first moves.
 
 On devices with a coarse primary pointer, the game fills the available viewport, including safe-area padding.
