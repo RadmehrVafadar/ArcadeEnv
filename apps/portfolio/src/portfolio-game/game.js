@@ -284,6 +284,10 @@ function activateInteraction(open, repeat = false) {
 }
 
 document.addEventListener("keydown", (e) => {
+   if (typeof e.key === 'string' && e.key.toLowerCase() === 'q') {
+      window.location.href = import.meta.env.BASE_URL;
+      return;
+   }
    var dir = keys[e.which];
    if (dir) { held_keys.add(e.which); }
 
