@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   envDir: '../..',
+  // Preview serves the assembled portfolio instead of inheriting the dev proxy.
+  preview: { proxy: {} },
   server: {
     proxy: {
       '/portfolio/': {

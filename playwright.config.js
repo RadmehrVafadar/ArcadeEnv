@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.js',
   fullyParallel: false,
-  workers: 1,
+  workers: 2,
   use: {
     baseURL: 'http://127.0.0.1:4173',
     launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
@@ -12,11 +12,12 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
+    { name: 'development-hmr', testMatch: '**/hmr.spec.js', use: { ...devices['Desktop Chrome'] } },
     ...['development', 'production'].flatMap(mode => [
-      { name: `${mode}-desktop`, testIgnore: '**/override.spec.js', use: { ...devices['Desktop Chrome'], baseURL: `http://127.0.0.1:${mode === 'development' ? 4173 : 4174}` } },
-      { name: `${mode}-mobile`, testIgnore: '**/override.spec.js', use: { ...devices['Pixel 7'], baseURL: `http://127.0.0.1:${mode === 'development' ? 4173 : 4174}` } },
+      { name: `${mode}-desktop`, dependencies: ['development-hmr'], testIgnore: ['**/override.spec.js', '**/hmr.spec.js'], use: { ...devices['Desktop Chrome'], baseURL: `http://127.0.0.1:${mode === 'development' ? 4173 : 4174}` } },
+      { name: `${mode}-mobile`, dependencies: ['development-hmr'], testIgnore: ['**/override.spec.js', '**/hmr.spec.js'], use: { ...devices['Pixel 7'], baseURL: `http://127.0.0.1:${mode === 'development' ? 4173 : 4174}` } },
     ]),
-    { name: 'external-override', testMatch: '**/override.spec.js', use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4175' } },
+    { name: 'external-override', dependencies: ['development-hmr'], testMatch: '**/override.spec.js', use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4175' } },
   ],
   webServer: [
     { command: 'node scripts/dev.mjs --port 4173 --portfolio-port 5174', url: 'http://127.0.0.1:4173', reuseExistingServer: false },

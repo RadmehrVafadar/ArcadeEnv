@@ -41,7 +41,8 @@ Page paths retain the existing `src/` suffixes beneath `/portfolio/` for compati
 Vite uses `/portfolio/` as its base.
 Menu destinations, the resume link, and the game exit use `import.meta.env.BASE_URL`.
 Development requests and HMR are proxied through the root arcade server; production files live under root `dist/portfolio/`.
-Fonts load from external providers and require network access.
+The existing Arcade Interlaced and Press Start 2P fonts are served locally from `src/assets/fonts/` and bundled by Vite.
+Font sources, attribution, and the Press Start 2P license are retained beside the assets.
 The blog discovers Markdown articles at build time and uses hash routes for static-host compatibility.
 
 ## Related
