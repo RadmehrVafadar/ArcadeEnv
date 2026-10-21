@@ -58,11 +58,18 @@ test('loads the arcade without application errors', { tag: '@webgl' }, async ({ 
       floorSide: green(0.1, 0.94),
       background: green(0.5, 0.1),
       backgroundSide: green(0.1, 0.1),
+      controls: green(620 / 1280, 515 / 720),
+      trimBlue: context.getImageData(
+        Math.floor(image.width * 532 / 1280), Math.floor(image.height / 2), 1, 1,
+      ).data[2],
     };
   }, screenshot.toString('base64'));
   expect(lighting.floor).toBeGreaterThan(lighting.floorSide + 10);
   // The overhead beam should read against the dark wings of the stage.
   expect(lighting.background).toBeGreaterThan(lighting.backgroundSide + 8);
+  // Keep the control deck dark and the yellow rails saturated under the spotlight.
+  expect(lighting.controls).toBeLessThan(60);
+  expect(lighting.trimBlue).toBeLessThan(170);
   expect(errors).toEqual([]);
   expect(decorationRequests).toEqual([]);
 });
