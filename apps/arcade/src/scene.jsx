@@ -26,7 +26,7 @@ createRoot(document.querySelector('#root')).render(
       angle={0.26}
       penumbra={0.35}
       decay={0}
-      intensity={4.5}
+      intensity={1.5}
       distance={14}
       radiusTop={0.08}
       radiusBottom={3.7}

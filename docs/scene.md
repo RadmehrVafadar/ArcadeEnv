@@ -15,6 +15,7 @@ The warm theater spotlight aims at the floor directly beneath the cabinet, with 
 Its translucent matte floor catches a defined pool of light while retaining the dark background.
 A softer fill from the original light position keeps the lower cabinet artwork visible.
 The beam uses the existing Drei dependency without postprocessing, animated smoke, or remote textures.
+The main spotlight intensity stays at `1.5` to retain saturated yellow trim and dark controls; its independent beam opacity stays at `0.32` so the overhead shaft remains visible.
 Floating cubes and background smoke are omitted.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
