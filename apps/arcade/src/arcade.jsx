@@ -1,18 +1,31 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html, useGLTF } from '@react-three/drei';
 import { Vector3 } from 'three';
 
 export default function Arcade() {
   const [hovered, setHovered] = useState(false);
+  const portfolioLoaded = useRef(false);
+  const sceneRendered = useRef(false);
   const target = useMemo(() => new Vector3(0, 3, 3), []);
   const arcade = useGLTF(import.meta.env.BASE_URL + 'model9.glb');
   const iframeSrc = import.meta.env.VITE_IFRAME_URL ||
     '/portfolio/';
 
+  const revealArcade = () => {
+    if (portfolioLoaded.current && sceneRendered.current) {
+      document.querySelector('#arcade-loading')?.remove();
+    }
+  };
+
   useFrame(({ camera }, delta) => {
     camera.lookAt(0, 1, 1);
     if (hovered) camera.position.lerp(target, 1 - Math.pow(0.95, delta * 60));
+    if (!sceneRendered.current) {
+      sceneRendered.current = true;
+      // The renderer completes this frame before the browser paints the revealed scene.
+      revealArcade();
+    }
   });
 
   useEffect(() => {
@@ -42,7 +55,14 @@ export default function Arcade() {
           rotation-x={-0.75}
         >
           <div className="crt-screen">
-            <iframe src={iframeSrc} title="Radmehr Vafadar portfolio" />
+            <iframe
+              src={iframeSrc}
+              title="Radmehr Vafadar portfolio"
+              onLoad={() => {
+                portfolioLoaded.current = true;
+                revealArcade();
+              }}
+            />
           </div>
         </Html>
       </primitive>
