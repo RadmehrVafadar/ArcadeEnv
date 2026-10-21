@@ -11,23 +11,29 @@ Game checks protect controls, collision rules, and base-aware exit navigation.
 
 `npm run lint` checks TypeScript, JavaScript, configuration, and tests.
 `npm run build` runs TypeScript checks and builds all HTML entries.
-`npm test --workspace=portfolio-website` at the repository root runs the built-in Node.js test runner for this app.
+`npm test --workspace=portfolio-website` at the repository root runs the built-in Node.js test runner against an existing portfolio build.
+Use `npm run test:build --workspace=portfolio-website` to build and test this app independently.
 Root `npm run check` additionally builds the combined site and runs launcher checks and desktop/mobile browser coverage against development and production.
 Game tests execute the actual script in an isolated VM with a minimal DOM substitute.
-The production test builds the site, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
+The production test reuses the existing build, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
 It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
-Production tests write to `dist/`; avoid concurrent builds against that directory.
-Blog browser checks verify navigation in the current page and browser Back to the portfolio menu without opening another tab.
-The embedded portfolio regression checks navigation inside the arcade cabinet, and resume downloads retain PDF byte checks.
+Production tests only read `dist/`; root `npm run check` and CI build once before running the Node and browser tests.
+Browser tests use two workers, with the stylesheet-mutating HMR check isolated in a dependency project that finishes before other browser tests start.
+Menu motion checks run directly on the portfolio instead of loading the cabinet.
+Font regressions verify that both portfolio fonts load successfully without external requests in development and production on desktop and mobile.
 
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
 - `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
-- `../../tests/portfolio.spec.js` - embedded menu navigation, browser Back, and resume downloads.
+- `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.
 - `tests/blog.test.mjs` - Markdown catalog and relative content links.
 - `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
+- `../../tests/fonts.spec.js` - local font loading without external requests.
+
+Blog browser checks verify that the portfolio link opens a separate top-level tab and leaves the originating page in place.
+The embedded portfolio regression checks the same behavior from inside the arcade cabinet.
 - `.eslintrc.cjs` - lint rules and environment configuration.
 - `package.json` - verification commands.
 

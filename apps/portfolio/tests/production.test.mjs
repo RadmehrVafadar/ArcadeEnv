@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { before, after, test } from 'node:test';
-import { build, preview } from 'vite';
+import { preview } from 'vite';
 
 let server;
 let origin;
 
 before(async () => {
-  await build({ logLevel: 'silent' });
   server = await preview({ logLevel: 'silent', preview: { host: '127.0.0.1', port: 0 } });
   origin = server.resolvedUrls.local[0];
 });

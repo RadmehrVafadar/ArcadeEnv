@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('production portfolio serves the assembled build', async ({ request }, testInfo) => {
+  test.skip(testInfo.project.name !== 'production-desktop', 'Check the production HTTP server once.');
+  for (const file of ['index.html', 'src/portfolio-game/game.html', 'src/blog-website/blog.html']) {
+    const response = await request.get(`/portfolio/${file}`);
+    expect(response.ok()).toBe(true);
+    expect(await response.body()).toEqual(await readFile(new URL(`../dist/portfolio/${file}`, import.meta.url)));
+  }
+});
+
 test('directional buttons move toward their arrows with mouse or touch', async ({ page, isMobile }, testInfo) => {
   const touch = isMobile ? await page.context().newCDPSession(page) : null;
   for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
