@@ -97,7 +97,10 @@ test('portfolio entry navigates, loads the game, exits, and downloads the resume
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   await page.goto('/');
   const screen = page.locator('iframe');
-  if (!isMobile) await expect(screen).toBeVisible({ timeout: 30000 });
+  if (!isMobile) {
+    await expect(screen).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+  }
   const portfolio = isMobile ? page : page.frameLocator('iframe');
   const start = portfolio.getByRole('link', { name: 'Start', exact: true });
   await expect(start).toHaveAttribute('href', '/portfolio/src/portfolio-game/game.html');

@@ -35,10 +35,24 @@ test('a desktop touch laptop retains the arcade and hover zoom', { tag: '@webgl'
   test.setTimeout(60000);
   test.skip(isMobile, 'Desktop touch regression.');
   await page.addInitScript(() => Object.defineProperty(navigator, 'maxTouchPoints', { value: 10 }));
-  await page.goto('/');
+  let releasePortfolio;
+  const portfolioHeld = new Promise(resolve => { releasePortfolio = resolve; });
+  await page.route('**/portfolio/', async route => {
+    await portfolioHeld;
+    await route.continue();
+  });
   const screen = page.locator('iframe');
-  await expect(screen).toBeVisible({ timeout: 30000 });
-  await expect(page.locator('canvas')).toBeVisible();
+  try {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(screen).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('.arcade')).not.toHaveCSS('perspective', 'none', { timeout: 30000 });
+    await expect(page.getByRole('status')).toBeVisible();
+  } finally {
+    releasePortfolio();
+  }
+  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+  await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   const initialWidth = (await screen.boundingBox()).width;
   const viewport = page.viewportSize();
   await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
