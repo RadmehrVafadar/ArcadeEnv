@@ -12,7 +12,9 @@ Each page must be included in the production build so menu links work after depl
 The background chooses daytime before 18:00 in the browser's local time and toggles when its sun or moon is clicked.
 CSS animates clouds and background colors; the menu switches from a row to a column on narrow screens.
 The menu links directly to the arcade, the Markdown blog, and the resume.
-The Blog link opens a new browser tab, leaving the portfolio and arcade in place.
+The Blog link navigates in the current page, staying inside the cabinet iframe on desktop.
+Browser Back returns to the portfolio menu.
+The Resume link uses the current page's native PDF navigation or download behavior.
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.

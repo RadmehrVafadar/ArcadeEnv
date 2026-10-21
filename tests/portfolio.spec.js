@@ -111,21 +111,20 @@ test('portfolio entry navigates, loads the game, exits, and downloads the resume
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
-  const blogPromise = page.waitForEvent('popup');
   await portfolio.getByRole('link', { name: 'Blog', exact: true }).click();
-  const blog = await blogPromise;
-  await expect(blog).toHaveURL(/\/portfolio\/src\/blog-website\/blog.html$/);
-  await expect(blog.getByRole('heading', { name: "rad's blog" })).toBeVisible();
-  expect(await blog.evaluate(() => window.self === window.top && window.opener === null)).toBe(true);
+  await expect(portfolio.getByRole('heading', { name: "rad's blog" })).toBeVisible();
+  expect(frame.url()).toMatch(/\/portfolio\/src\/blog-website\/blog.html$/);
+  expect(context.pages()).toHaveLength(1);
+  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/src/blog-website/blog.html' : '/');
+  // Browser history can navigate only the iframe, without a top-level load event.
+  await page.evaluate(() => history.back());
+  await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
-  await blog.close();
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
-  const downloadPromise = new Promise(resolve => {
-    page.once('download', resolve);
-    context.once('page', popup => popup.once('download', resolve));
-  });
+  await expect(resume).not.toHaveAttribute('target', '_blank');
+  const downloadPromise = page.waitForEvent('download');
   await resume.click();
   const download = await downloadPromise;
   expect(download.url()).toContain('/portfolio/RVafadar_Resume.pdf');

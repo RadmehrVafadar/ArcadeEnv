@@ -17,17 +17,17 @@ Game tests execute the actual script in an isolated VM with a minimal DOM substi
 The production test builds the site, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
 It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
 Production tests write to `dist/`; avoid concurrent builds against that directory.
+Blog browser checks verify navigation in the current page and browser Back to the portfolio menu without opening another tab.
+The embedded portfolio regression checks navigation inside the arcade cabinet, and resume downloads retain PDF byte checks.
 
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
 - `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
+- `../../tests/portfolio.spec.js` - embedded menu navigation, browser Back, and resume downloads.
 - `tests/blog.test.mjs` - Markdown catalog and relative content links.
 - `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
-
-Blog browser checks verify that the portfolio link opens a separate top-level tab and leaves the originating page in place.
-The embedded portfolio regression checks the same behavior from inside the arcade cabinet.
 - `.eslintrc.cjs` - lint rules and environment configuration.
 - `package.json` - verification commands.
 
