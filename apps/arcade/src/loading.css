@@ -1,0 +1,61 @@
+@font-face {
+  font-family: 'Arcade Interlaced';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../portfolio/src/assets/fonts/arcade-interlaced.woff') format('woff');
+}
+
+#arcade-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  background: #0b0c0f;
+  color: #fcbd46;
+  text-align: center;
+}
+
+.loading-content {
+  padding: 24px;
+}
+
+.loading-content p {
+  margin: 0 0 32px;
+  font: clamp(24px, 4vw, 40px)/1.5 'Arcade Interlaced', monospace;
+}
+
+.loading-dots {
+  display: inline-block;
+  width: 3ch;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+}
+
+#loading-portfolio {
+  color: #fcbd46;
+  font: 14px/1.5 monospace;
+  text-underline-offset: 5px;
+}
+
+#loading-portfolio:hover {
+  color: #fff0d6;
+}
+
+#loading-portfolio:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loading-dots {
+    animation: loading-dots 1.2s steps(4, end) infinite;
+  }
+}
+
+@keyframes loading-dots {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0); }
+}
