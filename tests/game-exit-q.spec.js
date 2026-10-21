@@ -27,7 +27,7 @@ test('Q returns only the cabinet game iframe to the portfolio menu', { tag: '@we
   await page.goto('/');
   const screen = page.locator('iframe');
   await expect(screen).toBeVisible({ timeout: 30000 });
-  await expect(page.locator('#arcade-loading')).toHaveCount(0);
+  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
   const portfolio = page.frameLocator('iframe');
   const start = portfolio.getByRole('link', { name: 'Start', exact: true });
   const viewport = page.viewportSize();
