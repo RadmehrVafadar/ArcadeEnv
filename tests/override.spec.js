@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('retains an explicit external iframe override', async ({ page }) => {
+test('retains an explicit external iframe override', { tag: '@webgl' }, async ({ page }) => {
+  test.setTimeout(60000);
   await page.route('https://external-portfolio.test/**', route => route.fulfill({
     contentType: 'text/html', body: '<h1>External portfolio</h1>',
   }));

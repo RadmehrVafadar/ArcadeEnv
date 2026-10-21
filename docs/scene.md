@@ -11,9 +11,14 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 `apps/arcade/src/index.jsx` sends phones and tablets directly to `/portfolio/` before importing the scene, avoiding Three.js, WebGL, and scene assets on mobile.
 Desktop browsers, including touch laptops, dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, its spotlight, and a horizontal floor.
 The floor catches the spotlight beneath the cabinet; the background has no wall or enclosing box.
+The warm theater spotlight aims at the floor directly beneath the cabinet, with a tighter penumbra and a visible, softly faded beam from Drei's `SpotLight`.
+Its translucent matte floor catches a defined pool of light while retaining the dark background.
+A softer fill from the original light position keeps the lower cabinet artwork visible.
+The beam uses the existing Drei dependency without postprocessing, animated smoke, or remote textures.
 Floating cubes and background smoke are omitted.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
+Zoom smoothing uses elapsed frame time, preserving its original 60 FPS feel while keeping the same speed on slower renderers.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
 `VITE_IFRAME_URL` overrides both the desktop iframe and mobile destination at build time, using root `.env.local` or the process environment.
@@ -43,7 +48,7 @@ Drei provides GLTF loading and the HTML screen transform.
 The scene has a static gradient; it does not implement a day/night switch.
 The scene loads no decorative cube or remote cloud textures.
 The embedded site must allow framing, and HTTPS deployments need an HTTPS iframe URL.
-Shadow flags are configured on scene objects, but Canvas does not enable shadow maps.
+Canvas does not enable shadow maps, and the spotlight explicitly disables them to preserve the cabinet artwork and avoid an additional render pass.
 The camera zoom remains active after pointer exit, matching the original interaction.
 Mobile detection uses the mobile user agent and the desktop-user-agent iPad signature (Macintosh with multiple touch points).
 Touch support alone does not redirect desktop laptops.

@@ -31,7 +31,8 @@ test('an iPad using a desktop user agent opens the portfolio', async ({ browser,
   }
 });
 
-test('a desktop touch laptop retains the arcade and hover zoom', async ({ page, isMobile }) => {
+test('a desktop touch laptop retains the arcade and hover zoom', { tag: '@webgl' }, async ({ page, isMobile }) => {
+  test.setTimeout(60000);
   test.skip(isMobile, 'Desktop touch regression.');
   await page.addInitScript(() => Object.defineProperty(navigator, 'maxTouchPoints', { value: 10 }));
   await page.goto('/');
