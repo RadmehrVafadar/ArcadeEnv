@@ -28,6 +28,7 @@ Install Chromium with `npx playwright install chromium`, then run `npm run check
 Browser projects exercise development and production on desktop and Pixel mobile profiles using two workers and software WebGL.
 The `development-hmr` dependency project finishes its stylesheet mutation and restoration before the other projects start, so parallel tests cannot observe the temporary stylesheet.
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
+All hover zoom assertions allow up to 15 seconds for frame-based camera movement under software WebGL, polling until the width threshold is reached without a fixed delay.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
