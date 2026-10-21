@@ -27,6 +27,7 @@ Font regressions verify that both portfolio fonts load successfully without exte
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
 - `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
+- `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.
 - `tests/blog.test.mjs` - Markdown catalog and relative content links.
 - `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
 - `../../tests/fonts.spec.js` - local font loading without external requests.
