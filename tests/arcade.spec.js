@@ -37,7 +37,8 @@ test('loads the arcade without application errors', async ({ page, isMobile }, t
     };
   }, screenshot.toString('base64'));
   expect(lighting.floor).toBeGreaterThan(lighting.floorSide + 10);
-  expect(Math.abs(lighting.background - lighting.backgroundSide)).toBeLessThan(3);
+  // The overhead beam should read against the dark wings of the stage.
+  expect(lighting.background).toBeGreaterThan(lighting.backgroundSide + 8);
   expect(errors).toEqual([]);
   expect(decorationRequests).toEqual([]);
 });
