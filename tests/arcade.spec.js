@@ -9,8 +9,7 @@ async function loadArcade(page) {
     const screen = page.locator('iframe');
     await expect(screen).toBeVisible({ timeout: 30000 });
     // Html is visible at its CSS width before the first WebGL frame transforms it.
-    await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 30000 })
-      .toBeLessThan(page.viewportSize().width / 3);
+    await expect(page.locator('.arcade')).not.toHaveCSS('perspective', 'none', { timeout: 30000 });
     await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }))
       .toBeVisible({ timeout: 10000 });
   });
