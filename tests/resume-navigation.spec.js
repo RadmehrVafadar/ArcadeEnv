@@ -27,4 +27,3 @@ test('resume preserves the portfolio menu and its state', async ({ page, context
   expect(await pdf.body()).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
   await page.screenshot({ path: testInfo.outputPath('resume-return-menu.png') });
 });
-
