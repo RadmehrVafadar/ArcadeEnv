@@ -29,19 +29,17 @@ test('blog folders support keyboard navigation, refresh, history, and missing pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('portfolio Blog link opens the reader in a separate tab', async ({ page }) => {
+test('portfolio Blog link opens the reader in the current tab', async ({ page, context }) => {
   await page.goto('/portfolio/');
   const link = page.getByRole('link', { name: 'Blog', exact: true });
-  await expect(link).toHaveAttribute('target', '_blank');
-  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-  const popupPromise = page.waitForEvent('popup');
+  await expect(link).not.toHaveAttribute('target', '_blank');
   await link.click();
-  const blog = await popupPromise;
-  await expect(blog).toHaveURL(new RegExp(`${entry}$`));
-  await expect(blog.getByRole('heading', { name: "rad's blog" })).toBeVisible();
-  expect(await blog.evaluate(() => window.opener === null && window.self === window.top)).toBe(true);
+  await expect(page).toHaveURL(new RegExp(`${entry}$`));
+  await expect(page.getByRole('heading', { name: "rad's blog" })).toBeVisible();
+  expect(context.pages()).toHaveLength(1);
+  await page.goBack();
   await expect(page).toHaveURL(/\/portfolio\/$/);
-  await blog.close();
+  await expect(link).toBeVisible();
 });
 
 test('blog renders unpublished Markdown fixtures and relative article links', async ({ page }, testInfo) => {

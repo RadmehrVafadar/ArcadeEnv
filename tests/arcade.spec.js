@@ -78,11 +78,10 @@ test('CRT glass keeps the portfolio clickable and respects screen dimensions', a
   const blog = page.frameLocator('iframe').getByRole('link', { name: 'Blog', exact: true });
   await expect(blog).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('crt-screen.png') });
-  const popupPromise = page.waitForEvent('popup');
   await blog.click();
-  const popup = await popupPromise;
-  await expect(popup.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
-  await popup.close();
+  await expect(page.frameLocator('iframe').getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  expect(page.context().pages()).toHaveLength(1);
 });
 
 test('zooms toward the cabinet on hover', async ({ page, isMobile }, testInfo) => {
