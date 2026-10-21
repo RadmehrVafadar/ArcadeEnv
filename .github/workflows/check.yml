@@ -47,8 +47,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Build both apps
         run: npm run build
-      - name: Run all tests
-        run: npm test
+      - name: Run unit tests
+        run: |
+          node --test tests/launcher.test.mjs
+          npm run test --workspace=portfolio-website
+      - name: Run browser tests without WebGL
+        run: npm run test:browser -- --grep-invert @webgl --output test-results/portfolio
+      - name: Run WebGL browser tests serially
+        run: npm run test:browser -- --grep @webgl --workers=1 --output test-results/webgl
       - name: Upload browser failure screenshots and traces
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7

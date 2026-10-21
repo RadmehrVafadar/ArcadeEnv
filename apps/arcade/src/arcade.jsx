@@ -10,9 +10,9 @@ export default function Arcade() {
   const iframeSrc = import.meta.env.VITE_IFRAME_URL ||
     '/portfolio/';
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, delta) => {
     camera.lookAt(0, 1, 1);
-    if (hovered) camera.position.lerp(target, 0.05);
+    if (hovered) camera.position.lerp(target, 1 - Math.pow(0.95, delta * 60));
   });
 
   useEffect(() => {

@@ -18,6 +18,7 @@ The beam uses the existing Drei dependency without postprocessing, animated smok
 Floating cubes and background smoke are omitted.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
+Zoom smoothing uses elapsed frame time, preserving its original 60 FPS feel while keeping the same speed on slower renderers.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
 `VITE_IFRAME_URL` overrides both the desktop iframe and mobile destination at build time, using root `.env.local` or the process environment.

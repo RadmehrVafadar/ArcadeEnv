@@ -90,7 +90,7 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('portfolio entry navigates, loads the game, exits, and downloads the resume', async ({ page, context, request, isMobile }, testInfo) => {
+test('portfolio entry navigates, loads the game, exits, and downloads the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }, testInfo) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

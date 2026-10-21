@@ -28,7 +28,9 @@ Install Chromium with `npx playwright install chromium`, then run `npm run check
 Browser projects exercise development and production on desktop and Pixel mobile profiles using two workers and software WebGL.
 The `development-hmr` dependency project finishes its stylesheet mutation and restoration before the other projects start, so parallel tests cannot observe the temporary stylesheet.
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
-All hover zoom assertions allow up to 15 seconds for frame-based camera movement under software WebGL, polling until the width threshold is reached without a fixed delay.
+Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
+Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
+CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and popup steps in traces.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
@@ -36,7 +38,9 @@ Screenshots and failure traces are saved under ignored `test-results/`.
 
 `.github/workflows/check.yml` runs two parallel jobs for each opened or reopened pull request and whenever commits are pushed to it.
 The `Quality` job runs `npm run lint` and `npm run typecheck`.
-The `Tests` job installs Chromium with its system dependencies, runs `npm run build`, then runs all tests with `npm test`.
+The `Tests` job installs Chromium with its system dependencies, builds both apps, runs unit tests, then runs browser tests in two groups.
+Tests tagged `@webgl` run with one worker so software-rendered scenes do not compete; the remaining portfolio checks retain two workers.
+The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
 Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
 Together, they run the same checks as local `npm run check`, keeping builds and their consuming tests in one job.
 New commits cancel an older run for the same pull request.
