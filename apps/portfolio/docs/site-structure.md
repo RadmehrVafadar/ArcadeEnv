@@ -14,7 +14,9 @@ CSS animates clouds and background colors; the menu switches from a row to a col
 The menu links directly to the arcade, the Markdown blog, and the resume.
 The Blog link navigates in the current page, staying inside the cabinet iframe on desktop.
 Browser Back returns to the portfolio menu.
-The Resume link uses the current page's native PDF navigation or download behavior.
+The Resume link opens the PDF in a separate browser tab, preserving the portfolio menu and cabinet.
+Close that tab to return to the menu; browsers configured to download PDFs leave the menu available as well.
+The link announces the new tab to assistive technology and includes a matching tooltip.
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.
