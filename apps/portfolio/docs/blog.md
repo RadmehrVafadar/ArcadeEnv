@@ -9,7 +9,9 @@ The blog publishes notes as ordinary Markdown files without a CMS or a separate 
 ## How it works
 
 Open the Blog link from the portfolio to read in the current page, inside the arcade cabinet on desktop.
-Use browser Back to return to the portfolio menu.
+Use `../` beneath the index folders to return to the portfolio menu without relying on browser history.
+Category and article `../` links return to their parent folder, leading back through the blog index to the menu.
+The menu link respects the portfolio base and stays inside the current tab or cabinet iframe.
 The index shows `/tech`, `/hobbies`, and `/work`, including when those folders are empty.
 Folder titles sit at the right of a centered column, with `../` and article links below.
 Article pages use a narrow serif reading column on warm paper, with monospace navigation.

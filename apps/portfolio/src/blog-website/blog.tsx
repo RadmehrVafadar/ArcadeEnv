@@ -34,7 +34,9 @@ export default function Blog() {
     {home ? <>
       <h1 ref={heading} tabIndex={-1}>{title}</h1>
       <nav aria-label="Folders"><ul className="folders">{categories.map(name =>
-        <li key={name}><a href={`#/${encodeURIComponent(name)}`}>/{name}</a></li>)}</ul></nav>
+        <li key={name}><a href={`#/${encodeURIComponent(name)}`}>/{name}</a></li>)}
+        <li><a href={import.meta.env.BASE_URL} aria-label="Back to portfolio menu">../</a></li>
+      </ul></nav>
     </> : <>
       {(!article || missing) && <h1 className="folder-title" ref={heading} tabIndex={-1}>{title}</h1>}
       <nav className="parent" aria-label="Parent folder"><a href={article ? `#/${encodeURIComponent(category)}` : '#/'} aria-label={article ? `Back to ${category}` : 'Back to blog'}>../</a></nav>
