@@ -25,6 +25,7 @@ Subdirectory deployment requires revisiting both route bases.
 Install Chromium with `npx playwright install chromium`, then run `npm run check` for lint, portfolio types, both builds, launcher checks, game tests, production HTTP checks, and browser integration tests.
 `npm test` expects an existing root build; `npm run check` creates it first.
 Browser projects exercise development and production on desktop and Pixel mobile profiles using one worker and software WebGL.
+Both hover zoom assertions allow up to 15 seconds for frame-based camera movement under software WebGL, polling until the width threshold is reached without a fixed delay.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.

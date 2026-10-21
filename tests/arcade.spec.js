@@ -74,7 +74,8 @@ test('CRT glass keeps the portfolio clickable and respects screen dimensions', a
   const screen = page.locator('iframe');
   const initialWidth = (await screen.boundingBox()).width;
   await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
-  await expect.poll(async () => (await screen.boundingBox()).width).toBeGreaterThan(initialWidth * 1.5);
+  await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 })
+    .toBeGreaterThan(initialWidth * 1.5);
   const blog = page.frameLocator('iframe').getByRole('link', { name: 'Blog', exact: true });
   await expect(blog).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('crt-screen.png') });
