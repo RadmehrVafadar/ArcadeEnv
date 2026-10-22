@@ -27,7 +27,7 @@ test('arcade loading screen covers deferred scene and model loading @webgl', asy
     await expect(loading).toContainText('Loading arcade');
     await expect(loading).toBeVisible();
     await expect(page.locator('.loading-dots')).toHaveCSS('animation-name', 'none');
-    await expect(page.getByRole('link', { name: 'Open portfolio' })).toHaveAttribute('href', '/portfolio/');
+    await expect(page.getByRole('link', { name: 'Skip 3D arcade', exact: true })).toHaveAttribute('href', '/portfolio/');
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: testInfo.outputPath('arcade-loading.png') });
     releaseScene();

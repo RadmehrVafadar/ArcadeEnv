@@ -12,7 +12,7 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 All browsers dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, its spotlight, and a horizontal floor.
 The initial HTML displays an amber arcade loading screen using the portfolio's locally bundled Arcade Interlaced font while the scene module and cabinet model load.
 It clears after the portfolio iframe loads and a frame renders the cabinet, with no artificial delay or percentage.
-The loading dots stay still when reduced motion is preferred, and an Open portfolio link provides direct access while loading, honoring `VITE_IFRAME_URL`.
+The loading dots stay still when reduced motion is preferred, and a Skip 3D arcade link provides direct portfolio access while loading, honoring `VITE_IFRAME_URL`.
 The floor catches the spotlight beneath the cabinet; the background has no wall or enclosing box.
 The warm theater spotlight aims at the floor directly beneath the cabinet, with a tighter penumbra and a visible, softly faded beam from Drei's `SpotLight`.
 Its translucent matte floor catches a defined pool of light while retaining the dark background.
