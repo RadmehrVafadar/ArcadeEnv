@@ -200,6 +200,25 @@ body {
    display: none;
 }
 
+.dialogueBox.startupInstructions {
+   height: auto;
+   /* Keep startup guidance visible when the fixed-size frame exceeds the viewport. */
+   bottom: max(var(--pixel-size), calc(100% - 100dvh + 16px));
+   padding: calc(var(--pixel-size) * 4);
+   font-size: calc(var(--pixel-size) * 5.5);
+   line-height: 1.6;
+}
+
+.startupWelcome {
+   display: block;
+   margin-bottom: 0.75em;
+   font-size: 0.65em;
+}
+
+.startupControl {
+   display: block;
+}
+
 .actionPrompt {
    position:absolute;
    right: calc(var(--pixel-size) * 2);
