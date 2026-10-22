@@ -163,7 +163,6 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
-  await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
