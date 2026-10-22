@@ -12,7 +12,7 @@ Open `src/portfolio-game/world/museum.tiled-project` in Tiled, then open `museum
 Save the map directly as JSON with embedded tilesets and uncompressed numeric tile arrays.
 The app consumes this file without a separate export step.
 The current hallway is 13 tiles wide and 40 tiles long, with one-tile side walls and a centered arrival point.
-The camera frames one tile less than the full map width, so half of each side wall is visible when the player is centered.
+The camera frames one tile less than the full map width, then applies 15% additional zoom for a closer view.
 
 The `floor`, `walls`, and `foreground` layers are tile layers.
 Use the `museum` tileset to paint them; the wall tile carries the boolean `collides` property.

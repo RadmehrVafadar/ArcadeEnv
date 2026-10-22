@@ -47,7 +47,7 @@
     "dos": [
       "Do preserve the warm pixel-art material palette and retained visitor sprite.",
       "Do keep dialogue, navigation, and controls readable outside the canvas.",
-      "Do render world artwork with nearest-neighbor sampling and keep both side walls barely visible at the hallway center."
+      "Do render world artwork with nearest-neighbor sampling and retain the 15% camera zoom increase."
     ],
     "donts": [
       "Don't scale collision geometry to match viewport pixels.",

@@ -79,7 +79,7 @@ test('resizing and orientation changes preserve world position and boundaries', 
     expect(await position(page)).toEqual(before);
     const zoom = Number(await player(page).getAttribute('data-zoom'));
     const camera = await page.locator('.camera').boundingBox();
-    expect(camera.width / zoom).toBeCloseTo(192);
+    expect(camera.width / zoom).toBeCloseTo(192 / 1.15);
   }
   const release = await holdDirection(page, 'left');
   await expect.poll(async () => (await position(page)).x).toBe(22);

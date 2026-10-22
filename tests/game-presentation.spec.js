@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { gamePath, player, ready, approachMirror } from './game-helpers.js';
 
-test('hallway controls are exclusive to mobile and both walls barely enter the view', async ({ page, isMobile }, testInfo) => {
+test('hallway controls stay mobile-only with 15% closer camera framing', async ({ page, isMobile }, testInfo) => {
   for (const viewport of [{ width: 1280, height: 720 }, { width: 624, height: 780 }]) {
     await page.setViewportSize(viewport);
     await page.goto(gamePath);
@@ -16,19 +16,13 @@ test('hallway controls are exclusive to mobile and both walls barely enter the v
     }
     const framing = await player(page).evaluate(canvas => {
       const zoom = Number(canvas.dataset.zoom);
-      const left = Number(canvas.dataset.cameraX);
-      const width = canvas.clientWidth / zoom;
       const worldWidth = Number(canvas.dataset.worldWidth);
       return {
-        leftWall: (16 - left) / width,
-        rightWall: (left + width - (worldWidth - 16)) / width,
+        zoomMultiplier: zoom / (canvas.clientWidth / (worldWidth - 16)),
         longHallway: Number(canvas.dataset.worldHeight) >= worldWidth * 3,
       };
     });
-    expect(framing.leftWall).toBeGreaterThan(0.02);
-    expect(framing.leftWall).toBeLessThan(0.06);
-    expect(framing.rightWall).toBeGreaterThan(0.02);
-    expect(framing.rightWall).toBeLessThan(0.06);
+    expect(framing.zoomMultiplier).toBeCloseTo(1.15, 4);
     expect(framing.longHallway).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`museum-${viewport.width}x${viewport.height}.png`) });
   }

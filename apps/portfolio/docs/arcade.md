@@ -16,8 +16,8 @@ Frame smoothing is disabled so low rendering rates do not reduce movement speed 
 The existing character uses 64px source frames displayed at 32px with a 12-by-8 feet body.
 The hallway dimensions, arrival point, and exit region come from `world/museum.tmj`.
 The 208-by-640 world is a long hallway with a central carpet runner.
-The camera frames one tile less than the full hallway width, showing half of each 16px side wall when the player is centered.
-Zoom follows viewport width, including fractional scales, with nearest-neighbor rendering so both walls stay just inside the edges on every device.
+The camera starts from a one-tile-narrower hallway frame, then applies 15% additional zoom.
+Zoom follows viewport width, including fractional scales, with nearest-neighbor rendering and slightly cropped side walls at the hallway center.
 
 Arrow keys, WASD, and the pointer D-pad share ordered input state.
 The latest newly pressed source wins; releasing one alias does not release another held source.

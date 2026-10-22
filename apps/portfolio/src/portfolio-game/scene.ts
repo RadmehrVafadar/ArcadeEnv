@@ -102,8 +102,8 @@ export class MuseumScene extends Phaser.Scene {
   private resize() {
     if (!this.world) return;
     const camera = this.cameras.main;
-    // At the hallway center, show half a wall tile at each viewport edge.
-    const zoom = this.scale.width / (this.world.width - this.world.tileSize);
+    // Frame the hallway width, then move 15% closer.
+    const zoom = this.scale.width / (this.world.width - this.world.tileSize) * 1.15;
     camera.setZoom(zoom).setRoundPixels(true);
     const viewWidth = this.scale.width / zoom, viewHeight = this.scale.height / zoom;
     // Expand undersized bounds symmetrically so following cannot pin the room to one edge.

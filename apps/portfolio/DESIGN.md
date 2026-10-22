@@ -68,7 +68,7 @@ Desktop gives the world the full width and uses keyboard input without on-screen
 Devices with a coarse primary pointer use a 180px side control area or a 148px control row in portrait.
 Compact touch landscape uses a 160px side control area.
 Safe-area padding belongs to the outer shell.
-The long hallway is framed across its width, showing only a slim portion of both side walls when the player is centered.
+The long hallway is framed across its width with 15% additional zoom for a closer view of the player and exhibits.
 Camera zoom follows width rather than height, with nearest-neighbor sampling at fractional scales.
 
 ## Elevation & Depth
@@ -94,6 +94,6 @@ The prompt sits inside the world panel and does not intercept pointer events.
 
 - Do preserve the warm pixel-art material palette and retained visitor sprite.
 - Do keep dialogue, navigation, and controls readable outside the canvas.
-- Do render world artwork with nearest-neighbor sampling and keep both side walls barely visible at the hallway center.
+- Do render world artwork with nearest-neighbor sampling and retain the 15% camera zoom increase.
 - Don't scale collision geometry to match viewport pixels.
 - Don't apply these museum-specific rules to the surrounding portfolio pages.
