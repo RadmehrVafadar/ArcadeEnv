@@ -7,7 +7,8 @@ const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.
   (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 export default function Arcade() {
-  const [hovered, setHovered] = useState(false);
+  const [zoomStarted, setZoomStarted] = useState(false);
+  const [zoomComplete, setZoomComplete] = useState(false);
   const portfolioLoaded = useRef(false);
   const sceneRendered = useRef(false);
   const revealedAt = useRef(null);
@@ -26,7 +27,11 @@ export default function Arcade() {
   useFrame(({ camera }, delta) => {
     camera.lookAt(0, 1, 1);
     const autoZoom = mobile && revealedAt.current !== null && performance.now() - revealedAt.current >= 5000;
-    if (hovered || autoZoom) camera.position.lerp(target, 1 - Math.pow(0.95, delta * 60));
+    if (autoZoom && !zoomStarted) setZoomStarted(true);
+    if (zoomStarted || autoZoom) {
+      camera.position.lerp(target, 1 - Math.pow(0.95, delta * 60));
+      if (!zoomComplete && camera.position.distanceToSquared(target) < 0.0025) setZoomComplete(true);
+    }
     if (!sceneRendered.current) {
       sceneRendered.current = true;
       // The renderer completes this frame before the browser paints the revealed scene.
@@ -45,10 +50,18 @@ export default function Arcade() {
 
   return (
     <>
+      {!zoomComplete && (
+        <Html center position={[0, 3.6, -1]} zIndexRange={[2, 0]}>
+          <button className="neon-play-sign" onClick={() => setZoomStarted(true)}>
+            <span>PRESS TO PLAY</span>
+          </button>
+        </Html>
+      )}
       <primitive
         object={arcade.scene}
         position-y={-2}
-        onPointerOver={() => setHovered(true)}
+        onPointerOver={() => setZoomStarted(true)}
+        onClick={() => setZoomStarted(true)}
         castShadow
         receiveShadow
       >

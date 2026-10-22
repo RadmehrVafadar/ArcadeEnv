@@ -23,6 +23,8 @@ test('an iPad using a desktop user agent automatically zooms the arcade @webgl',
       await page.goto('/', { waitUntil: 'domcontentloaded' });
       await expect(page.locator('canvas')).toBeVisible();
       await expect(page.locator('.arcade')).not.toHaveCSS('perspective', 'none', { timeout: 30000 });
+      // A delayed runner must still measure the cabinet before automatic zoom.
+      await page.waitForTimeout(7000);
       initialWidth = (await screen.boundingBox()).width;
       await expect(page.locator('#arcade-loading')).toBeVisible();
     } finally {

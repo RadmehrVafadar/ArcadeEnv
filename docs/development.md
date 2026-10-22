@@ -34,6 +34,8 @@ CRT appearance and click-through behavior are separate tests, with named loading
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile scene entry with delayed automatic zoom, tablet and touch-laptop detection, and browser errors.
+The iPad zoom regression holds the portfolio response until it records the transformed screen width, including a delayed-runner check, so automatic zoom cannot consume its baseline.
+The mobile delay check observes loading-screen removal directly so a late animation frame cannot shorten the measured pause.
 The embedded navigation test uses `history.back()` on desktop and mobile because only the iframe navigates.
 It leaves scene screenshots to the dedicated appearance tests so software WebGL capture time cannot exhaust its navigation budget.
 Automatic zoom tests hold the portfolio response while measuring the initial screen width, preventing a slow runner from taking its baseline after zooming has finished.

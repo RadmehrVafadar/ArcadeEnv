@@ -16,11 +16,17 @@ test('mobile keeps the arcade and automatically zooms after loading @webgl', asy
   const initialWidth = (await screen.boundingBox()).width;
   await page.evaluate(initialWidth => {
     let readyAt;
-    const measureZoom = now => {
-      if (!document.querySelector('#arcade-loading')) {
-        readyAt ??= now;
+    const loadingObserver = new MutationObserver(() => {
+      if (!document.querySelector('#arcade-loading') && readyAt === undefined) {
+        readyAt = performance.now();
+        loadingObserver.disconnect();
+      }
+    });
+    loadingObserver.observe(document.body, { childList: true, subtree: true });
+    const measureZoom = () => {
+      if (readyAt !== undefined) {
         if (document.querySelector('iframe').getBoundingClientRect().width > initialWidth * 1.05) {
-          window.arcadeZoomDelay = now - readyAt;
+          window.arcadeZoomDelay = performance.now() - readyAt;
           return;
         }
       }
