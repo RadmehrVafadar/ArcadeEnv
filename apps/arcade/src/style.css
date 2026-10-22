@@ -69,12 +69,11 @@ body,
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
   padding: 12px 18px;
   border: 0;
   background: transparent;
   color: #fff0d6;
-  font: clamp(16px, 2.2vw, 24px)/1.4 'Arcade Interlaced', monospace;
+  font: clamp(18px, 2.5vw, 28px)/1.4 'Arcade Interlaced', monospace;
   white-space: nowrap;
   text-shadow: 0 0 2px #fff0d6, 0 0 10px #fcbd46, 0 0 26px #e88b22;
   cursor: pointer;
@@ -91,34 +90,13 @@ body,
   border-radius: 4px;
 }
 
-.neon-play-arrow {
-  width: 44px;
-  height: 56px;
-  transform: rotate(-25deg);
-  fill: none;
-  stroke: #fcbd46;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 5px #e88b22);
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .neon-play-sign span {
     animation: neon-text-bop 0.6s steps(1, end) infinite;
-  }
-
-  .neon-play-arrow {
-    animation: neon-play-pulse 2s ease-in-out infinite;
   }
 }
 
 @keyframes neon-text-bop {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
-}
-
-@keyframes neon-play-pulse {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
 }

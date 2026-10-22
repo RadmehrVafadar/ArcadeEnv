@@ -54,9 +54,6 @@ export default function Arcade() {
         <Html center position={[0, 3.6, -1]} zIndexRange={[2, 0]}>
           <button className="neon-play-sign" onClick={() => setZoomStarted(true)}>
             <span>PRESS TO PLAY</span>
-            <svg className="neon-play-arrow" viewBox="0 0 32 40" aria-hidden="true">
-              <path d="M16 3v30M5 23l11 11 11-11" />
-            </svg>
           </button>
         </Html>
       )}

@@ -10,7 +10,8 @@ for (const activation of ['click', 'Enter', 'Space']) {
     await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
     const sign = page.getByRole('button', { name: 'PRESS TO PLAY', exact: true });
     await expect(sign).toBeVisible();
-    await expect(sign.locator('svg')).toHaveCSS('animation-name', 'none');
+    await expect(sign.locator('svg')).toHaveCount(0);
+    await expect(sign.locator('span')).toHaveCSS('animation-name', 'none');
     const bounds = await sign.boundingBox();
     const viewport = page.viewportSize();
     expect(bounds.x).toBeGreaterThanOrEqual(0);
@@ -60,15 +61,13 @@ test('mobile can tap the neon sign before automatic zoom @webgl', async ({ page,
   await expect(sign).toHaveCount(0, { timeout: 15000 });
 });
 
-test('neon text bops and arrow pulses only when motion is allowed @webgl', async ({ page, isMobile }) => {
+test('neon text bops only when motion is allowed @webgl', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Motion preferences are covered once per server mode.');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
   await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
-  const arrow = page.getByRole('button', { name: 'PRESS TO PLAY' }).locator('svg');
   const label = page.getByRole('button', { name: 'PRESS TO PLAY' }).locator('span');
-  await expect(arrow).toHaveCSS('animation-name', 'neon-play-pulse');
-  await expect(arrow).toHaveCSS('width', '44px');
+  await expect(page.getByRole('button', { name: 'PRESS TO PLAY' })).toHaveCSS('font-size', '28px');
   await expect(label).toHaveCSS('animation-name', 'neon-text-bop');
   const positions = await label.evaluate(element => {
     const animation = element.getAnimations()[0];
@@ -80,6 +79,5 @@ test('neon text bops and arrow pulses only when motion is allowed @webgl', async
   });
   expect(positions).toEqual([0, -3, 0]);
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(arrow).toHaveCSS('animation-name', 'none');
   await expect(label).toHaveCSS('animation-name', 'none');
 });
