@@ -11,11 +11,26 @@ test('an iPad using a desktop user agent automatically zooms the arcade @webgl',
   await context.addInitScript(() => Object.defineProperty(navigator, 'maxTouchPoints', { value: 5 }));
   try {
     const page = await context.newPage();
-    await page.goto('/');
-    await expect(page.locator('canvas')).toBeVisible();
-    await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+    let releasePortfolio;
+    const portfolioHeld = new Promise(resolve => { releasePortfolio = resolve; });
+    await page.route('**/portfolio/', async route => {
+      await portfolioHeld;
+      await route.continue();
+    });
     const screen = page.locator('iframe');
-    const initialWidth = (await screen.boundingBox()).width;
+    let initialWidth;
+    try {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('canvas')).toBeVisible();
+      await expect(page.locator('.arcade')).not.toHaveCSS('perspective', 'none', { timeout: 30000 });
+      // A delayed runner must still measure the cabinet before automatic zoom.
+      await page.waitForTimeout(7000);
+      initialWidth = (await screen.boundingBox()).width;
+      await expect(page.locator('#arcade-loading')).toBeVisible();
+    } finally {
+      releasePortfolio();
+    }
+    await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
     await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 10000 })
       .toBeGreaterThan(initialWidth * 1.5);
     expect(new URL(page.url()).pathname).toBe('/');
