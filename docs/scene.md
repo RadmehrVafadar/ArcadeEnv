@@ -22,7 +22,7 @@ The main spotlight intensity stays at `1.5` to retain saturated yellow trim and 
 Floating cubes and background smoke are omitted.
 The camera starts at `[0, 3, 8]` and looks toward `[0, 1, 1]`.
 Desktop pointer entry on the cabinet starts a persistent zoom toward `[0, 3, 3]`.
-On phones and tablets, the same persistent zoom starts automatically two seconds after the loading screen clears, once both the cabinet frame and portfolio iframe are ready.
+On phones and tablets, the same persistent zoom starts automatically five seconds after the loading screen clears, once both the cabinet frame and portfolio iframe are ready.
 Desktop touch laptops retain hover entry.
 Zoom smoothing uses elapsed frame time, preserving its original 60 FPS feel while keeping the same speed on slower renderers.
 

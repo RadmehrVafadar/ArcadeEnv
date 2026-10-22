@@ -90,7 +90,7 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }, testInfo) => {
+test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -113,7 +113,6 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
   await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
-  await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
@@ -154,6 +153,5 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   const pdf = await request.get('/portfolio/RVafadar_Resume.pdf');
   expect(pdf.headers()['content-type']).toContain('application/pdf');
   expect(await pdf.body()).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
-  await page.screenshot({ path: testInfo.outputPath('embedded-portfolio.png') });
   expect(errors).toEqual([]);
 });
