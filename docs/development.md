@@ -13,7 +13,7 @@ Run `npm ci` at the repository root using the single root lockfile.
 The arcade listens at `127.0.0.1:5173` and proxies `/portfolio/`, including WebSocket upgrades, to `127.0.0.1:5174`.
 The portfolio HMR client connects through the arcade port at `/portfolio/__hmr`.
 The arcade's development plugin uses `http-proxy-3` for portfolio HTTP and WebSocket traffic, avoiding the deprecated APIs in Vite 4's bundled proxy without changing either app's Vite version.
-An `ECONNRESET` on an already destroyed browser WebSocket is treated as a disconnect; other proxy errors remain logged, and failed HTTP upstream requests return 502.
+An `ECONNRESET`, `ECONNABORTED`, or `EPIPE` on an already destroyed browser WebSocket is treated as a disconnect; other proxy errors remain logged, and failed HTTP upstream requests return 502.
 Override ports with `npm run dev -- --port 5180 --portfolio-port 5181`; `--host 0.0.0.0` permits LAN access.
 Ports are strict, and the launcher closes both servers on interruption or startup failure.
 Root `.env.local` supplies arcade configuration, including `VITE_IFRAME_URL`.
