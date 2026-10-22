@@ -53,7 +53,7 @@ test('mobile can tap the neon sign before automatic zoom @webgl', async ({ page,
   } finally {
     releasePortfolio();
   }
-  // Tap as soon as the loading cover clears, before the two-second auto zoom.
+  // Tap as soon as the loading cover clears, before the five-second auto zoom.
   await sign.tap();
   await expect(sign).toHaveCount(1);
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 })

@@ -1,6 +1,56 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('game startup instructions match desktop and touch controls', async ({ page, isMobile }, testInfo) => {
+  await page.goto('/portfolio/src/portfolio-game/game.html');
+  const dialogue = page.locator('.dialogueBox');
+  if (isMobile) {
+    await expect(dialogue).toContainText('Use the arrows to move. Tap Space to read or E to open.');
+  } else {
+    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Exit: Q');
+    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nExit: Q');
+    await page.evaluate(() => document.fonts.ready);
+    const lines = await dialogue.evaluate(element => {
+      return [...element.children].map(node => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right }));
+      });
+    });
+    expect(lines.map(line => line.length)).toEqual([1, 1, 1]);
+    expect(lines[1][0].top).toBeGreaterThan(lines[0][0].top);
+    const bounds = await dialogue.boundingBox();
+    for (const line of lines) expect(line[0].right).toBeLessThan(bounds.x + bounds.width);
+    const sizes = await dialogue.evaluate(element => ({
+      controls: parseFloat(getComputedStyle(element.querySelector('.startupControl')).fontSize),
+      welcome: parseFloat(getComputedStyle(element.querySelector('.startupWelcome')).fontSize),
+      clientHeight: element.clientHeight, scrollHeight: element.scrollHeight,
+    }));
+    expect(sizes.controls).toBeGreaterThan(16);
+    expect(sizes.controls).toBeGreaterThan(sizes.welcome);
+    expect(bounds.height).toBeLessThan(150);
+    expect(sizes.scrollHeight).toBe(sizes.clientHeight);
+    for (const viewport of [{ width: 1280, height: 720 }, { width: 800, height: 600 }, { width: 624, height: 780 }]) {
+      await page.setViewportSize(viewport);
+      const panel = await dialogue.boundingBox();
+      expect(panel.y).toBeGreaterThanOrEqual(0);
+      expect(panel.y + panel.height).toBeLessThanOrEqual(viewport.height);
+      const content = await dialogue.evaluate(element => ({
+        width: element.clientWidth, scrollWidth: element.scrollWidth,
+        height: element.clientHeight, scrollHeight: element.scrollHeight,
+      }));
+      expect(content.scrollWidth).toBe(content.width);
+      expect(content.scrollHeight).toBe(content.height);
+      await page.screenshot({ path: testInfo.outputPath(`game-startup-${viewport.width}x${viewport.height}.png`) });
+    }
+  }
+  await page.screenshot({ path: testInfo.outputPath('game-startup-instructions.png') });
+  await page.keyboard.down('s');
+  await expect(dialogue).toBeHidden();
+  await expect(dialogue).not.toHaveClass(/startupInstructions/);
+  await page.keyboard.up('s');
+});
+
 test('production portfolio serves the assembled build', async ({ request }, testInfo) => {
   test.skip(testInfo.project.name !== 'production-desktop', 'Check the production HTTP server once.');
   for (const file of ['index.html', 'src/portfolio-game/game.html', 'src/blog-website/blog.html']) {
@@ -15,9 +65,9 @@ test('directional buttons move toward their arrows with mouse or touch', async (
   for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
     const character = page.locator('.character');
-    await expect(page.locator('.dialogueBox')).toContainText('Welcome');
+    await expect(page.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
     if (!isMobile) {
-      // Desktop retains its original welcome overlay and layout.
+      // Dismiss the desktop instructions before clicking the D-pad.
       await page.keyboard.down('s');
       await expect(page.locator('.dialogueBox')).toBeHidden();
       await page.keyboard.up('s');
@@ -90,7 +140,7 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }, testInfo) => {
+test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -112,8 +162,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
-  await page.screenshot({ path: testInfo.outputPath('embedded-game.png') });
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
@@ -154,6 +203,5 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   const pdf = await request.get('/portfolio/RVafadar_Resume.pdf');
   expect(pdf.headers()['content-type']).toContain('application/pdf');
   expect(await pdf.body()).toEqual(await readFile(new URL('../apps/portfolio/public/RVafadar_Resume.pdf', import.meta.url)));
-  await page.screenshot({ path: testInfo.outputPath('embedded-portfolio.png') });
   expect(errors).toEqual([]);
 });

@@ -62,7 +62,7 @@ test('a desktop touch laptop retains the arcade and hover zoom', { tag: '@webgl'
   await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
   await expect(page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   const initialWidth = (await screen.boundingBox()).width;
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(5500);
   expect((await screen.boundingBox()).width).toBeCloseTo(initialWidth, 0);
   const viewport = page.viewportSize();
   await page.mouse.move(viewport.width / 2, viewport.height * 0.82);

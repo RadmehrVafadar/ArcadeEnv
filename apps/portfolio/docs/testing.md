@@ -15,6 +15,8 @@ Game checks protect controls, collision rules, and base-aware exit navigation.
 Use `npm run test:build --workspace=portfolio-website` to build and test this app independently.
 Root `npm run check` additionally builds the combined site and runs launcher checks and desktop/mobile browser coverage against development and production.
 Game tests execute the actual script in an isolated VM with a minimal DOM substitute.
+Startup regressions check the desktop project welcome and movement and Q exit hints, preserve the mobile instructions, and verify that movement dismisses the dialogue and removes its startup styling.
+Browser checks verify that the welcome and two larger control rows fit a compact dialogue without clipping and capture desktop and mobile screenshots in development and production.
 The production test reuses the existing build, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
 It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
 Production tests only read `dist/`; root `npm run check` and CI build once before running the Node and browser tests.

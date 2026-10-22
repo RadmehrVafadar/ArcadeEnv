@@ -26,7 +26,7 @@ export default function Arcade() {
 
   useFrame(({ camera }, delta) => {
     camera.lookAt(0, 1, 1);
-    const autoZoom = mobile && revealedAt.current !== null && performance.now() - revealedAt.current >= 2000;
+    const autoZoom = mobile && revealedAt.current !== null && performance.now() - revealedAt.current >= 5000;
     if (autoZoom && !zoomStarted) setZoomStarted(true);
     if (zoomStarted || autoZoom) {
       camera.position.lerp(target, 1 - Math.pow(0.95, delta * 60));
