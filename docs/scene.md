@@ -30,6 +30,9 @@ Its text stays still when reduced motion is preferred.
 On phones and tablets, the same persistent zoom starts automatically five seconds after the loading screen clears, once both the cabinet frame and portfolio iframe are ready.
 Desktop touch laptops retain hover entry.
 Zoom smoothing uses elapsed frame time, preserving its original 60 FPS feel while keeping the same speed on slower renderers.
+The canvas renders on demand and schedules frames only while the camera zooms, stopping once it is within 0.001 world units of its target.
+The mobile delay uses a timer after loading clears, and zoom timing excludes time spent idle before interaction.
+The HTML portfolio continues to animate and respond independently while the WebGL canvas is idle.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
 `VITE_IFRAME_URL` overrides the iframe and loading-screen portfolio link at build time, using root `.env.local` or the process environment.

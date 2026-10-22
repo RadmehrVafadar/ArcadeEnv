@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('portfolio fonts load locally without external requests', async ({ page, baseURL }) => {
+test('portfolio fonts load locally without external requests', { tag: '@smoke' }, async ({ page, baseURL }) => {
   const externalRequests = [];
   page.on('request', request => {
     if (new URL(request.url()).origin !== new URL(baseURL).origin) externalRequests.push(request.url());

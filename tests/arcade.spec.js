@@ -27,7 +27,7 @@ async function zoomArcade(page, timeout = 15000) {
   });
 }
 
-test('loads the arcade without application errors', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
+test('loads and labels the arcade with its lighting and CRT glass intact', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
   const errors = [];
   const decorationRequests = [];
@@ -38,8 +38,27 @@ test('loads the arcade without application errors', { tag: '@webgl' }, async ({ 
   page.on('console', message => {
     if (message.type() === 'error') errors.push(message.text());
   });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await loadArcade(page);
   await expect(page.locator('iframe')).toHaveAttribute('src', '/portfolio/');
+  await test.step('Check the accessible label and inert CRT layers', async () => {
+    await expect(page.locator('iframe')).toHaveAttribute('title', 'Radmehr Vafadar portfolio');
+    const glass = page.locator('.crt-screen');
+    await expect(glass).toBeVisible();
+    await expect(glass).toHaveCSS('width', '624px');
+    await expect(glass).toHaveCSS('height', '780px');
+    await expect(glass).toHaveCSS('overflow', 'hidden');
+    await expect(glass).toHaveCSS('border-top-left-radius', '5% 4%');
+    for (const layer of ['::before', '::after']) {
+      const styles = await glass.evaluate((element, layer) => {
+        const css = getComputedStyle(element, layer);
+        return { pointerEvents: css.pointerEvents, animation: css.animationName, background: css.backgroundImage };
+      }, layer);
+      expect(styles.pointerEvents).toBe('none');
+      expect(styles.animation).toBe('none');
+      expect(styles.background).not.toBe('none');
+    }
+  });
   const screenshot = await test.step('Capture the spotlight', () =>
     page.screenshot({ path: testInfo.outputPath('arcade.png') }));
   const lighting = await page.evaluate(async base64 => {
@@ -75,42 +94,13 @@ test('loads the arcade without application errors', { tag: '@webgl' }, async ({ 
   expect(decorationRequests).toEqual([]);
 });
 
-test('labels the embedded portfolio for assistive technology', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
-  await page.goto('/');
-  await expect(page.locator('iframe')).toHaveAttribute('title', 'Radmehr Vafadar portfolio', {
-    timeout: 30000,
-  });
-});
-
-test('CRT glass respects screen dimensions and keeps decorative layers inert', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Desktop CRT regression; mobile entry is covered separately.');
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await loadArcade(page);
-  const glass = page.locator('.crt-screen');
-  await expect(glass).toBeVisible({ timeout: 30000 });
-  await expect(glass).toHaveCSS('width', '624px');
-  await expect(glass).toHaveCSS('height', '780px');
-  await expect(glass).toHaveCSS('overflow', 'hidden');
-  await expect(glass).toHaveCSS('border-top-left-radius', '5% 4%');
-  for (const layer of ['::before', '::after']) {
-    const styles = await glass.evaluate((element, layer) => {
-      const css = getComputedStyle(element, layer);
-      return { pointerEvents: css.pointerEvents, animation: css.animationName, background: css.backgroundImage };
-    }, layer);
-    expect(styles.pointerEvents).toBe('none');
-    expect(styles.animation).toBe('none');
-    expect(styles.background).not.toBe('none');
-  }
-  await test.step('Capture the CRT appearance', () =>
-    page.screenshot({ path: testInfo.outputPath('crt-screen.png') }));
-});
-
-test('CRT glass keeps the embedded portfolio clickable after zoom', { tag: '@webgl' }, async ({ page, isMobile }) => {
+test('hover zoom preserves CRT click-through', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Desktop CRT regression; mobile entry is covered separately.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await loadArcade(page);
   await zoomArcade(page);
+  await test.step('Capture the zoomed cabinet', () =>
+    page.screenshot({ path: testInfo.outputPath('zoomed.png') }));
   await test.step('Navigate to Blog inside the CRT glass', async () => {
     const portfolio = page.frameLocator('iframe');
     await portfolio.getByRole('link', { name: 'Blog', exact: true }).click({ timeout: 10000 });
@@ -121,19 +111,13 @@ test('CRT glass keeps the embedded portfolio clickable after zoom', { tag: '@web
   });
 });
 
-test('zooms toward the cabinet on hover', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
-  await loadArcade(page);
-  await zoomArcade(page);
-  await test.step('Capture the zoomed cabinet', () =>
-    page.screenshot({ path: testInfo.outputPath('zoomed.png') }));
-});
-
-test('does not reference a missing favicon', { tag: '@webgl' }, async ({ page, request }) => {
-  await page.goto('/');
-  const icon = page.locator('link[rel="icon"]');
-  if (await icon.count()) {
-    const response = await request.get(await icon.getAttribute('href'));
+test('does not reference a missing favicon', async ({ request }) => {
+  const response = await request.get('/');
+  expect(response.ok()).toBe(true);
+  const html = await response.text();
+  const icon = html.match(/<link\b(?=[^>]*\brel=["']icon["'])[^>]*\bhref=["']([^"']+)["']/i);
+  if (icon) {
+    const response = await request.get(icon[1]);
     expect(response.ok()).toBeTruthy();
     expect(response.headers()['content-type']).toMatch(/^image\//);
   }

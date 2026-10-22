@@ -42,7 +42,7 @@ test('portfolio Blog link opens the reader in the current tab', async ({ page, c
   await expect(link).toBeVisible();
 });
 
-test('blog renders unpublished Markdown fixtures and relative article links', async ({ page }, testInfo) => {
+test('blog renders unpublished Markdown fixtures and relative article links', { tag: '@development' }, async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('development'), 'Fixture module interception uses the development module URL; published builds contain no test articles.');
   const body = 'A quiet place for longer thoughts.\n\n## A small heading\n\n- First point\n- Second point\n\n> A little breathing room.\n\n```js\nconst sentence = "' + 'long text '.repeat(25) + '";\n```\n\n| Name | Value |\n| --- | --- |\n| Note | Readable |\n\n- [x] Checked\n\n[Next note](../work/next.md)\n\n<script>alert("unsafe")</script>';
   const articles = [

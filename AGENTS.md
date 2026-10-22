@@ -13,6 +13,7 @@ npm run lint                            # Lint root scripts and both apps
 npm run typecheck                       # Check portfolio TypeScript
 npx playwright install chromium         # Install browser for integration tests
 npm test                                # Launcher, game, production-route, and browser tests
+npm run test:unit                        # Launcher, browser configuration, and portfolio unit tests
 npm run test:browser -- --grep "labels"   # Run a single browser regression
 npm run build                           # Build both apps and assemble root dist/
 npm run preview                         # Serve combined dist/

@@ -13,16 +13,19 @@ Game checks protect controls, collision rules, and base-aware exit navigation.
 `npm run build` runs TypeScript checks and builds all HTML entries.
 `npm test --workspace=portfolio-website` at the repository root runs the built-in Node.js test runner against an existing portfolio build.
 Use `npm run test:build --workspace=portfolio-website` to build and test this app independently.
-Root `npm run check` additionally builds the combined site and runs launcher checks and desktop/mobile browser coverage against development and production.
+Root `npm run test:unit` runs launcher and browser configuration checks before this app's unit suite.
+Root `npm run check` additionally builds the combined site and runs the full browser feature suite on production desktop/mobile, plus focused development integration and content-fixture coverage.
 Game tests execute the actual script in an isolated VM with a minimal DOM substitute.
 Startup regressions check the desktop project welcome and movement and Q exit hints, preserve the mobile instructions, and verify that movement dismisses the dialogue and removes its startup styling.
-Browser checks verify that the welcome and two larger control rows fit a compact dialogue without clipping and capture desktop and mobile screenshots in development and production.
+Browser checks verify that the welcome and two larger control rows fit a compact dialogue without clipping and capture production desktop and mobile screenshots.
 The production test reuses the existing build, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
 It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
 Production tests only read `dist/`; root `npm run check` and CI build once before running the Node and browser tests.
 Browser tests use two workers, with the stylesheet-mutating HMR check isolated in a dependency project that finishes before other browser tests start.
 Menu motion checks run directly on the portfolio instead of loading the cabinet.
 Font regressions verify that both portfolio fonts load successfully without external requests in development and production on desktop and mobile.
+Mobile emulation preserves the device viewport and touch input while rendering at one device pixel per CSS pixel.
+CI records traces only on a failed test's retry and treats flaky retries as failures.
 
 ## Key files
 
