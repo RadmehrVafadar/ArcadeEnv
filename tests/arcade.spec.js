@@ -28,7 +28,7 @@ async function zoomArcade(page, timeout = 15000) {
 }
 
 test('loads the arcade without application errors', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Mobile opens the portfolio directly.');
+  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
   const errors = [];
   const decorationRequests = [];
   page.on('request', request => {
@@ -76,7 +76,7 @@ test('loads the arcade without application errors', { tag: '@webgl' }, async ({ 
 });
 
 test('labels the embedded portfolio for assistive technology', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Mobile opens the portfolio directly.');
+  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
   await page.goto('/');
   await expect(page.locator('iframe')).toHaveAttribute('title', 'Radmehr Vafadar portfolio', {
     timeout: 30000,
@@ -84,7 +84,7 @@ test('labels the embedded portfolio for assistive technology', { tag: '@webgl' }
 });
 
 test('CRT glass respects screen dimensions and keeps decorative layers inert', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Mobile opens the portfolio without CRT glass.');
+  test.skip(isMobile, 'Desktop CRT regression; mobile entry is covered separately.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await loadArcade(page);
   const glass = page.locator('.crt-screen');
@@ -107,7 +107,7 @@ test('CRT glass respects screen dimensions and keeps decorative layers inert', {
 });
 
 test('CRT glass keeps the embedded portfolio clickable after zoom', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Mobile opens the portfolio without CRT glass.');
+  test.skip(isMobile, 'Desktop CRT regression; mobile entry is covered separately.');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await loadArcade(page);
   await zoomArcade(page);
@@ -122,7 +122,7 @@ test('CRT glass keeps the embedded portfolio clickable after zoom', { tag: '@web
 });
 
 test('zooms toward the cabinet on hover', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Mobile opens the portfolio directly.');
+  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
   await loadArcade(page);
   await zoomArcade(page);
   await test.step('Capture the zoomed cabinet', () =>
@@ -140,7 +140,7 @@ test('does not reference a missing favicon', { tag: '@webgl' }, async ({ page, r
 });
 
 test('hover zoom keeps its speed at one rendered frame per second', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Mobile opens the portfolio directly.');
+  test.skip(isMobile, 'Desktop scene regression; mobile auto zoom is covered separately.');
   await page.addInitScript(() => {
     window.requestAnimationFrame = callback => window.setTimeout(() => callback(performance.now()), 1000);
     window.cancelAnimationFrame = id => window.clearTimeout(id);

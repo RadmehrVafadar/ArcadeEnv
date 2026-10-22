@@ -33,8 +33,10 @@ Zoom assertions poll for the screen-width threshold with a 15-second allowance, 
 CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and embedded navigation steps in traces.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
-Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile entry without scene downloads, tablet and touch-laptop detection, and browser errors.
-The embedded navigation test uses Playwright's `page.goBack()` for mobile top-level history to avoid destroying an in-page evaluation during navigation; desktop uses `history.back()` because only the iframe navigates.
+Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile scene entry with delayed automatic zoom, tablet and touch-laptop detection, and browser errors.
+The embedded navigation test uses `history.back()` on desktop and mobile because only the iframe navigates.
+It leaves scene screenshots to the dedicated appearance tests so software WebGL capture time cannot exhaust its navigation budget.
+Automatic zoom tests hold the portfolio response while measuring the initial screen width, preventing a slow runner from taking its baseline after zooming has finished.
 Screenshots and failure traces are saved under ignored `test-results/`.
 
 `.github/workflows/check.yml` runs two parallel jobs for each opened or reopened pull request and whenever commits are pushed to it.

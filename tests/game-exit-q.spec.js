@@ -22,7 +22,7 @@ test('Q exits the standalone game from spawn and stays inactive on other pages',
 });
 
 test('Q returns only the cabinet game iframe to the portfolio menu', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Mobile opens the standalone portfolio instead of an iframe.');
+  test.skip(isMobile, 'Desktop keyboard regression; mobile iframe navigation is covered separately.');
   test.setTimeout(60000);
   await page.goto('/');
   const screen = page.locator('iframe');
