@@ -140,7 +140,7 @@ test('portfolio menu buttons have no underlines', async ({ page, isMobile }, tes
   }
 });
 
-test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: '@webgl' }, async ({ page, context, request, isMobile }) => {
+test('portfolio entry navigates, loads the game, exits, and opens the resume', { tag: ['@webgl', '@smoke'] }, async ({ page, context, request, isMobile }) => {
   test.setTimeout(60000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -162,6 +162,17 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  if (!isMobile) {
+    await test.step('Q exits only the cabinet iframe from spawn', async () => {
+      await page.keyboard.press('q');
+      await expect(start).toBeVisible();
+      expect(new URL(page.url()).pathname).toBe('/');
+      expect(frame.url()).toMatch(/\/portfolio\/$/);
+      await start.click();
+      await expect(portfolio.locator('.character')).toBeVisible();
+    });
+  }
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');

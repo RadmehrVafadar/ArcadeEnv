@@ -22,7 +22,7 @@ test('blog folders retain parent navigation and lead back to the menu', async ({
   await expect(page).toHaveURL(/\/portfolio\/$/);
 });
 
-test('blog articles retain the folder and menu return path', async ({ page }, testInfo) => {
+test('blog articles retain the folder and menu return path', { tag: '@development' }, async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith('development'), 'Unpublished article fixture uses the development content module.');
   await page.route('**/src/blog-website/content.ts*', route => route.fulfill({
     contentType: 'application/javascript',

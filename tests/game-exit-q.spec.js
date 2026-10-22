@@ -20,24 +20,3 @@ test('Q exits the standalone game from spawn and stays inactive on other pages',
   await page.keyboard.press('q');
   await expect(page).toHaveURL(/\/portfolio\/src\/blog-website\/blog.html$/);
 });
-
-test('Q returns only the cabinet game iframe to the portfolio menu', { tag: '@webgl' }, async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Desktop keyboard regression; mobile iframe navigation is covered separately.');
-  test.setTimeout(60000);
-  await page.goto('/');
-  const screen = page.locator('iframe');
-  await expect(screen).toBeVisible({ timeout: 30000 });
-  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
-  const portfolio = page.frameLocator('iframe');
-  const start = portfolio.getByRole('link', { name: 'Start', exact: true });
-  const viewport = page.viewportSize();
-  const initialWidth = (await screen.boundingBox()).width;
-  await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
-  await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
-  await start.click();
-  await expect(portfolio.locator('.character')).toBeVisible();
-  await page.keyboard.press('q');
-  await expect(start).toBeVisible();
-  expect(new URL(page.url()).pathname).toBe('/');
-  expect(page.frames().some(frame => new URL(frame.url()).pathname === '/portfolio/')).toBe(true);
-});

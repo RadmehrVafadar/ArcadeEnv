@@ -27,14 +27,17 @@ Subdirectory deployment requires revisiting both route bases.
 
 Install Chromium with `npx playwright install chromium`, then run `npm run check` for lint, portfolio types, both builds, launcher checks, game tests, production HTTP checks, and browser integration tests.
 `npm test` expects an existing root build; `npm run check` creates it first.
-Browser projects exercise development and production on desktop and Pixel mobile profiles using two workers and software WebGL.
+Production desktop and Pixel mobile projects run the full feature suite using software WebGL.
+Development desktop and mobile projects run `@smoke` integration checks and `@development` content fixtures, retaining real embedded navigation, game exits, downloads, fonts, proxying, and HMR coverage without repeating every production scene assertion.
+Mobile projects retain their device viewport, user agent, and touch input with a device scale factor of one, avoiding four times as many WebGL pixels on the software renderer.
 The `development-hmr` dependency project finishes its stylesheet mutation and restoration before the other projects start, so parallel tests cannot observe the temporary stylesheet.
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
 Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
 The cabinet renders on demand, reducing software WebGL work during idle periods and iframe interactions.
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
-CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and embedded navigation steps in traces.
+Lighting, iframe labels, and CRT layer assertions share an initial scene load; hover zoom and CRT click-through share another.
+The embedded game navigation flow checks Q exit before exercising the exit door, avoiding a separate cabinet load.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile scene entry with delayed automatic zoom, tablet and touch-laptop detection, and browser errors.
@@ -43,17 +46,21 @@ The mobile delay check observes loading-screen removal directly so a late animat
 The embedded navigation test uses `history.back()` on desktop and mobile because only the iframe navigates.
 It leaves scene screenshots to the dedicated appearance tests so software WebGL capture time cannot exhaust its navigation budget.
 Automatic zoom tests hold the portfolio response while measuring the initial screen width, preventing a slow runner from taking its baseline after zooming has finished.
-Screenshots and failure traces are saved under ignored `test-results/`.
+Screenshots and JSON timing reports are saved under ignored `test-results/`, and the list reporter prints each test's duration.
+CI retries a failure once to record its trace; passing first attempts record no trace, and flaky retries still fail the run.
+`npm run test:unit` runs launcher checks, browser configuration guards, and the portfolio unit suite.
 
-`.github/workflows/check.yml` runs two parallel jobs for each opened or reopened pull request and whenever commits are pushed to it.
+`.github/workflows/check.yml` runs the required `Quality` and `Tests` jobs for each opened or reopened pull request and whenever commits are pushed to it.
 The `Quality` job runs `npm run lint` and `npm run typecheck`.
-The `Tests` job installs Chromium with its system dependencies, builds both apps, runs unit tests, then runs browser tests in two groups.
+The `Tests` job follows `Quality`, reusing its installed-dependency cache before installing Chromium with its system dependencies, building both apps, and running unit tests and two browser groups.
 Tests tagged `@webgl` run with one worker so software-rendered scenes do not compete; the remaining portfolio checks retain two workers.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
 Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
+Both restore installed workspace dependencies using an exact cache key containing the operating system, architecture, Node version, and root lockfile hash.
+Cache misses use `npm ci --prefer-offline --no-audit --no-fund`; cache hits skip installation entirely, and no partial-key restore is used.
 Together, they run the same checks as local `npm run check`, keeping builds and their consuming tests in one job.
 New commits cancel an older run for the same pull request.
-Failed runs upload available browser screenshots and traces as the `browser-test-results` artifact, retained for seven days.
+Runs upload available JSON timing reports, failure screenshots, and retry traces as the `browser-test-results` artifact with an `always()` condition, retained for seven days.
 After committing and pushing the workflow, results appear in the pull request's Checks tab.
 To require passing checks before merging, configure a GitHub branch ruleset for `master` that requires both the `Quality` and `Tests` status checks.
 Replace the former `Lint, types, build, and tests` required check with these two names if it was already configured.
