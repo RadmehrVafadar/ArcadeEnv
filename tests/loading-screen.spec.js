@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('arcade loading screen covers deferred scene and model loading @webgl', async ({ page, isMobile }, testInfo) => {
-  test.skip(isMobile, 'Mobile redirects straight to the portfolio.');
+test('arcade loading screen covers deferred scene and model loading @webgl', async ({ page }, testInfo) => {
   test.setTimeout(60000);
   let releaseScene;
   let releaseModel;
@@ -49,18 +48,4 @@ test('arcade loading screen covers deferred scene and model loading @webgl', asy
     releasePortfolio();
     await page.unrouteAll({ behavior: 'wait' });
   }
-});
-
-test('mobile opens the portfolio without loading the arcade', async ({ page, isMobile }, testInfo) => {
-  test.skip(!isMobile, 'Mobile redirect only.');
-  const sceneRequests = [];
-  page.on('request', request => {
-    if (/model9\.glb|\/src\/scene\.jsx|\/assets\/scene-[^/]+\.js/.test(request.url())) sceneRequests.push(request.url());
-  });
-  await page.goto('/');
-  await expect(page).toHaveURL(/\/portfolio\/$/);
-  await expect(page.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
-  await expect(page.getByRole('status')).toHaveCount(0);
-  expect(sceneRequests).toEqual([]);
-  await page.screenshot({ path: testInfo.outputPath('mobile-portfolio.png') });
 });

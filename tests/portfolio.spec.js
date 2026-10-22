@@ -97,20 +97,19 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   await page.goto('/');
   const screen = page.locator('iframe');
-  if (!isMobile) {
-    await expect(screen).toBeVisible({ timeout: 30000 });
-    await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
-  }
-  const portfolio = isMobile ? page : page.frameLocator('iframe');
+  await expect(screen).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+  const portfolio = page.frameLocator('iframe');
   const start = portfolio.getByRole('link', { name: 'Start', exact: true });
   await expect(start).toHaveAttribute('href', '/portfolio/src/portfolio-game/game.html');
-  const frame = isMobile ? page.mainFrame() : page.frames().find(frame => new URL(frame.url()).pathname === '/portfolio/');
+  const frame = page.frames().find(frame => new URL(frame.url()).pathname === '/portfolio/');
+  const initialWidth = (await screen.boundingBox()).width;
   if (!isMobile) {
-    const initialWidth = (await screen.boundingBox()).width;
     const viewport = page.viewportSize();
     await page.mouse.move(viewport.width / 2, viewport.height * 0.82);
-    await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(initialWidth * 1.5);
   }
+  const zoomedWidth = isMobile ? page.viewportSize().width : initialWidth * 1.5;
+  await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
   await expect(portfolio.locator('.dialogueBox')).toContainText('Welcome');
@@ -122,22 +121,17 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await page.keyboard.press('e');
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
-  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
+  expect(new URL(page.url()).pathname).toBe('/');
   await portfolio.getByRole('link', { name: 'Blog', exact: true }).click();
   await expect(portfolio.getByRole('heading', { name: "rad's blog" })).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/src\/blog-website\/blog.html$/);
   expect(context.pages()).toHaveLength(1);
-  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/src/blog-website/blog.html' : '/');
-  if (isMobile) {
-    // A top-level navigation can destroy an evaluate call's execution context.
-    await page.goBack();
-  } else {
-    // Iframe history does not trigger the top-level load event goBack waits for.
-    await page.evaluate(() => history.back());
-  }
+  expect(new URL(page.url()).pathname).toBe('/');
+  // Iframe history does not trigger the top-level load event goBack waits for.
+  await page.evaluate(() => history.back());
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
-  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
+  expect(new URL(page.url()).pathname).toBe('/');
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
   await expect(resume).toHaveAttribute('target', '_blank');
@@ -152,7 +146,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   }
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
-  expect(new URL(page.url()).pathname).toBe(isMobile ? '/portfolio/' : '/');
+  expect(new URL(page.url()).pathname).toBe('/');
   await portfolio.locator('.sphear').click();
   const background = await portfolio.locator('.app-container').getAttribute('class');
   await portfolio.locator('.sphear').click();

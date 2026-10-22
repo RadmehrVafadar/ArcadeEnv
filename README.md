@@ -4,7 +4,7 @@ A 3D arcade cabinet wraps Radmehr Vafadar's portfolio in one npm workspace and d
 
 ## Features
 
-- Desktop arcade at `/` with hover camera zoom and direct portfolio entry on mobile.
+- Arcade at `/` with hover camera zoom on desktop and automatic zoom after loading on mobile.
 - Included portfolio at `/portfolio/` inside the cabinet screen.
 - Pixel-art showcase game, blog placeholder, and resume PDF.
 - One install, development command, build, and deployment.
@@ -20,7 +20,7 @@ npm run dev
 
 Open http://127.0.0.1:5173/ for the cabinet or http://127.0.0.1:5173/portfolio/ for the portfolio.
 The launcher starts both apps and proxies portfolio requests and hot reload through the arcade server.
-Set `VITE_IFRAME_URL` in root `.env.local` to use an external site for the desktop iframe and mobile destination.
+Set `VITE_IFRAME_URL` in root `.env.local` to use an external site for the iframe and loading-screen portfolio link.
 
 Install Chromium once with `npx playwright install chromium`, then run `npm run check` for all checks.
 On PowerShell with script execution disabled, use `npm.cmd` and `npx.cmd`.
