@@ -10,7 +10,8 @@ export function portfolioProxy() {
       proxy = createProxyServer({ target: `http://127.0.0.1:${process.env.PORTFOLIO_PORT || 5174}` });
       proxy.on('error', (error, request, response) => {
         // Browsers can reset HMR sockets while navigating or closing a context.
-        if (error.code === 'ECONNRESET' && response.destroyed && !('writeHead' in response)) return;
+        if (['ECONNRESET', 'ECONNABORTED', 'EPIPE'].includes(error.code) &&
+          response.destroyed && !('writeHead' in response)) return;
         server.config.logger.error(`Portfolio proxy error at ${request.url}: ${error.stack}`);
         if ('writeHead' in response) {
           if (!response.headersSent) response.writeHead(502);

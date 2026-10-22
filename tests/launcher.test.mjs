@@ -3,7 +3,8 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import http from 'node:http';
 import net from 'node:net';
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
+import { ProxyServer } from 'http-proxy-3';
 import { portfolioProxy } from '../scripts/portfolio-proxy.mjs';
 
 async function reservePort() {
@@ -13,6 +14,39 @@ async function reservePort() {
   return server;
 }
 const close = server => new Promise(resolve => server.close(resolve));
+
+test('closed browser WebSockets ignore reset, abort, and broken-pipe errors only', () => {
+  const handlers = [];
+  const on = ProxyServer.prototype.on;
+  const capture = mock.method(ProxyServer.prototype, 'on', function (event, listener) {
+    if (event === 'error') handlers.push(listener);
+    return on.call(this, event, listener);
+  });
+  const plugin = portfolioProxy();
+  const errors = [];
+  const socket = new net.Socket();
+  socket.destroy();
+  try {
+    plugin.configureServer({
+      httpServer: http.createServer(),
+      config: { logger: { error: message => errors.push(message) } },
+      middlewares: { use() {} },
+    });
+    const handleError = handlers.at(-1);
+    for (const code of ['ECONNRESET', 'ECONNABORTED', 'EPIPE']) {
+      handleError(Object.assign(new Error(code), { code }), { url: '/portfolio/__hmr' }, socket);
+    }
+    assert.deepEqual(errors, []);
+    const liveSocket = new net.Socket();
+    handleError(Object.assign(new Error('EPIPE'), { code: 'EPIPE' }), { url: '/portfolio/__hmr' }, liveSocket);
+    assert.match(errors.at(-1), /EPIPE/);
+    handleError(Object.assign(new Error('ECONNREFUSED'), { code: 'ECONNREFUSED' }), { url: '/portfolio/__hmr' }, socket);
+    assert.match(errors.join('\n'), /ECONNREFUSED/);
+  } finally {
+    capture.mock.restore();
+    plugin.closeBundle();
+  }
+});
 async function waitForServer(port, child) {
   for (let attempt = 0; attempt < 200; attempt++) {
     assert.equal(child.exitCode, null, 'launcher exited before readiness');
