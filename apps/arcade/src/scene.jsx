@@ -10,6 +10,7 @@ spotlightTarget.position.set(0, -2, 0);
 
 createRoot(document.querySelector('#root')).render(
   <Canvas
+    frameloop="demand"
     camera={{
       fov: 50,
       near: 0.1,
