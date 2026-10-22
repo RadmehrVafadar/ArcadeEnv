@@ -189,12 +189,13 @@ const placeCharacter = () => {
 
    var dialogueBox = document.querySelector('.dialogueBox');
    var actionPrompt = document.querySelector('.actionPrompt');
+   dialogueBox.classList.toggle('startupInstructions', !mobileControls && !hasPlayerMoved);
    
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
       dialogueBox.innerHTML = mobileControls
          ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD."
-         : "Welcome to my portfolio showcase game! Navigate with the arrow keys or WASD. Press Spacebar or E to interact. To exit, interact with the door.";
+         : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>';
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {
