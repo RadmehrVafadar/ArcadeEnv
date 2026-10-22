@@ -12,6 +12,8 @@ Run `npm ci` at the repository root using the single root lockfile.
 `npm run dev` runs `scripts/dev.mjs`, starting portfolio Vite first and arcade Vite second in one Node process.
 The arcade listens at `127.0.0.1:5173` and proxies `/portfolio/`, including WebSocket upgrades, to `127.0.0.1:5174`.
 The portfolio HMR client connects through the arcade port at `/portfolio/__hmr`.
+The arcade's development plugin uses `http-proxy-3` for portfolio HTTP and WebSocket traffic, avoiding the deprecated APIs in Vite 4's bundled proxy without changing either app's Vite version.
+An `ECONNRESET` on an already destroyed browser WebSocket is treated as a disconnect; other proxy errors remain logged, and failed HTTP upstream requests return 502.
 Override ports with `npm run dev -- --port 5180 --portfolio-port 5181`; `--host 0.0.0.0` permits LAN access.
 Ports are strict, and the launcher closes both servers on interruption or startup failure.
 Root `.env.local` supplies arcade configuration, including `VITE_IFRAME_URL`.
@@ -29,6 +31,8 @@ Browser projects exercise development and production on desktop and Pixel mobile
 The `development-hmr` dependency project finishes its stylesheet mutation and restoration before the other projects start, so parallel tests cannot observe the temporary stylesheet.
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
 Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
+The cabinet renders on demand, reducing software WebGL work during idle periods and iframe interactions.
+An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
 CRT appearance and click-through behavior are separate tests, with named loading, zoom, screenshot, and embedded navigation steps in traces.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
@@ -58,6 +62,7 @@ Replace the former `Lint, types, build, and tests` required check with these two
 
 - `package.json` and `package-lock.json` - commands, workspaces, and locked resolutions.
 - `scripts/dev.mjs` - development server lifecycle.
+- `scripts/portfolio-proxy.mjs` - portfolio HTTP and HMR forwarding with WebSocket cleanup.
 - `scripts/assemble.mjs` - combined build output.
 - `playwright.config.js` - development, production, and override browser projects.
 - `.github/workflows/check.yml` - automatic pull request verification.
