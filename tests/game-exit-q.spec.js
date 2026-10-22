@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
+import { player } from './game-helpers.js';
 
 test('Q exits the standalone game from spawn and stays inactive on other pages', async ({ page }) => {
   for (const key of ['q', 'Q']) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
-    await expect(page.locator('.character')).toBeVisible();
+    await expect(player(page)).toBeVisible();
     if (key === 'Q') {
       await page.keyboard.down('s');
-      await expect(page.locator('.character')).toHaveAttribute('walking', 'true');
+      await expect(player(page)).toHaveAttribute('data-walking', 'true');
       await page.keyboard.up('s');
     }
     await page.keyboard.press(key);

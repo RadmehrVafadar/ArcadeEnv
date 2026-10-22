@@ -47,5 +47,6 @@ docs/                 Architecture and verification guidance
 
 - Before changing entry points, navigation, assets, or styling, read `docs/site-structure.md`.
 - Before changing arcade movement, collision, or interactions, read `docs/arcade.md`.
+- Before editing maps or adding exhibits, read `docs/museum-authoring.md`.
 - Before changing verification commands or tests, read `docs/testing.md`.
 - Before adding articles or changing the blog, read `docs/blog.md`.

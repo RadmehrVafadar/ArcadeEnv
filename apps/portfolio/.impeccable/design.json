@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-22T17:24:59.430Z",
+  "title": "Design System: Pixel Museum",
+  "extensions": {
+    "shadows": [],
+    "motion": [
+      {
+        "name": "visitor-walk",
+        "value": "8 frames per second",
+        "purpose": "Four-frame directional walking animation while a direction is held."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "portrait-width",
+        "value": "650px"
+      },
+      {
+        "name": "compact-landscape-height",
+        "value": "500px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Read action",
+      "kind": "button",
+      "refersTo": "action-button",
+      "description": "Exhibit inspection with a keyboard hint.",
+      "html": "<button class=\"ds-action\"><span>Space</span>Read</button>",
+      "css": ".ds-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:64px;min-height:64px;padding:8px;font:10px \"Press Start 2P\",monospace;color:#f6e4bf;background:#4b3025;border:1px solid #d7ae66;cursor:pointer}.ds-action span{color:#e6c28a;font-size:9px}.ds-action:hover,.ds-action:active{background:#654331}.ds-action:focus-visible{outline:3px solid #9ee0df;outline-offset:3px}.ds-action:disabled{opacity:.45;cursor:default}"
+    },
+    {
+      "name": "Menu navigation",
+      "kind": "nav",
+      "description": "Persistent exit link with its shortcut.",
+      "html": "<a class=\"ds-menu\" href=\"#\">Menu <span>Q</span></a>",
+      "css": ".ds-menu{display:flex;align-items:center;gap:12px;min-height:44px;color:#f6e4bf;font:11px \"Press Start 2P\",monospace;text-decoration:none}.ds-menu span{color:#d7ae66;border:1px solid #755537;padding:5px;font-size:9px}.ds-menu:hover{color:#9ee0df}.ds-menu:focus-visible{outline:3px solid #9ee0df;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Warm pixel museum",
+    "overview": "These rules describe only the standalone museum game, not the portfolio landing page, blog, or 3D cabinet.\nNew raster artwork recalls the original dark wood, burgundy carpet, golden lamps, and whimsical objects while retaining the existing visitor sprite.",
+    "keyCharacteristics": [],
+    "rules": [],
+    "dos": [
+      "Do preserve the warm pixel-art material palette and retained visitor sprite.",
+      "Do keep dialogue, navigation, and controls readable outside the canvas.",
+      "Do render world artwork with nearest-neighbor sampling and keep both side walls barely visible at the hallway center."
+    ],
+    "donts": [
+      "Don't scale collision geometry to match viewport pixels.",
+      "Don't apply these museum-specific rules to the surrounding portfolio pages."
+    ]
+  }
+}

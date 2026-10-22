@@ -1,386 +1,304 @@
 :root {
-   --pixel-size: 3.5px;
-   --grid-cell: calc( var(--pixel-size) * 16);
-   --bg: #9fa7e4;
+  font-family:'Press Start 2P',monospace;
+  color:#f6e4bf;
+  background:#171310;
+  color-scheme:dark;
+  --gold:#d7ae66;
+  --wood:#34251d
 }
-@media( min-width: 700px ) {
-   :root {
-      --pixel-size: 3px;
-   }
-}
-@media( min-width: 1000px ) {
-   :root {
-      --pixel-size: 4px;
-   }
-}
-/* @media( min-width: 1000px ) {
-   :root {
-      --pixel-size: 5px;
-   }
-} */
 
 * {
-   font-family: 'Press Start 2P', cursive;
-   box-sizing: border-box;
+  box-sizing:border-box
 }
-
-
 body {
-   background: var(--bg);
-   display: flex;
-   align-items: center;
-   justify-content: center;
+  margin:0;
+  height:100dvh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)
 }
-
-.pixel-art {
-   image-rendering: pixelated;
+button,a {
+  -webkit-tap-highlight-color:transparent
+}
+button {
+  font:inherit
+}
+button:focus-visible,a:focus-visible {
+  outline:3px solid #9ee0df;
+  outline-offset:3px
+}
+::selection {
+  background:#9ee0df;
+  color:#211916
+}
+[hidden] {
+  display:none!important
 }
 
 .frame {
-   /* This is just for Pen decoration */
-   width: calc(var(--pixel-size) * 150);
-   height: calc(var(--pixel-size) * 200);
-   outline: var(--pixel-size) solid #fff;
-   z-index:1; 
-   position:relative;
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:56px minmax(0,1fr);
+  width:min(100%,1200px);
+  height:100%;
+  margin:auto;
+  background:#211916
 }
 
+.museum-header {
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  border-bottom:1px solid #755537
+}
+h1 {
+  font-size:14px;
+  line-height:1.6;
+  margin:0;
+  font-weight:400
+}
+.menu-link {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:44px;
+  color:#f6e4bf;
+  font-size:11px;
+  text-decoration:none
+}
+.menu-link:hover {
+  color:#9ee0df
+}
+.menu-link span {
+  color:var(--gold);
+  border:1px solid #755537;
+  padding:5px;
+  font-size:9px
+}
+
+.world-panel {
+  position:relative;
+  min-width:0;
+  min-height:0;
+  overflow:hidden
+}
 .camera {
-   width: calc(var(--pixel-size) * 150);
-   height: calc(var(--pixel-size) * 200);
-   overflow: hidden;
-   background: #83e5f8;
-   position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden
 }
-
-.map {
-   image-rendering: pixelated;
-   background-image: url('../assets/pixelB.png'); 
-   background-size: 100%;
-   width: calc(13 * var(--grid-cell));
-   height: calc(34 * var(--grid-cell));
-   position: relative;
+canvas {
+  display:block;
+  image-rendering:pixelated
 }
-
-.character {
-   width: calc( var(--grid-cell)* 2 );
-   height: calc( var(--grid-cell)* 2 );
-   position: absolute;
-   overflow:hidden;
+.loading {
+  position:absolute;
+  inset:20px;
+  display:grid;
+  place-content:center;
+  background:#211916;
+  font-size:12px;
+  line-height:2;
+  text-align:center
 }
-
-.character_spritesheet {
-   position: absolute;
-   background: url('../assets/walk.png') no-repeat no-repeat;
-   background-size: 100%;
-   width: calc( var(--grid-cell)* 18 );
-   height: calc( var(--grid-cell)* 2 );
-}
-
-.character[facing="left"] .character_spritesheet {
-   background-position-y: calc( var(--pixel-size) * -32 );
-}
-.character[facing="down"] .character_spritesheet {
-   background-position-y: calc( var(--pixel-size) * -64 );
-}
-.character[facing="right"] .character_spritesheet {
-   background-position-y: calc( var(--pixel-size) * -96 );
-}
-.character[walking="true"] .character_spritesheet {
-   animation: walkAnimation 0.5s steps(4) infinite; 
-}
-
-@keyframes walkAnimation {
-  from {
-    transform: translate3d(0%,0%,0);
-  }
-  to {
-    transform: translate3d(-89%,0%,0);
-  }
-}
-
-.dpad {
-   position:absolute;
-   right: calc(var(--pixel-size) * 2);
-   bottom: calc(var(--pixel-size) * 2);
-   width: calc(var(--pixel-size) * 37);
-   height: calc(var(--pixel-size) * 38);
-}
-.dpad-button {
-   appearance:none;
-   outline:0;
-   border:0;
-   background:transparent;
-   padding:0;
-   cursor:pointer;
-}
-.dpad-button svg {
-   display:block;
-   height: calc(var(--pixel-size) * 13);
-}
-
-.dpad-button.pressed .Arrow_arrow-inset { stroke:#07c2cc; }
-.dpad-button.pressed .Arrow_arrow-body { stroke:#17dfea; }
-
-.dpad-up {
-   position: absolute;
-   left: calc(var(--pixel-size) * 12);
-   top:0;
-}
-.dpad-down {
-   position: absolute;
-   bottom:var(--pixel-size);
-   left: calc(var(--pixel-size) * 12);
-}
-.dpad-left {
-   position: absolute;
-   top: calc(var(--pixel-size) * 12);
-   left:0;
-}
-.dpad-right {
-   position: absolute;
-   top: calc(var(--pixel-size) * 12);
-   right:0;
-}
-
-.dpad {
-   user-select:none;
-}
-
-.corner_topleft,
-.corner_topright,
-.corner_bottomleft,
-.corner_bottomright {
-   position: absolute;
-   width: var(--pixel-size);
-   height: var(--pixel-size);
-   background: var(--bg);
-   z-index:2;
-}
-
-.corner_topleft {
-   top: calc(var(--pixel-size) * -1);
-   left: calc(var(--pixel-size) * -1);
-}
-.corner_topright {
-   top: calc(var(--pixel-size) * -1);
-   right: calc(var(--pixel-size) * -1);
-}
-.corner_bottomleft {
-   bottom: calc(var(--pixel-size) * -1);
-   left: calc(var(--pixel-size) * -1);
-}
-.corner_bottomright {
-   bottom: calc(var(--pixel-size) * -1);
-   right: calc(var(--pixel-size) * -1);
-}
-
-.headline {
-   position:absolute;
-   top:calc(var(--pixel-size) * -15);
-   right:calc(var(--pixel-size)* -20);
-   width: calc(var(--pixel-size) * 130)
-}
-
-.dialogueBox {
-   position:absolute;
-   overflow-y: auto;
-   left: calc(var(--pixel-size));
-   bottom: calc(var(--pixel-size));
-   width: calc(var(--pixel-size) * 148);
-   height: calc(var(--pixel-size) * 50);
-
-   background-color: whitesmoke;
-   border: black solid 4px;
-   border-radius: 2em;
-
-
-   padding: 1em;
-   line-height: 1.5em;
-   display: none;
-}
-
-.dialogueBox.startupInstructions {
-   height: auto;
-   /* Keep startup guidance visible when the fixed-size frame exceeds the viewport. */
-   bottom: max(var(--pixel-size), calc(100% - 100dvh + 16px));
-   padding: calc(var(--pixel-size) * 4);
-   font-size: calc(var(--pixel-size) * 5.5);
-   line-height: 1.6;
-}
-
-.startupWelcome {
-   display: block;
-   margin-bottom: 0.75em;
-   font-size: 0.65em;
-}
-
-.startupControl {
-   display: block;
-}
-
 .actionPrompt {
-   position:absolute;
-   right: calc(var(--pixel-size) * 2);
-   top: calc(var(--pixel-size) * 2);
-   padding: 6px 10px;
-   background: rgba(0,0,0,0.7);
-   color: #fff;
-   border-radius: 8px;
-   font-size: 12px;
-   display: none;
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:12px;
+  width:fit-content;
+  max-width:calc(100% - 24px);
+  padding:10px 12px;
+  margin:0;
+  background:#211916ed;
+  border:1px solid #755537;
+  font-size:9px;
+  line-height:1.8;
+  pointer-events:none
 }
 
 .gameControls {
-   display: contents;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:24px;
+  padding:12px;
+  background:#2b201a
+}
+.dpad {
+  position:relative;
+  width:132px;
+  height:132px;
+  flex-shrink:0;
+  user-select:none
+}
+.dpad-button {
+  position:absolute;
+  width:44px;
+  height:44px;
+  appearance:none;
+  border:0;
+  padding:0;
+  background:transparent;
+  cursor:pointer;
+  touch-action:none
+}
+.dpad-button svg {
+  width:44px;
+  height:44px;
+  display:block
+}
+.dpad-up {
+  left:44px;
+  top:0
+}
+.dpad-down {
+  left:44px;
+  bottom:0
+}
+.dpad-left {
+  left:0;
+  top:44px
+}
+.dpad-right {
+  right:0;
+  top:44px
+}
+.Arrow_surface {
+  stroke:#e2c792
+}
+.Arrow_front {
+  stroke:#a78656
+}
+.Arrow_edge {
+  stroke:#ffe3a8
+}
+.dpad-button.pressed .Arrow_surface,.dpad-button:hover .Arrow_surface {
+  stroke:#9ee0df
 }
 
 .actionButtons {
-   display: none;
+  display:flex;
+  gap:8px
+}
+.actionButtons button {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-width:64px;
+  min-height:64px;
+  padding:8px;
+  color:#f6e4bf;
+  border:1px solid var(--gold);
+  background:#4b3025;
+  font-size:10px;
+  cursor:pointer;
+  touch-action:manipulation
+}
+.actionButtons button span {
+  color:#e6c28a;
+  font-size:9px
+}
+.actionButtons button:disabled {
+  opacity:.45;
+  cursor:default
+}
+.actionButtons button:not(:disabled):hover,.actionButtons button:not(:disabled):active {
+  background:#654331
+}
+.control-hint {
+  font-size:8px;
+  line-height:2.4;
+  text-align:center;
+  color:#d2b58b
 }
 
-/* Touch devices use the viewport for the world, with a separate control area. */
-@media (pointer: coarse) {
-   body {
-      margin: 0;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-   }
-
-   .frame {
-      --controls-size: 148px;
-      display: grid;
-      grid-template-rows: minmax(0, 1fr) var(--controls-size);
-      width: 100%;
-      height: 100%;
-      outline: none;
-   }
-
-   .corner_topleft, .corner_topright, .corner_bottomleft, .corner_bottomright {
-      display: none;
-   }
-
-   .camera {
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      min-width: 0;
-   }
-
-   .gameControls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 8px 12px;
-      border-top: 2px solid #fff;
-   }
-
-   .dpad {
-      position: relative;
-      right: auto;
-      bottom: auto;
-      width: 132px;
-      height: 132px;
-      flex-shrink: 0;
-   }
-
-   .dpad-button {
-      width: 44px;
-      height: 44px;
-      touch-action: none;
-   }
-
-   .dpad-button svg {
-      height: 44px;
-   }
-
-   .dpad-up { left: 44px; top: 0; }
-   .dpad-down { left: 44px; bottom: 0; }
-   .dpad-left { left: 0; top: 44px; }
-   .dpad-right { right: 0; top: 44px; }
-
-   .actionButtons {
-      display: flex;
-      gap: 8px;
-   }
-
-   .actionButtons button {
-      min-width: 64px;
-      min-height: 64px;
-      padding: 8px;
-      border: 2px solid #434343;
-      border-radius: 4px;
-      background: #f5f5f5;
-      color: #222;
-      font-size: 11px;
-      cursor: pointer;
-      touch-action: manipulation;
-   }
-
-   .actionButtons span {
-      display: block;
-      margin-top: 10px;
-      font-size: 11px;
-   }
-
-   .actionButtons button:active {
-      background: #17dfea;
-   }
-
-   .gameControls button:focus-visible {
-      outline: 3px solid #222;
-      outline-offset: 2px;
-   }
-
-   .dialogueBox {
-      left: 8px;
-      bottom: calc(var(--controls-size) + 8px);
-      width: calc(100% - 16px);
-      height: auto;
-      max-height: 120px;
-      padding: 12px;
-      border-width: 2px;
-      border-radius: 8px;
-      font-size: 11px;
-      line-height: 1.7;
-   }
-
-   .actionPrompt {
-      top: 8px;
-      left: 8px;
-      right: 8px;
-      width: fit-content;
-      max-width: calc(100% - 16px);
-      font-size: 11px;
-      line-height: 1.7;
-   }
+.message-region {
+  position:absolute;
+  inset:auto 16px 16px;
+  max-height:calc(100% - 72px);
+  overflow:auto;
+  scrollbar-color:#a78656 #2b201a;
+  pointer-events:none
+}
+.dialogueBox {
+  max-width:76ch;
+  margin:0 auto;
+  padding:16px 20px;
+  border:1px solid #755537;
+  background:#2b201af2;
+  font-size:10px;
+  line-height:2;
+  pointer-events:auto
 }
 
-@media (pointer: coarse) and (orientation: landscape) {
-   .frame {
-      --controls-size: 164px;
-      grid-template-rows: minmax(0, 1fr);
-      grid-template-columns: minmax(0, 1fr) var(--controls-size);
-   }
+@media (pointer:coarse) {
+  .frame {
+    grid-template-columns:minmax(0,1fr) 180px;
+  }
+  .gameControls {
+    display:flex;
+  }
+}
 
-   .gameControls {
-      flex-direction: column;
-      justify-content: center;
-      padding: 8px;
-      border-top: 0;
-      border-left: 2px solid #fff;
-   }
+@media (pointer:coarse) and (orientation:portrait) {
+  .frame {
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:48px minmax(0,1fr) 148px
+}
+.museum-header {
+  padding:0 12px
+}
+h1 {
+  font-size:11px
+}
+.gameControls {
+  flex-direction:row;
+  justify-content:space-between;
+  padding:8px 16px;
+  gap:8px
+}
+.control-hint {
+  display:none
+}
+.message-region {
+  inset:auto 12px 12px
+}
+.dialogueBox {
+  padding:10px 12px;
+  font-size:9px;
+  line-height:1.9
+}
 
-   .dialogueBox {
-      bottom: 8px;
-      width: calc(100% - var(--controls-size) - 16px);
-      max-height: 96px;
-   }
+}
 
-   .actionPrompt {
-      max-width: calc(100% - var(--controls-size) - 16px);
-   }
+@media (pointer:coarse) and (max-height:500px) and (orientation:landscape) {
+  .frame {
+  grid-template-columns:minmax(0,1fr) 160px;
+  grid-template-rows:48px minmax(0,1fr)
+}
+.gameControls {
+  gap:8px;
+  padding:4px
+}
+.control-hint {
+  display:none
+}
+.message-region {
+  inset:auto 12px 8px
+}
+.dialogueBox {
+  padding:8px 12px;
+  font-size:9px;
+  line-height:1.7
+}
+.actionButtons button {
+  min-height:52px;
+  gap:5px
+}
+
 }

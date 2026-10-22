@@ -1,188 +1,67 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { runInNewContext } from 'node:vm';
+import { loadWorld, nearRect, nearbyExhibit } from '../src/portfolio-game/model.ts';
+import { exhibits } from '../src/portfolio-game/content.ts';
+import { HeldInput } from '../src/portfolio-game/input.ts';
+const map = JSON.parse(await readFile(new URL('../src/portfolio-game/world/museum.tmj', import.meta.url), 'utf8'));
 
-const source = (await readFile(new URL('../src/portfolio-game/game.js', import.meta.url), 'utf8'))
-  .replaceAll('import.meta.env.BASE_URL', JSON.stringify('/portfolio/'));
-
-function loadGame({ mobile = false } = {}) {
-  const elements = new Map();
-  const listeners = new Map();
-  const document = {
-    documentElement: { style: { setProperty(name, value) { this[name] = value; } } },
-    body: { addEventListener() {} },
-    querySelector(selector) {
-      if (!elements.has(selector)) {
-        elements.set(selector, {
-          clientWidth: 390, clientHeight: 600, offsetWidth: 390, offsetHeight: 1020,
-          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
-          setAttribute(name, value) { this.attributes[name] = value; },
-          addEventListener(name, handler) { this.listeners.set(name, handler); },
-        });
-      }
-      return elements.get(selector);
-    },
-    addEventListener(name, handler) { listeners.set(name, handler); },
-    querySelectorAll() {
-      return [...elements].filter(([name]) => name.startsWith('.dpad-')).map(([, element]) => element);
-    },
-  };
-  const game = {
-    document,
-    getComputedStyle: () => ({ getPropertyValue: name => document.documentElement.style[name] || '3.5px' }),
-    window: { matchMedia: () => ({ matches: mobile }), requestAnimationFrame() {}, addEventListener() {}, location: { href: '' } },
-  };
-  runInNewContext(source, game);
-  return { game, elements, listeners };
-}
-
-test('desktop starts with movement and exit instructions, then hides them on movement', () => {
-  const { game, elements, listeners } = loadGame();
-  assert.equal(elements.get('.dialogueBox').innerHTML, '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>');
-  listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
-  runInNewContext('placeCharacter()', game);
-  assert.equal(game.x, 102);
-  assert.equal(elements.get('.dialogueBox').style.display, 'none');
-  listeners.get('keyup')({ which: 39, key: 'ArrowRight' });
-  runInNewContext('placeCharacter()', game);
-  assert.equal(game.x, 102);
+test('authored map has a valid spawn, exit, and only the LinkedIn exhibit', () => {
+  const world = loadWorld(map, exhibits);
+  assert.equal(world.width, 208);
+  assert.equal(world.height, 640);
+  assert.equal(world.spawn.x, world.width / 2);
+  assert.deepEqual(world.objects.filter(o => o.exhibit).map(o => o.exhibit.id), ['linkedin']);
+  assert.equal(nearRect(world.spawn.x, world.spawn.y, world.exit), false);
 });
 
-test('mobile keeps its touch and keyboard welcome instructions', () => {
-  const { elements } = loadGame({ mobile: true });
-  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD.');
+test('moving a Tiled exhibit moves its artwork, footprint, and interaction together', () => {
+  const original = loadWorld(map, exhibits).objects.find(o => o.exhibit);
+  const moved = structuredClone(map);
+  moved.layers.find(l => l.name === 'objects').objects.find(o => o.id === 1).x += 48;
+  const world = loadWorld(moved, exhibits);
+  const mirror = world.objects.find(o => o.exhibit);
+  assert.equal(mirror.x, original.x + 48);
+  assert.equal(mirror.bodies[0].x, original.bodies[0].x + 48);
+  assert.equal(nearbyExhibit(original.bodies[0].x - 8, 148, world.objects), undefined);
+  assert.equal(nearbyExhibit(mirror.bodies[0].x + mirror.bodies[0].width + 8, 148, world.objects).exhibit.id, 'linkedin');
 });
 
-test('statue collisions and interaction padding support reversed coordinates', () => {
-  const { game } = loadGame();
-  assert.equal(game.isCollidingWithAnyStatue(180, 130), true);
-  assert.equal(game.isCollidingWithAnyStatue(100, 120), false);
-  assert.equal(game.getNearbyStatue(150, 130).id, 'Boids-Algorithm');
-  assert.equal(game.getNearbyStatue(100, 120), null);
+test('map validation rejects missing references, duplicate IDs, absent markers, and unsupported geometry', () => {
+  const invalid = [
+    m => { m.layers.find(l => l.name === 'objects').objects[0].properties[0].value = 'missing'; },
+    m => { m.layers.find(l => l.name === 'objects').objects[1].id = 1; },
+    m => { m.layers.find(l => l.name === 'objects').objects = m.layers.find(l => l.name === 'objects').objects.filter(o => o.type !== 'spawn'); },
+    m => { m.layers.find(l => l.name === 'objects').objects = m.layers.find(l => l.name === 'objects').objects.filter(o => o.type !== 'exit'); },
+    m => { m.tilesets[1].tiles[0].objectgroup.objects[0].ellipse = true; },
+    m => { m.tilesets[1].tiles[0].objectgroup.objects[0].rotation = 30; },
+    m => { m.layers[0].data.pop(); },
+    m => { m.layers.find(l => l.name === 'objects').objects[0].x = -10; },
+  ];
+  for (const mutate of invalid) { const copy = structuredClone(map); mutate(copy); assert.throws(() => loadWorld(copy, exhibits), /Museum map:/); }
+  assert.throws(() => loadWorld(map, [...exhibits, exhibits[0]]), /duplicate exhibit/);
 });
 
-test('WASD and arrow keys move in every direction and stop on release', () => {
-  for (const [key, which, axis, delta] of [
-    ['w', 87, 'y', -2], ['a', 65, 'x', -2],
-    ['s', 83, 'y', 2], ['d', 68, 'x', 2],
-    ['W', 87, 'y', -2], ['A', 65, 'x', -2],
-    ['S', 83, 'y', 2], ['D', 68, 'x', 2],
-    ['ArrowUp', 38, 'y', -2], ['ArrowLeft', 37, 'x', -2],
-    ['ArrowDown', 40, 'y', 2], ['ArrowRight', 39, 'x', 2],
-  ]) {
-    const { game, listeners } = loadGame();
-    const initial = game[axis];
-    listeners.get('keydown')({ which, key });
-    runInNewContext('placeCharacter()', game);
-    assert.equal(game[axis], initial + delta, key);
-    listeners.get('keyup')({ which, key });
-    runInNewContext('placeCharacter()', game);
-    assert.equal(game[axis], initial + delta, `${key} release`);
-  }
+test('interaction uses the footprint and deterministic nearest selection', () => {
+  const world = loadWorld(map, exhibits);
+  assert.equal(nearbyExhibit(68, 148, world.objects).exhibit.id, 'linkedin');
+  assert.equal(nearbyExhibit(80, 110, world.objects), undefined);
+  assert.equal(nearbyExhibit(192, 200, world.objects), undefined);
+  const mirror = world.objects.find(o => o.exhibit);
+  assert.equal(nearbyExhibit(68, 148, [{ ...mirror, id: 20 }, mirror]).id, mirror.id);
 });
 
-test('directional buttons move and face the character toward their arrows', () => {
-  for (const [direction, axis, delta] of [['up', 'y', -2], ['down', 'y', 2], ['left', 'x', -2], ['right', 'x', 2]]) {
-    const { game, elements } = loadGame();
-    const initial = game[axis];
-    runInNewContext(`handleDpadPress('${direction}', true); placeCharacter()`, game);
-    assert.equal(game[axis], initial + delta, direction);
-    assert.equal(elements.get('.character').attributes.facing, direction);
-  }
-});
-
-test('releasing one movement alias keeps the other held key moving', () => {
-  for (const releaseFirst of [87, 38]) {
-    const { game, listeners } = loadGame();
-    listeners.get('keydown')({ which: 87, key: 'w' });
-    listeners.get('keydown')({ which: 38, key: 'ArrowUp' });
-    listeners.get('keydown')({ which: 87, key: 'w', repeat: true });
-    listeners.get('keyup')({ which: releaseFirst });
-    runInNewContext('placeCharacter()', game);
-    assert.equal(game.y, 118);
-    listeners.get('keyup')({ which: releaseFirst === 87 ? 38 : 87 });
-    runInNewContext('placeCharacter()', game);
-    assert.equal(game.y, 118);
-  }
-});
-
-test('door returns to the portfolio landing page for both interaction keys', () => {
-  for (const key of [' ', 'e']) {
-    const { game, listeners } = loadGame();
-    game.y = 94;
-    listeners.get('keydown')({ key });
-    assert.equal(game.window.location.href, '/portfolio/');
-  }
-});
-
-test('every showcase opens on the first E press after a popup receives the key release', () => {
-  const { game, listeners } = loadGame();
-  const opened = [];
-  game.window.open = (...args) => opened.push(args);
-  for (const statue of game.statues) {
-    game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
-      ? Math.max(statue.rect.x1, statue.rect.x2) + 2
-      : Math.min(statue.rect.x1, statue.rect.x2) - 2;
-    game.y = (statue.rect.y1 + statue.rect.y2) / 2;
-    listeners.get('keydown')({ key: 'e', repeat: false });
-    assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1, statue.id);
-    // Opening the new tab takes focus; its keyup never reaches the game.
-    listeners.get('keydown')({ key: 'e', repeat: true });
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1, `${statue.id} held E`);
-  }
-});
-
-test('E opens once per press and Space only reads the exhibit', () => {
-  const { game, elements, listeners } = loadGame();
-  const opened = [];
-  game.window.open = (...args) => opened.push(args);
-  game.x = 40;
-  game.y = 130;
-  game.hasPlayerMoved = true;
-  listeners.get('keydown')({ key: ' ' });
-  runInNewContext('placeCharacter()', game);
-  assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
-  assert.equal(opened.length, 0);
-  listeners.get('keyup')({ key: ' ' });
-  for (const key of ['e', 'E']) {
-    listeners.get('keydown')({ key, repeat: false });
-    listeners.get('keydown')({ key, repeat: true });
-    listeners.get('keyup')({ key });
-  }
-  assert.equal(opened.length, 2);
-});
-
-test('mobile artwork and movement share their fractional scale and world bounds', () => {
-  const { game, elements } = loadGame({ mobile: true });
-  assert.equal(game.getCurrentPixelSize(), 1.875);
-  assert.equal(elements.get('.character').style.transform, 'translate3d( 187.5px, 225px, 0 )');
-  game.x = 999;
-  game.y = 999;
-  runInNewContext('placeCharacter()', game);
-  assert.equal(game.x, 176);
-  assert.equal(game.y, 496);
-  assert.equal(elements.get('.map').style.transform, 'translate3d( 0px, -420px, 0 )');
-  assert.equal(game.isCollidingWithAnyStatue(140, 100), true);
-  assert.equal(game.isCollidingWithAnyStatue(136, 100), false);
-});
-
-test('mobile action buttons can read and open every exhibit within world limits', () => {
-  const { game, elements } = loadGame({ mobile: true });
-  const opened = [];
-  game.window.open = (...args) => opened.push(args);
-  game.hasPlayerMoved = true;
-  for (const statue of game.statues) {
-    game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
-      ? Math.max(statue.rect.x1, statue.rect.x2) + 10 - 16
-      : Math.min(statue.rect.x1, statue.rect.x2) - 10 - 16;
-    game.y = Math.min(496, (statue.rect.y1 + statue.rect.y2) / 2 - 28);
-    elements.get('.action-read').listeners.get('click')();
-    assert.equal(elements.get('.dialogueBox').innerHTML, statue.text, statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue));
-    elements.get('.action-open').listeners.get('click')();
-    assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1);
-  }
+test('input preserves aliases and most recent direction across keyboard and pointer sources', () => {
+  const input = new HeldInput();
+  input.press('w', 'up'); input.press('arrowup', 'up'); input.press('a', 'left');
+  input.press('w', 'up'); // key repeat must not steal priority
+  assert.equal(input.direction, 'left');
+  input.release('a'); input.release('w');
+  assert.equal(input.direction, 'up');
+  input.press('pointer:1', 'down');
+  assert.equal(input.direction, 'down');
+  input.release('pointer:1');
+  assert.equal(input.direction, 'up');
+  input.clear();
+  assert.equal(input.direction, undefined);
 });

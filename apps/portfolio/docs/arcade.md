@@ -1,57 +1,66 @@
 # Arcade
 
-The arcade presents six portfolio links as exhibits in a scrolling pixel-art map.
+The portfolio game is a narrow pixel-art museum hallway authored in Tiled and rendered with Phaser.
 
 ## Why
 
-Movement and proximity interactions let visitors explore the existing portfolio showcase.
+Art, wall collision, exhibit footprints, and interaction ranges share one world coordinate system.
+Resizing changes the viewport and camera, never the map or player geometry.
 
 ## How it works
 
-`game.html` supplies the map, character, directional buttons, dialogue, and interaction prompt.
-`game.js` tracks held directions and updates the character and camera using `requestAnimationFrame`.
-Arrow keys, WASD, and the on-screen directional buttons drive movement.
-Each on-screen arrow moves the character in its indicated direction using mouse or touch, matching keyboard movement and sprite facing.
-WASD works with either letter case, and releasing one keyboard alias keeps movement active while another key for that direction remains held.
-The player remains inside map limits and cannot enter statue rectangles.
-Statue coordinates are normalized so reversed rectangle endpoints work.
-An inflated rectangle controls each exhibit's interaction range.
-Space displays exhibit text; E opens its external link once per press.
-Repeated keydown events are ignored, so returning from a showcase tab does not require a second E press even when the key was released in that tab.
-Space or E near the door returns to the `/portfolio/` landing page inside the current iframe.
-Q returns to the portfolio menu from anywhere in the game, including before the first move, and stays inside the current iframe when embedded.
-The shortcut accepts either letter case and is active only on the game page.
-The welcome message disappears after the player first moves.
+`game.html` remains the standalone entry at `/portfolio/src/portfolio-game/game.html`.
+`game.ts` starts a Canvas-rendered Phaser scene only on that page.
+`scene.ts` loads the map, creates tile layers and reusable furnishings, and runs Arcade Physics at a fixed 60 Hz with 120 world pixels per second movement.
+Frame smoothing is disabled so low rendering rates do not reduce movement speed during startup.
+The existing character uses 64px source frames displayed at 32px with a 12-by-8 feet body.
+The hallway dimensions, arrival point, and exit region come from `world/museum.tmj`.
+The 208-by-640 world is a long hallway with a central carpet runner.
+The camera frames one tile less than the full hallway width, showing half of each 16px side wall when the player is centered.
+Zoom follows viewport width, including fractional scales, with nearest-neighbor rendering so both walls stay just inside the edges on every device.
 
-On devices with a coarse primary pointer, the game fills the available viewport, including safe-area padding.
-Portrait mode places the D-pad and Space/Read and E/Open buttons below the world; landscape mode places them beside it.
-Messages stay inside the world area and cannot cover these controls.
-Touch movement uses pointer capture and stops on release, cancellation, lost capture, or focus loss.
-The action buttons use the same exhibit and door interactions as the keyboard.
-Mobile artwork, sprites, movement, and collision coordinates share a fractional scale based on the camera width.
-The mobile camera stays inside the 208-by-544 map, and player bounds keep the sprite above the bottom wall.
-Mobile collision and exhibit detection use the character's feet rather than the sprite's top-left corner.
-Desktop layout, camera offsets, bounds, and mouse controls retain their existing behavior.
+Arrow keys, WASD, and the pointer D-pad share ordered input state.
+The latest newly pressed source wins; releasing one alias does not release another held source.
+Blur, hidden tabs, pointer cancellation, and lost capture clear movement.
+Space reads the nearby exhibit and E opens its link once per key press.
+The only current exhibit is the LinkedIn mirror, with its original description and destination.
+Q, Menu, or Space/E at the door returns to the portfolio menu inside the current iframe.
+External exhibit links open a separate tab with `noopener,noreferrer`.
+
+HTML dialogue, contextual prompts, and controls remain outside the canvas.
+Dialogue appears in a box over the bottom of the world only while text is displayed, without reserving a bar or changing the camera area.
+The D-pad and Read/Open buttons appear only with a coarse primary pointer, so PC layouts give the full width to the world.
+Touch portrait layouts reserve space below the world; touch landscape layouts put controls beside it.
+The welcome message disappears on the first actual movement.
+Read and Open are disabled outside an interaction range.
+The error state retains a Menu link when an asset cannot load.
 
 ## Tech
 
-Plain JavaScript uses DOM events and CSS sprite animations.
-CSS custom properties control pixel scaling at viewport breakpoints.
+Phaser 3.90, TypeScript, Tiled JSON, and the existing Vite build handle the game.
+The Node tests import pure TypeScript modules using Node 24 type stripping.
+No React rendering runs inside the game loop.
 
 ## Key files
 
-- `src/portfolio-game/game.html` - map and controls.
-- `src/portfolio-game/game.js` - state, collision, interactions, and input.
-- `src/portfolio-game/game.css` - camera, sprite animation, and controls.
-- `src/assets/pixelB.png` - map artwork.
-- `src/assets/walk.png` - character sprite sheet.
+- `src/portfolio-game/game.ts` and `scene.ts` - lifecycle, rendering, camera, and physics.
+- `src/portfolio-game/model.ts` - map validation, footprint conversion, and interaction selection.
+- `src/portfolio-game/input.ts` and `ui.ts` - input state and accessible HTML feedback.
+- `src/portfolio-game/content.ts` - exhibit titles, descriptions, and destinations.
+- `src/portfolio-game/world/museum.tmj` - editable map and embedded tilesets.
 
 ## Decisions and gotchas
 
-Movement is measured per frame, so speed depends on display refresh rate.
-Mobile mode follows the primary pointer media query, so desktop laptops with a mouse or trackpad retain the desktop presentation.
+Collision remains intentionally authored, rather than inferred from artwork pixels.
+Tile-object collision is stored in its tileset, so moving or resizing a placed object also moves or scales its footprint.
+The loader supports finite orthogonal 16px maps, unrotated tile objects, and rectangular collision shapes.
+The development URL query `?debug` shows walls, object bodies, interaction ranges, spawn, and exit.
+Production ignores that query.
+Canvas data attributes expose read-only player and camera diagnostics for browser tests; there is no teleport API.
+The game runtime adds a separate large bundle, loaded only when visiting the game.
 
 ## Related
 
+- [Museum authoring](museum-authoring.md)
 - [Site structure](site-structure.md)
 - [Testing](testing.md)
