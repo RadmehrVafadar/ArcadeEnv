@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('showcase links open on one E press after releasing E in the previous tab', async ({ page, context }) => {
+test('showcase links open on one E press after releasing E in the previous tab', async ({ page, context, isMobile }) => {
+  test.skip(isMobile, 'Mobile projects navigate the current top-level window.');
   await context.route(/^https:\/\/(radmehrvafadar\.github\.io|www\.linkedin\.com)\//, route => route.fulfill({
     contentType: 'text/html', body: '<title>Showcase</title><p>Showcase fixture</p>',
   }));

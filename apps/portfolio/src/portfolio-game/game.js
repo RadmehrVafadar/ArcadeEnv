@@ -280,7 +280,12 @@ function activateInteraction(open, repeat = false) {
    }
    var nearbyForOpen = getNearbyStatue(x, y);
    if (open && nearbyForOpen && nearbyForOpen.url && !repeat) {
-      window.open(nearbyForOpen.url, '_blank', 'noopener');
+      if (mobileControls) {
+         // In-app browsers may not support new tabs; leave the cabinet iframe too.
+         window.top.location.href = nearbyForOpen.url;
+      } else {
+         window.open(nearbyForOpen.url, '_blank', 'noopener');
+      }
    }
 }
 
