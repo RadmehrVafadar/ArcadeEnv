@@ -22,6 +22,12 @@ body,
   transition: --myColor1 1s, --myColor2 1s;
 }
 
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
 .crt-screen {
   position: relative;
   width: 624px;

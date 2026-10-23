@@ -10,6 +10,9 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 
 `apps/arcade/src/index.jsx` imports the arcade scene on every device.
 All browsers dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, its spotlight, and a horizontal floor.
+The entry point observes the document viewport and rounds the arcade root's width and height up to even CSS pixels, including after toolbar resizing and orientation changes.
+This avoids the [WebKit transformed Html offset](https://github.com/pmndrs/drei/issues/720) that can place the iframe below the cabinet screen in mobile in-app browsers such as LinkedIn.
+The canvas and HTML projection share the adjusted size, extending less than two pixels past the viewport without changing the screen's 3D position or camera targets.
 The initial HTML displays an amber arcade loading screen using the portfolio's locally bundled Arcade Interlaced font while the scene module and cabinet model load.
 It clears after the portfolio iframe loads and a frame renders the cabinet, with no artificial delay or percentage.
 The loading dots stay still when reduced motion is preferred, and a Skip 3D arcade link provides direct portfolio access while loading, honoring `VITE_IFRAME_URL`.
