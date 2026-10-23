@@ -52,7 +52,10 @@ CI retries a failure once to record its trace; passing first attempts record no 
 
 `.github/workflows/check.yml` runs the required `Quality` and `Tests` jobs for each opened or reopened pull request and whenever commits are pushed to it.
 The `Quality` job runs `npm run lint` and `npm run typecheck`.
-The `Tests` job follows `Quality`, reusing its installed-dependency cache before installing Chromium with its system dependencies, building both apps, and running unit tests and two browser groups.
+The `Tests` job follows `Quality`, reusing its installed-dependency cache before building both apps and running unit tests and two browser groups.
+It runs in the official `mcr.microsoft.com/playwright:v1.64.1-noble` container, which includes browsers and their system dependencies, avoiding package-mirror downloads during test setup.
+The container uses `--init --ipc=host` for process cleanup and Chromium shared memory.
+Keep the image version aligned with the locked `@playwright/test` version when updating Playwright; a browser configuration guard verifies the match.
 Tests tagged `@webgl` run with one worker so software-rendered scenes do not compete; the remaining portfolio checks retain two workers.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
 Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
