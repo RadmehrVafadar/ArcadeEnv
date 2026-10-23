@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { devices } from '@playwright/test';
 import config from '../playwright.config.js';
@@ -6,6 +7,15 @@ import config from '../playwright.config.js';
 const project = name => config.projects.find(project => project.name === name);
 const selects = (project, title) => (!project.grep || project.grep.test(title)) &&
   (!project.grepInvert || !project.grepInvert.test(title));
+
+test('CI uses preinstalled browsers matching the locked Playwright version', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/check.yml', import.meta.url), 'utf8');
+  const lock = JSON.parse(readFileSync(new URL('../package-lock.json', import.meta.url), 'utf8'));
+  const imageVersion = workflow.match(/image: mcr\.microsoft\.com\/playwright:v([\d.]+)-noble/);
+  assert.equal(imageVersion?.[1], lock.packages['node_modules/@playwright/test'].version);
+  assert.ok(workflow.includes('options: --init --ipc=host'));
+  assert.ok(!workflow.includes('playwright install'), 'CI must not reinstall browser system packages');
+});
 
 test('production retains full feature coverage while development checks its integration paths', () => {
   for (const device of ['desktop', 'mobile']) {

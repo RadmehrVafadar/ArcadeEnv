@@ -52,15 +52,22 @@ CI retries a failure once to record its trace; passing first attempts record no 
 
 `.github/workflows/check.yml` runs the required `Quality` and `Tests` jobs for each opened or reopened pull request and whenever commits are pushed to it.
 The `Quality` job runs `npm run lint` and `npm run typecheck`.
-The `Tests` job follows `Quality`, reusing its installed-dependency cache before installing Chromium with its system dependencies, building both apps, and running unit tests and two browser groups.
-Tests tagged `@webgl` run with one worker so software-rendered scenes do not compete; the remaining portfolio checks retain two workers.
+Three `Browser tests` matrix jobs follow `Quality`, each reusing its installed-dependency cache before building both apps and running unit tests and its share of two browser groups.
+They run on separate runners in the official `mcr.microsoft.com/playwright:v1.64.1-noble` container, which includes browsers and their system dependencies, avoiding package-mirror downloads during test setup.
+The container uses `--init --ipc=host` for process cleanup and Chromium shared memory.
+Keep the image version aligned with the locked `@playwright/test` version when updating Playwright; a browser configuration guard verifies the match.
+Tests tagged `@webgl` run with one worker per runner so software-rendered scenes do not compete; the remaining portfolio checks retain two workers per runner.
+Both browser groups use Playwright's three-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+Each shard runs the HMR dependency before its selected browser tests, retaining the stylesheet mutation and restoration ordering.
+The required `Tests` job aggregates `Quality` and all three browser shards and fails if any dependency fails, is cancelled, or is skipped.
+Matrix failures do not cancel the remaining shards, preserving their results and artifacts.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
-Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
-Both restore installed workspace dependencies using an exact cache key containing the operating system, architecture, Node version, and root lockfile hash.
+Quality and browser jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
+They restore installed workspace dependencies using an exact cache key containing the operating system, architecture, Node version, and root lockfile hash.
 Cache misses use `npm ci --prefer-offline --no-audit --no-fund`; cache hits skip installation entirely, and no partial-key restore is used.
-Together, they run the same checks as local `npm run check`, keeping builds and their consuming tests in one job.
+Together, they run the same checks as local `npm run check`, keeping each shard's build and its consuming tests on the same runner.
 New commits cancel an older run for the same pull request.
-Runs upload available JSON timing reports, failure screenshots, and retry traces as the `browser-test-results` artifact with an `always()` condition, retained for seven days.
+Each shard uploads available JSON timing reports, failure screenshots, and retry traces as a separate `browser-test-results-<shard>` artifact with an `always()` condition, retained for seven days.
 After committing and pushing the workflow, results appear in the pull request's Checks tab.
 To require passing checks before merging, configure a GitHub branch ruleset for `master` that requires both the `Quality` and `Tests` status checks.
 Replace the former `Lint, types, build, and tests` required check with these two names if it was already configured.
