@@ -28,6 +28,8 @@ Portrait mode places the D-pad and Space/Read and E/Open buttons below the world
 Messages stay inside the world area and cannot cover these controls.
 Touch movement uses pointer capture and stops on release, cancellation, lost capture, or focus loss.
 The action buttons use the same exhibit and door interactions as the keyboard.
+On mobile, E/Open navigates the current top-level browser window so project links work in in-app browsers without popup support and leave the cabinet iframe.
+Desktop project links continue to open a separate tab.
 Mobile artwork, sprites, movement, and collision coordinates share a fractional scale based on the camera width.
 The mobile camera stays inside the 208-by-544 map, and player bounds keep the sprite above the bottom wall.
 Mobile collision and exhibit detection use the character's feet rather than the sprite's top-left corner.

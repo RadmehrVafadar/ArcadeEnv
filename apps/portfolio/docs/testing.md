@@ -48,6 +48,7 @@ VM tests do not replace browser rendering or real pointer and touch checks.
 Before changing UI behavior, inspect desktop and narrow-screen layouts, toggle the background, navigate every menu link, and check the browser console.
 For the arcade, check movement, exhibit prompts, Space/E interactions, and the exit door.
 Mobile browser regressions use Chromium device emulation and CDP touch input in development and production, covering small phones, portrait and landscape phones, and tablets.
+The mobile project-opening regression disables popups and verifies that tapping E/Open inside an iframe navigates the top-level page to the project.
 They do not replace physical iOS and Android testing.
 
 ## Related

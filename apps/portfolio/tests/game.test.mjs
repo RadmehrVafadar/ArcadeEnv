@@ -170,8 +170,8 @@ test('mobile artwork and movement share their fractional scale and world bounds'
 
 test('mobile action buttons can read and open every exhibit within world limits', () => {
   const { game, elements } = loadGame({ mobile: true });
-  const opened = [];
-  game.window.open = (...args) => opened.push(args);
+  game.window.top = { location: { href: '' } };
+  game.window.open = () => assert.fail('Mobile links must not depend on popup support');
   game.hasPlayerMoved = true;
   for (const statue of game.statues) {
     game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
@@ -180,9 +180,22 @@ test('mobile action buttons can read and open every exhibit within world limits'
     game.y = Math.min(496, (statue.rect.y1 + statue.rect.y2) / 2 - 28);
     elements.get('.action-read').listeners.get('click')();
     assert.equal(elements.get('.dialogueBox').innerHTML, statue.text, statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue));
+    const previousUrl = game.window.top.location.href;
+    assert.notEqual(previousUrl, statue.url);
     elements.get('.action-open').listeners.get('click')();
-    assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1);
+    assert.equal(game.window.top.location.href, statue.url, statue.id);
   }
+});
+
+test('mobile keyboard E navigates the top window once per press without popups', () => {
+  const { game, listeners } = loadGame({ mobile: true });
+  game.window.top = { location: { href: '' } };
+  game.window.open = () => assert.fail('Popup support is unavailable');
+  game.x = 24;
+  listeners.get('keydown')({ key: ' ', repeat: false });
+  assert.equal(game.window.top.location.href, '');
+  listeners.get('keydown')({ key: 'e', repeat: true });
+  assert.equal(game.window.top.location.href, '');
+  listeners.get('keydown')({ key: 'e', repeat: false });
+  assert.equal(game.window.top.location.href, game.statues[0].url);
 });

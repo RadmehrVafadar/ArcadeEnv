@@ -93,12 +93,9 @@ test('mobile Space and E buttons read, open exhibits, and exit', async ({ page, 
   await page.getByRole('button', { name: 'Space: Read' }).tap();
   await expect(page.locator('.dialogueBox')).toContainText('mirror');
   // Reading a message must not block the action or movement buttons.
-  const popupPromise = page.waitForEvent('popup');
   await page.getByRole('button', { name: 'E: Open' }).tap();
-  const popup = await popupPromise;
-  await expect(popup).toHaveURL('https://www.linkedin.com/in/radmehrv/');
-  await popup.close();
-  await moveTo(page, 'right', 'x', 100);
+  await expect(page).toHaveURL('https://www.linkedin.com/in/radmehrv/');
+  await page.goto(gamePath);
   await moveTo(page, 'up', 'y', 98);
   await expect(page.locator('.actionPrompt')).toContainText('exit');
   await page.getByRole('button', { name: 'Space: Read' }).tap();
@@ -107,6 +104,29 @@ test('mobile Space and E buttons read, open exhibits, and exit', async ({ page, 
   await moveTo(page, 'up', 'y', 98);
   await page.getByRole('button', { name: 'E: Open' }).tap();
   await expect(page).toHaveURL(/\/portfolio\/$/);
+});
+
+test('mobile E opens projects outside the iframe when in-app popups are blocked', async ({ page, context }) => {
+  await context.addInitScript(() => { window.open = () => null; });
+  await context.route('https://radmehrvafadar.github.io/**', route => route.fulfill({
+    contentType: 'text/html', body: '<title>Project fixture</title>',
+  }));
+  await page.route('**/embedded-game-test', route => route.fulfill({
+    contentType: 'text/html',
+    body: `<iframe title="Game" src="${gamePath}" style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>`,
+  }));
+  await page.goto('/embedded-game-test');
+  const game = page.frameLocator('iframe');
+  await game.getByRole('button', { name: 'Space: Read' }).tap();
+  await page.keyboard.down('ArrowRight');
+  try {
+    await expect(game.locator('.actionPrompt')).toContainText('Press E to open');
+  } finally {
+    await page.keyboard.up('ArrowRight');
+  }
+  await game.getByRole('button', { name: 'E: Open' }).tap();
+  await expect(page).toHaveURL('https://radmehrvafadar.github.io/Boids-algorithm-demo/');
+  expect(context.pages()).toHaveLength(1);
 });
 
 test('mobile world stays aligned and contains the character at its edges', async ({ page }, testInfo) => {
