@@ -77,7 +77,12 @@ export default function Arcade() {
   useEffect(() => {
     if (!gameInput) return;
     const frameWindow = iframe.current.contentWindow;
-    const disconnect = () => {
+    const disconnect = event => {
+      // Cached history restores this same document without another iframe load.
+      if (event.persisted) {
+        gameInput.reset();
+        return;
+      }
       inputRef.current = null;
       setGameInput(null);
     };

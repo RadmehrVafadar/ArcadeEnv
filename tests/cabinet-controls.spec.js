@@ -136,6 +136,26 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await expect(selected()).toHaveText('Start');
 });
 
+test('cached mobile history restoration keeps cabinet controls connected', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
+  test.skip(!isMobile, 'Mobile history cache lifecycle regression');
+  const game = await startGame(page);
+  await game.locator('body').evaluate(() => {
+    window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+  });
+  await expect(game.locator('.frame')).toHaveClass(/cabinet-connected/);
+  await expect(game.locator('.gameControls')).toBeHidden();
+  await expect(page.locator('.cabinet-control')).toHaveCount(4);
+  const before = await position(game);
+  await page.keyboard.down('ArrowRight');
+  try {
+    await expect.poll(async () => (await position(game)).x).toBeGreaterThan(before.x + 2);
+  } finally {
+    await page.keyboard.up('ArrowRight');
+  }
+  await page.screenshot({ path: testInfo.outputPath('restored-cabinet.png') });
+});
+
 test('original zoom keeps three invisible working action targets on every device', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   await page.goto('/');
   await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
