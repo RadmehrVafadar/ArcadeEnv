@@ -96,6 +96,8 @@ Holding a key or continuing to drag in one direction does not repeat its effect.
 The top-right Sound FX and Music buttons independently toggle effects and an original 112 BPM chiptune loop with melody, bass, and synthesized kick.
 Effects default on and music defaults off; preferences persist when local storage is available.
 Audio initializes only after interaction, respects browser autoplay restrictions, and pauses while the page is hidden.
+Touch release and click events retry audio unlock in both the cabinet and the same-origin iframe, including when a cabinet gesture prevents the native click.
+Where supported, the browser audio session uses playback mode so iPhone Silent mode does not mute enabled sounds; playback may pause other media.
 The sequencer uses the audio clock and a short scheduling timer without driving WebGL frames.
 Standalone portfolio pages and cross-origin iframe keyboard input do not produce cabinet sounds.
 `apps/arcade/src/arcade-audio.js` owns synthesis and lifecycle, and `audio-controls.jsx` owns the accessible toggles.

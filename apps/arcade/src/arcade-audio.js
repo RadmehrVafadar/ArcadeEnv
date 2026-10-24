@@ -78,6 +78,10 @@ export function createArcadeAudio(host = globalThis) {
       if (!context) {
         const AudioContext = host.AudioContext || host.webkitAudioContext;
         if (!AudioContext) return;
+        // iOS otherwise uses ambient audio, which the Ring/Silent switch mutes.
+        try {
+          if (host.navigator?.audioSession) host.navigator.audioSession.type = 'playback';
+        } catch { /* Older browsers and embedded views may reject session changes. */ }
         context = new AudioContext();
         effectsBus = context.createGain();
         musicBus = context.createGain();
@@ -118,6 +122,14 @@ export function createArcadeAudio(host = globalThis) {
 
   return {
     play, unlock, set, pause,
+    listen(target) {
+      // Touch activation is granted on release; capture runs before navigation.
+      const events = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
+      for (const event of events) target.addEventListener(event, unlock, true);
+      return () => {
+        for (const event of events) target.removeEventListener(event, unlock, true);
+      };
+    },
     resume() { if (context) unlock(); },
     getSettings: () => ({ ...settings }),
     dispose() {

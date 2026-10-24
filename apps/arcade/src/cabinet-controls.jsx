@@ -68,9 +68,8 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
       if (direction || action) invalidate();
     };
     const documents = new Set([document, keyboardDocument].filter(Boolean));
+    const removeUnlock = keyboardDocument ? arcadeAudio.listen(keyboardDocument) : () => {};
     for (const target of documents) {
-      target.addEventListener('pointerdown', arcadeAudio.unlock);
-      target.addEventListener('keydown', arcadeAudio.unlock);
       target.addEventListener('keydown', keydown);
       target.addEventListener('keyup', keyup);
     }
@@ -79,12 +78,11 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
     window.addEventListener('pagehide', reset);
     return () => {
       reset();
+      removeUnlock();
       window.removeEventListener('blur', blur);
       document.removeEventListener('visibilitychange', hide);
       window.removeEventListener('pagehide', reset);
       for (const target of documents) {
-        target.removeEventListener('pointerdown', arcadeAudio.unlock);
-        target.removeEventListener('keydown', arcadeAudio.unlock);
         target.removeEventListener('keydown', keydown);
         target.removeEventListener('keyup', keyup);
       }

@@ -69,3 +69,50 @@ test('arcade audio responds to cabinet input and remembers separate music and FX
   await music.click();
   await expect(music).toHaveAttribute('aria-pressed', 'false');
 });
+
+test('a first cabinet touch unlocks iPhone-style audio on release, including inside the iframe', { tag: '@webgl' }, async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Requires native touch input.');
+  test.setTimeout(60000);
+  await page.addInitScript(() => {
+    window.audioContexts = [];
+    window.audioUnlocks = [];
+    window.top.audioGesture = undefined;
+    let released = false;
+    for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
+      document.addEventListener(type, event => { window.top.audioGesture = event.type; }, true);
+    }
+    const NativeAudioContext = window.AudioContext;
+    // Model iOS rejecting finger-down unlocks; keep the underlying graph real.
+    window.AudioContext = class extends NativeAudioContext {
+      constructor() {
+        super();
+        super.suspend();
+        window.audioContexts.push(this);
+      }
+      get state() { return released ? super.state : 'suspended'; }
+      resume() {
+        window.audioUnlocks.push(window.top.audioGesture);
+        if (!['pointerup', 'touchend', 'click', 'keydown'].includes(window.top.audioGesture)) {
+          return Promise.reject(new DOMException('Touch release required', 'NotAllowedError'));
+        }
+        released = true;
+        return super.resume();
+      }
+    };
+  });
+  await page.goto('/');
+  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+  // Phones enter automatically. No mouse click or Play-sign tap can prime audio.
+  await expect(page.locator('.neon-play-sign')).toHaveCount(0, { timeout: 15000 });
+  await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).tap();
+  await expect.poll(() => page.evaluate(() => window.audioContexts[0]?.state)).toBe('running');
+  expect(await page.evaluate(() => window.audioUnlocks.some(type => ['pointerup', 'touchend', 'click'].includes(type)))).toBe(true);
+  const before = await page.evaluate(() => window.audioContexts[0].currentTime);
+  await expect.poll(() => page.evaluate(() => window.audioContexts[0].currentTime)).toBeGreaterThan(before);
+  await page.getByRole('button', { name: /Music:/ }).tap();
+  await expect(page.getByRole('button', { name: /Music:/ })).toHaveAttribute('aria-pressed', 'true');
+  // Suspending the context simulates returning from an iPhone interruption.
+  await page.evaluate(() => window.audioContexts[0].suspend());
+  await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).tap();
+  await expect.poll(() => page.evaluate(() => window.audioContexts[0].state)).toBe('running');
+});
