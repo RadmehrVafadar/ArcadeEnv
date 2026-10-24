@@ -48,6 +48,7 @@ The mobile delay check observes loading-screen removal directly so a late animat
 The embedded navigation test uses `history.back()` on desktop and mobile because only the iframe navigates.
 It leaves scene screenshots to the dedicated appearance tests so software WebGL capture time cannot exhaust its navigation budget.
 Automatic zoom tests hold the portfolio response while measuring the initial screen width, preventing a slow runner from taking its baseline after zooming has finished.
+The joystick clipping regression holds that response through both pixel captures and includes a delayed mobile capture so automatic zoom cannot invalidate the measured crop.
 Screenshots and JSON timing reports are saved under ignored `test-results/`, and the list reporter prints each test's duration.
 CI retries a failure once to record its trace; passing first attempts record no trace, and flaky retries still fail the run.
 `npm run test:unit` runs launcher checks, browser configuration guards, and the portfolio unit suite.

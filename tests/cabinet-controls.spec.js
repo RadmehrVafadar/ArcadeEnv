@@ -119,6 +119,14 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await expect(frame.getByRole('link', { name: 'Back to blog', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  await expect(frame.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).click();
+  await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).click();
+  await expect(selected()).toHaveText('Start');
+  await frame.getByRole('link', { name: 'Blog', exact: true }).click();
+  await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
   await expect(selected()).toHaveText('Start');
 });

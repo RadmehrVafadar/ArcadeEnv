@@ -74,7 +74,9 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
         page.location.href = home
       } else if (action === 'read' || action === 'open') {
         // Keep native link activation synchronous, including Resume's new tab.
-        links()[selected]?.click()
+        const back = action === 'open' ? root.querySelector<HTMLAnchorElement>('[data-cabinet-back]') : null
+        const link = back || links()[selected]
+        link?.click()
       }
     },
     setDisplayScale() {},

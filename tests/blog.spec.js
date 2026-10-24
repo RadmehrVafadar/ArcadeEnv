@@ -68,6 +68,19 @@ test('blog renders unpublished Markdown fixtures and relative article links', { 
   await expect(page.getByRole('heading', { name: 'The next note' })).toBeVisible();
   await page.getByRole('link', { name: 'Back to work' }).click();
   await expect(page.getByRole('heading', { name: 'work', exact: true })).toBeVisible();
+  // Mirror the cabinet's reconnection after each hash route renders new links.
+  await page.evaluate(() => {
+    window.addEventListener('arcade-controls-ready', () => window.arcadeControls.connect());
+    window.arcadeControls.connect();
+  });
+  await page.getByRole('link', { name: 'The next note' }).click();
+  await expect(page.getByRole('heading', { name: 'The next note' })).toBeVisible();
+  await page.keyboard.press('x');
+  await expect(page.getByRole('heading', { name: 'work', exact: true })).toBeVisible();
+  await page.keyboard.press('X');
+  await expect(page.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await page.keyboard.press('x');
+  await expect(page).toHaveURL(/\/portfolio\/$/);
   await page.goto(entry + '#/tech/a-note/extra');
   await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Back to blog' })).toHaveAttribute('href', '#/');

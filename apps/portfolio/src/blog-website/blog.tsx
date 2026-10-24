@@ -38,11 +38,11 @@ export default function Blog() {
       <h1 ref={heading} tabIndex={-1}>{title}</h1>
       <nav aria-label="Folders"><ul className="folders">{categories.map(name =>
         <li key={name}><a href={`#/${encodeURIComponent(name)}`}>/{name}</a></li>)}
-        <li><a href={import.meta.env.BASE_URL} aria-label="Back to portfolio menu">../</a></li>
+        <li><a data-cabinet-back href={import.meta.env.BASE_URL} aria-label="Back to portfolio menu">../</a></li>
       </ul></nav>
     </> : <>
       {(!article || missing) && <h1 className="folder-title" ref={heading} tabIndex={-1}>{title}</h1>}
-      <nav className="parent" aria-label="Parent folder"><a href={article ? `#/${encodeURIComponent(category)}` : '#/'} aria-label={article ? `Back to ${category}` : 'Back to blog'}>../</a></nav>
+      <nav className="parent" aria-label="Parent folder"><a data-cabinet-back href={article ? `#/${encodeURIComponent(category)}` : '#/'} aria-label={article ? `Back to ${category}` : 'Back to blog'}>../</a></nav>
       {missing ? <p className="empty">This page could not be found.</p> : article ?
         <article className="prose">
           <h1 ref={heading} tabIndex={-1}>{article.title}</h1>

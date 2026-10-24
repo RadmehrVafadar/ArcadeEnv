@@ -17,6 +17,7 @@ function fixture() {
     click() { this.clicks++; },
   }));
   root.querySelectorAll = () => links;
+  root.querySelector = () => links.find(link => link.back) || null;
   let ready = 0;
   page.addEventListener('arcade-controls-ready', () => ready++);
   const cleanup = installCabinetNavigation(root, '/portfolio/');
@@ -44,6 +45,20 @@ test('cabinet menu steps once per tilt, wraps, and resets held sources', () => {
   assert.equal(selected(), 'Start');
   input.setDirection('stick', 'up');
   assert.equal(selected(), 'Resume');
+});
+
+test('X activates the blog parent link independently of selection; menu X still opens selection', () => {
+  const { input, links } = fixture();
+  input.connect();
+  input.action('open');
+  assert.equal(links[0].clicks, 1, 'Menu X retains native activation');
+  links[1].back = true;
+  input.setDirection('stick', 'up');
+  input.action('open');
+  assert.equal(links[1].clicks, 1, 'Blog X follows the parent link');
+  assert.equal(links[2].clicks, 0, 'X does not open the selected article');
+  input.action('read');
+  assert.equal(links[2].clicks, 1, 'Z still opens the selected article');
 });
 
 test('exit always returns home; disconnect and cleanup release navigation ownership', () => {

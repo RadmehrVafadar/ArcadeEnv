@@ -13,6 +13,8 @@ Use `../` beneath the index folders to return to the portfolio menu without rely
 Category and article `../` links return to their parent folder, leading back through the blog index to the menu.
 The menu link respects the portfolio base and stays inside the current tab or cabinet iframe.
 Inside the cabinet, joystick tilts step through the current page's links, Z activates the underlined link, and Exit returns directly to the portfolio menu.
+X follows `../`, returning from an article to its folder, from a folder to the blog index, and from the index to the portfolio menu.
+The physical X button and keyboard X share this behavior regardless of the selected link; Q still exits directly to the menu.
 The selected link takes focus after the heading update, so Enter activates `../` immediately on entering a folder.
 The index shows `/tech`, `/hobbies`, and `/work`, including when those folders are empty.
 Folder titles sit at the right of a centered column, with `../` and article links below.

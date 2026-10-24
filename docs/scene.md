@@ -42,12 +42,13 @@ PC instructions describe movement, Z to read, X to open, and Q to exit.
 The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and Q/Menu from left to right.
 The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies Q.
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
-The joystick retains its previous left-to-right deck position and slides along the deck so its ball aligns with the button faces from the original camera.
+The joystick sits 0.12 model units left of its original deck position, with its ball aligned with the button faces from the original camera.
+Its moving shaft and ball and its separate fixed base share the same leftward shift.
 Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red EXIT (Q/Menu) button without black collars or borders.
 The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
 The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
 Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
-The joystick has a polished red ball, metal shaft, and a ribbed rubber boot, all scaled up by 25% to balance the larger buttons while preserving its left-to-right placement.
+The joystick has a polished red ball, metal shaft, and a ribbed rubber boot, all scaled up by 25% to balance the larger buttons.
 Subtle red emission and feathered transparent model geometry give the caps and joystick ball a static red glow without animated effects or extra render passes.
 Dragging the joystick beyond an eight-pixel dead zone selects its dominant axis; centering or releasing it stops movement.
 Accessible DOM buttons follow the model controls with circular targets of at least 24 CSS pixels, growing toward 44 pixels where space permits.
@@ -67,11 +68,15 @@ On the menu, each joystick tilt advances or reverses the selected link, wraps at
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, preserving the Resume link's new tab, while Exit returns to the main portfolio menu from the menu, blog, or game.
 Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
+In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
 Only a successful connection hides the game's on-screen controls and reclaims their layout space.
 Standalone visits and incompatible or cross-origin `VITE_IFRAME_URL` pages keep their existing controls.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
+The screen uses Html blending occlusion so foreground model geometry, including the joystick, covers only the overlapping iframe pixels.
+The canvas stays above the screen and below the transparent control targets, including after those targets reconnect on iframe navigation.
+Canvas pointer events pass through to the HTML while the shared scene event container retains cabinet hover and click handling.
 `VITE_IFRAME_URL` overrides the iframe and loading-screen portfolio link at build time, using root `.env.local` or the process environment.
 This URL is public configuration, so do not put secrets in it.
 
