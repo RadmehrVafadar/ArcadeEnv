@@ -38,12 +38,12 @@ The mobile delay uses a timer after loading clears, and zoom timing excludes tim
 The HTML portfolio continues to animate and respond independently while the WebGL canvas is idle.
 
 All devices retain the original camera targets, with no additional gameplay zoom-out.
-PC retains its original keyboard instructions.
-The GLB contains three action buttons in a single row on the left: Space/Read, E/Open, and Q/Menu from left to right.
+PC instructions describe movement, Z to read, X to open, and Q to exit.
+The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and Q/Menu from left to right.
 The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies Q.
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
 The joystick retains its previous left-to-right deck position and slides along the deck so its ball aligns with the button faces from the original camera.
-Two red caps labeled A (Space/Read) and B (E/Open) sit beside a smaller red EXIT (Q/Menu) button without black collars or borders.
+Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red EXIT (Q/Menu) button without black collars or borders.
 The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
 The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
 Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
@@ -56,11 +56,17 @@ No HTML control overlays or labels are drawn over the buttons or joystick on any
 Targets shrink near viewport edges and shift onto the visible part of the hardware when needed to keep their minimum hit area reachable without moving the model or camera.
 Mouse, keyboard activation, and independent touch pointers share the game input interface, allowing movement while pressing an action.
 Button depression and joystick tilt invalidate frames only while settling, with immediate feedback when reduced motion is preferred.
+Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
+Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
 Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
 Focusing the embedded page does not cancel a captured cabinet gesture.
 
-The same-origin game exposes `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
-The cabinet connects after each game iframe load and disconnects on navigation.
+The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
+The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
+On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
+Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
+Z activates the selected native link synchronously, preserving the Resume link's new tab, while Exit returns to the main portfolio menu from the menu, blog, or game.
+Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
 Only a successful connection hides the game's on-screen controls and reclaims their layout space.
 Standalone visits and incompatible or cross-origin `VITE_IFRAME_URL` pages keep their existing controls.

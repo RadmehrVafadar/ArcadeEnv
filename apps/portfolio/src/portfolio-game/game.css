@@ -219,6 +219,10 @@ body {
    display: block;
 }
 
+.startupActions {
+   font-size: 0.8em;
+}
+
 .actionPrompt {
    position:absolute;
    right: calc(var(--pixel-size) * 2);

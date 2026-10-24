@@ -20,6 +20,10 @@ The link announces the new tab to assistive technology and includes a matching t
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.
+When embedded in the cabinet, the joystick steps through Start, Blog, and Resume once per tilt and wraps at either end.
+A full-width underscore marks the selected entry; Z activates its native link, and Exit reloads the main portfolio menu.
+The same input interface lets visitors navigate blog links and return directly to the menu with Exit.
+Standalone visits retain normal link navigation without a cabinet selection marker.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
 
@@ -36,6 +40,7 @@ The arcade uses plain JavaScript and CSS; the blog mounts its own React reader f
 - `src/Background.css` - sky, clouds, and sun/moon styles.
 - `src/menu.tsx` - navigation links.
 - `src/menu.css` - responsive menu styles.
+- `src/cabinet-navigation.ts` - menu and blog cabinet input, selection, and lifecycle.
 - `src/blog-website/blog.html` - Markdown blog entry.
 - `public/RVafadar_Resume.pdf` - downloadable resume.
 

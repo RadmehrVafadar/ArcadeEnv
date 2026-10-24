@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Html, useGLTF } from '@react-three/drei';
 import { Vector3 } from 'three';
 import CabinetControls from './cabinet-controls.jsx';
+import { cabinetKeyActions, cabinetKeyDirections } from './cabinet-input.js';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
   (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
@@ -12,6 +13,19 @@ export default function Arcade() {
   const [ready, setReady] = useState(false);
   const [gameInput, setGameInput] = useState(null);
   const iframe = useRef(null);
+  const inputRef = useRef(null);
+  const keyboardDocument = useRef(null);
+  const removeReadinessListener = useRef(null);
+  const connectInput = useCallback(() => {
+    const input = iframe.current.contentWindow.arcadeControls;
+    if (!input || !['connect', 'disconnect', 'setDirection', 'action', 'reset', 'setDisplayScale']
+      .every(method => typeof input[method] === 'function') || inputRef.current === input) return;
+    inputRef.current?.disconnect();
+    inputRef.current = input;
+    keyboardDocument.current = iframe.current.contentDocument;
+    input.connect();
+    setGameInput(input);
+  }, []);
   const invalidate = useThree(state => state.invalidate);
   const zoomStartedAt = useRef(null);
   const startZoom = useCallback(() => {
@@ -63,27 +77,32 @@ export default function Arcade() {
   useEffect(() => {
     if (!gameInput) return;
     const frameWindow = iframe.current.contentWindow;
-    const disconnect = () => setGameInput(null);
-    const keys = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' };
+    const disconnect = () => {
+      inputRef.current = null;
+      setGameInput(null);
+    };
     const keydown = event => {
       if (event.target.closest?.('.cabinet-control') && [' ', 'Enter'].includes(event.key)) return;
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-      const action = { q: 'menu', e: 'open', ' ': 'read' }[key];
-      if (keys[key] || action) event.preventDefault();
-      if (keys[key]) gameInput.setDirection('keyboard:' + event.code, keys[key]);
+      const action = cabinetKeyActions[key];
+      if (cabinetKeyDirections[key] || action) event.preventDefault();
+      if (cabinetKeyDirections[key]) gameInput.setDirection('keyboard:' + event.code, cabinetKeyDirections[key]);
       if (action && !event.repeat) gameInput.action(action);
     };
     const keyup = event => gameInput.setDirection('keyboard:' + event.code, null);
-    frameWindow.addEventListener('pagehide', disconnect);
+    const lifecycle = new AbortController();
+    frameWindow.addEventListener('pagehide', disconnect, { signal: lifecycle.signal });
     document.addEventListener('keydown', keydown);
     document.addEventListener('keyup', keyup);
     return () => {
       gameInput.disconnect();
-      frameWindow.removeEventListener('pagehide', disconnect);
+      lifecycle.abort();
       document.removeEventListener('keydown', keydown);
       document.removeEventListener('keyup', keyup);
     };
   }, [gameInput]);
+
+  useEffect(() => () => removeReadinessListener.current?.(), []);
 
   useEffect(() => {
     arcade.scene.traverse(child => {
@@ -111,7 +130,7 @@ export default function Arcade() {
         castShadow
         receiveShadow
       >
-        {gameInput && <CabinetControls scene={arcade.scene} input={gameInput} />}
+        {gameInput && <CabinetControls scene={arcade.scene} input={gameInput} keyboardDocument={keyboardDocument.current} />}
         <Html
           occlude
           wrapperClass="arcade"
@@ -127,16 +146,21 @@ export default function Arcade() {
               title="Radmehr Vafadar portfolio"
               onLoad={() => {
                 portfolioLoaded.current = true;
-                let input = null;
+                removeReadinessListener.current?.();
+                removeReadinessListener.current = null;
+                inputRef.current?.disconnect();
+                inputRef.current = null;
+                setGameInput(null);
                 try {
-                  input = iframe.current.contentWindow.arcadeControls || null;
-                  if (input && !['connect', 'disconnect', 'setDirection', 'action', 'reset', 'setDisplayScale']
-                    .every(method => typeof input[method] === 'function')) input = null;
+                  const frameWindow = iframe.current.contentWindow;
+                  // React pages can expose their input interface after iframe load.
+                  const readiness = new AbortController();
+                  frameWindow.addEventListener('arcade-controls-ready', connectInput, { signal: readiness.signal });
+                  removeReadinessListener.current = () => readiness.abort();
+                  connectInput();
                 } catch (error) {
                   if (error.name !== 'SecurityError') throw error;
                 }
-                input?.connect();
-                setGameInput(input);
                 invalidate();
               }}
             />

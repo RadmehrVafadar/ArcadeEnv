@@ -5,10 +5,10 @@ test('game startup instructions match desktop and touch controls', async ({ page
   await page.goto('/portfolio/src/portfolio-game/game.html');
   const dialogue = page.locator('.dialogueBox');
   if (isMobile) {
-    await expect(dialogue).toContainText('Use the arrows to move. Tap Space to read or E to open.');
+    await expect(dialogue).toContainText('Use the arrows to move. Tap Z to read or X to open.');
   } else {
-    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Exit: Q');
-    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nExit: Q');
+    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Z: read / X: open / Q: exit');
+    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nZ: read / X: open / Q: exit');
     await page.evaluate(() => document.fonts.ready);
     const lines = await dialogue.evaluate(element => {
       return [...element.children].map(node => {
@@ -179,7 +179,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
   await page.keyboard.up('ArrowUp');
-  await page.keyboard.press('e');
+  await page.keyboard.press('x');
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe('/');

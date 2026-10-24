@@ -4,11 +4,11 @@ import { readFileSync } from 'node:fs';
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import { joystickDirection } from '../apps/arcade/src/cabinet-input.js';
 
-test('red A/B caps, smaller Exit, and restored joystick position match the cabinet', () => {
+test('red Z/X caps, smaller Exit, and restored joystick position match the cabinet', () => {
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)));
   const buttons = ['Cylinder.006', 'Cylinder.007', 'CabinetQuit'].map(name => model.nodes.find(node => node.name === name));
-  for (const [index, label] of ['A', 'B', 'EXIT'].entries()) {
+  for (const [index, label] of ['Z', 'X', 'EXIT'].entries()) {
     const cap = model.nodes[buttons[index].children[0]];
     assert.equal(cap.extras?.label, label);
     const material = model.materials[model.meshes[cap.mesh].primitives[0].material];
@@ -26,7 +26,7 @@ test('red A/B caps, smaller Exit, and restored joystick position match the cabin
   }
   const radii = buttons.map(node => model.accessors[model.meshes[model.nodes[node.children[0]].mesh].primitives[0].attributes.POSITION].max[0] * node.scale[0]);
   assert.ok(radii[2] < radii[0] * 0.75);
-  assert.ok(radii[0] > 0.08 && radii[1] > 0.08, 'A and B have larger physical caps');
+  assert.ok(radii[0] > 0.08 && radii[1] > 0.08, 'Z and X have larger physical caps');
   assert.equal(model.nodes.find(node => node.name === 'Cylinder.005').translation[0], 0.6414116621017456);
   const stick = model.nodes.find(node => node.name === 'Cylinder.005');
   const ball = model.accessors[model.meshes[stick.mesh].primitives[1].attributes.POSITION];
@@ -44,7 +44,7 @@ test('joystick dead zone and dominant axis produce four-direction movement', () 
   ]) assert.equal(joystickDirection(dx, dy), expected, `${dx}, ${dy}`);
 });
 
-test('cabinet model has only Space, E and Q in a row visible from the original camera', () => {
+test('cabinet model has only Z, X and Q in a row visible from the original camera', () => {
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
   const active = model.scenes[model.scene || 0].nodes.map(index => model.nodes[index]);

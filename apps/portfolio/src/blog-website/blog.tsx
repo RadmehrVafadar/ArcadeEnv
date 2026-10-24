@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import { articles, assets } from './content'
 import { articleHref, resolveLocal } from './catalog'
 import './blog.css'
+import { installCabinetNavigation } from '../cabinet-navigation'
 
 const categories = [...new Set(['tech', 'hobbies', 'work', ...articles.map(article => article.category)])]
 
@@ -29,6 +30,8 @@ export default function Blog() {
     heading.current?.focus({ preventScroll: true })
     window.scrollTo(0, 0)
   }, [hash, title, home])
+  // Cabinet selection must take focus after the standalone heading focus runs.
+  useEffect(() => installCabinetNavigation(document.getElementById('blog-root')!, import.meta.env.BASE_URL), [hash])
 
   return <main className={home ? 'blog home' : 'blog directory'}>
     {home ? <>

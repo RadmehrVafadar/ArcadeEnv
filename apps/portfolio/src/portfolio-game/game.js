@@ -195,10 +195,10 @@ const placeCharacter = () => {
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
       dialogueBox.innerHTML = cabinetConnected && mobileControls
-         ? '<span>Joystick: move</span><span>A: read</span><span>B: open</span><span>Exit: menu</span>'
+         ? '<span>Joystick: move</span><span>Z: read</span><span>X: open</span><span>Exit: menu</span>'
          : mobileControls
-         ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD."
-         : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>';
+         ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Z to read or X to open. At the door, either button exits. Keyboard: arrows or WASD."
+         : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl startupActions">Z: read / X: open / Q: exit</span>';
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
    } else {
@@ -215,15 +215,15 @@ const placeCharacter = () => {
       if (actionPrompt) {
          var promptShown = false;
          if (nearbyStatue) {
-            var msg = 'Press Space to read';
-            if (nearbyStatue.url) { msg += ' or Press E to open'; }
+            var msg = 'Press Z to read';
+            if (nearbyStatue.url) { msg += ' or Press X to open'; }
             actionPrompt.textContent = msg;
             actionPrompt.style.display = 'block';
             promptShown = true;
          }
          // Exit area prompt
          if (!promptShown && x > 70 && x < 130 && y < 100) {
-            actionPrompt.textContent = 'Press Space or E to exit';
+            actionPrompt.textContent = 'Press Z or X to exit';
             actionPrompt.style.display = 'block';
             promptShown = true;
          }
@@ -313,18 +313,18 @@ document.addEventListener("keydown", (e) => {
    var dir = keys[e.which];
    if (dir) { e.preventDefault?.(); setDirection('keyboard:' + e.which, dir); }
 
-   if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) {
-      activateInteraction(e.key !== ' ', e.repeat);
+   if ((typeof e.key === 'string' && e.key.toLowerCase() === 'z') || (typeof e.key === 'string' && e.key.toLowerCase() === 'x')) {
+      activateInteraction(e.key.toLowerCase() === 'x', e.repeat);
    }
 
 
-   if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) { interact = true }
+   if ((typeof e.key === 'string' && e.key.toLowerCase() === 'z') || (typeof e.key === 'string' && e.key.toLowerCase() === 'x')) { interact = true }
 })
 
 document.addEventListener("keyup", (e) => {
    setDirection('keyboard:' + e.which, null);
 
-   if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) { interact = false }
+   if ((typeof e.key === 'string' && e.key.toLowerCase() === 'z') || (typeof e.key === 'string' && e.key.toLowerCase() === 'x')) { interact = false }
 });
 
 

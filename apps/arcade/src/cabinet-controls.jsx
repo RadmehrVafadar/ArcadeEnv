@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3 } from 'three';
-import { cabinetButtons, joystickDirection } from './cabinet-input.js';
+import { cabinetButtons, cabinetKeyActions, cabinetKeyDirections, joystickDirection } from './cabinet-input.js';
 
-export default function CabinetControls({ scene, input }) {
+export default function CabinetControls({ scene, input, keyboardDocument }) {
   const invalidate = useThree(state => state.invalidate);
   const controls = useMemo(() => [
     ...cabinetButtons,
@@ -18,6 +18,8 @@ export default function CabinetControls({ scene, input }) {
   const elements = useRef(new Map());
   const pointers = useRef(new Map());
   const heldKeys = useRef(new Set());
+  const keyboardDirections = useRef(new Map());
+  const keyboardActions = useRef(new Map());
   const reducedMotion = useMemo(() => matchMedia('(prefers-reduced-motion: reduce)'), []);
 
   useEffect(() => {
@@ -25,17 +27,48 @@ export default function CabinetControls({ scene, input }) {
       input.reset();
       pointers.current.clear();
       heldKeys.current.clear();
+      keyboardDirections.current.clear();
+      keyboardActions.current.clear();
       for (const control of controls) {
         control.mesh.position.copy(control.position);
         control.pressMesh.position.copy(control.pressPosition);
         control.mesh.rotation.copy(control.rotation);
         elements.current.get(control.node)?.removeAttribute('data-pressed');
+        elements.current.get(control.node)?.removeAttribute('data-direction');
       }
       invalidate();
     };
     const hide = () => { if (document.hidden) reset(); };
     // Focusing the iframe is still focus inside this page, including during capture.
     const blur = () => { if (!document.hasFocus()) reset(); };
+    const keydown = event => {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      const source = event.code || key;
+      const direction = cabinetKeyDirections[key];
+      const action = controls.find(control => control.action && control.action === cabinetKeyActions[key]);
+      let changed = false;
+      if (direction && keyboardDirections.current.get(source) !== direction) {
+        keyboardDirections.current.delete(source);
+        keyboardDirections.current.set(source, direction);
+        changed = true;
+      }
+      if (action && !keyboardActions.current.has(source)) {
+        keyboardActions.current.set(source, action.node);
+        changed = true;
+      }
+      if (changed) invalidate();
+    };
+    const keyup = event => {
+      const source = event.code || event.key;
+      const direction = keyboardDirections.current.delete(source);
+      const action = keyboardActions.current.delete(source);
+      if (direction || action) invalidate();
+    };
+    const documents = new Set([document, keyboardDocument].filter(Boolean));
+    for (const target of documents) {
+      target.addEventListener('keydown', keydown);
+      target.addEventListener('keyup', keyup);
+    }
     window.addEventListener('blur', blur);
     document.addEventListener('visibilitychange', hide);
     window.addEventListener('pagehide', reset);
@@ -44,8 +77,12 @@ export default function CabinetControls({ scene, input }) {
       window.removeEventListener('blur', blur);
       document.removeEventListener('visibilitychange', hide);
       window.removeEventListener('pagehide', reset);
+      for (const target of documents) {
+        target.removeEventListener('keydown', keydown);
+        target.removeEventListener('keyup', keyup);
+      }
     };
-  }, [controls, input, invalidate]);
+  }, [controls, input, invalidate, keyboardDocument]);
 
   useFrame(({ camera, size }, delta) => {
     for (const control of controls) {
@@ -71,8 +108,12 @@ export default function CabinetControls({ scene, input }) {
         element.style.translate = `${shiftX}px ${shiftY}px`;
       }
       const active = [...pointers.current.values()].find(pointer => pointer.control === control);
-      const pressed = Boolean(active || heldKeys.current.has(control.node));
-      const direction = active?.direction;
+      const keyboardDirection = [...keyboardDirections.current.values()].at(-1);
+      const direction = active?.direction || (control.joystick ? keyboardDirection : null);
+      const pressed = Boolean(active || heldKeys.current.has(control.node) ||
+        [...keyboardActions.current.values()].includes(control.node) || (control.joystick && keyboardDirection));
+      element?.toggleAttribute('data-pressed', pressed);
+      if (control.joystick) element?.setAttribute('data-direction', direction || '');
       const factor = reducedMotion.matches ? 1 : 1 - Math.exp(-30 * delta);
       const y = control.pressPosition.y - (!control.joystick && pressed ? 0.018 / control.mesh.scale.y : 0);
       const rx = control.rotation.x + (direction === 'down' ? 0.25 : direction === 'up' ? -0.25 : 0);
@@ -99,6 +140,7 @@ export default function CabinetControls({ scene, input }) {
         ref={element => { if (element) elements.current.set(control.node, element); }}
         className="cabinet-control"
         data-action={control.action}
+        data-input-page={keyboardDocument && new URL(keyboardDocument.URL).pathname}
         aria-label={`Cabinet: ${control.label}`}
         title={control.label}
         onPointerDown={event => {

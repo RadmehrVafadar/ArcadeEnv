@@ -9,7 +9,9 @@ async function startGame(page) {
     await page.getByRole('button', { name: 'PRESS TO PLAY' }).click();
   }
   await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).click();
+  await expect(page.frameLocator('iframe').locator('.frame')).toHaveClass(/cabinet-connected/);
   await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toHaveAttribute('data-input-page', '/portfolio/src/portfolio-game/game.html');
   await expect(page.locator('.neon-play-sign')).toHaveCount(0, { timeout: 15000 });
   return page.frameLocator('iframe');
 }
@@ -25,8 +27,15 @@ async function position(game) {
 
 async function grabJoystick(page, mobile) {
   const stick = page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true });
-  await stick.scrollIntoViewIfNeeded();
-  const bounds = await stick.boundingBox();
+  const currentPage = await page.frameLocator('iframe').locator('body').evaluate(() => location.pathname);
+  await expect(stick).toHaveAttribute('data-input-page', currentPage);
+  await expect(stick).toBeVisible();
+  let bounds;
+  await expect(async () => {
+    await stick.scrollIntoViewIfNeeded();
+    bounds = await stick.boundingBox();
+    expect(bounds).not.toBeNull();
+  }).toPass({ timeout: 5000 });
   const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2, id: 1 };
   const session = mobile ? await page.context().newCDPSession(page) : null;
   if (session) await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [center] });
@@ -49,6 +58,71 @@ async function grabJoystick(page, mobile) {
   };
 }
 
+test('cabinet selects menu links, activates with Z, and exits from the blog and game', { tag: '@webgl' }, async ({ page, context, isMobile }, testInfo) => {
+  test.setTimeout(90000);
+  await page.goto('/');
+  await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
+  await page.getByRole('button', { name: 'PRESS TO PLAY' }).click();
+  await expect(page.locator('.neon-play-sign')).toHaveCount(0, { timeout: 15000 });
+  await expect(page.locator('.cabinet-control')).toHaveCount(4);
+  const frame = page.frameLocator('iframe');
+  const selected = () => frame.locator('[data-cabinet-selected]');
+  await expect(selected()).toHaveText('Start');
+  await expect(selected()).toHaveAccessibleName('Start');
+  expect(await selected().evaluate(element => parseFloat(getComputedStyle(element, '::after').width))).toBeGreaterThan(0);
+  const gesture = await grabJoystick(page, isMobile);
+  await gesture.move(0, 30);
+  await expect(selected()).toHaveText('Blog');
+  await gesture.move(0, 40);
+  await expect(selected()).toHaveText('Blog');
+  await gesture.move(0, 0);
+  await gesture.move(0, 30);
+  await expect(selected()).toHaveText('Resume');
+  await gesture.release();
+  const resumeResponse = context.waitForEvent('response', response => response.url().endsWith('/portfolio/RVafadar_Resume.pdf'));
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  expect((await resumeResponse).ok()).toBe(true);
+  // Headless Chromium may download the PDF instead of loading a viewer tab.
+  for (const opened of context.pages()) if (opened !== page) await opened.close();
+  const next = await grabJoystick(page, isMobile);
+  await next.move(0, 30);
+  await next.release();
+  await expect(selected()).toHaveText('Start');
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  await expect(frame.locator('.character')).toBeVisible();
+  await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
+  await expect(selected()).toHaveText('Start');
+  const blog = await grabJoystick(page, isMobile);
+  await blog.move(0, 30);
+  await expect(selected()).toHaveText('Blog');
+  await blog.release();
+  for (const viewport of isMobile
+    ? [{ width: 320, height: 568 }, { width: 915, height: 412 }, { width: 768, height: 1024 }]
+    : [{ width: 1280, height: 720 }]) {
+    await page.setViewportSize(viewport);
+    await expect(selected()).toHaveText('Blog');
+    await expect(async () => {
+      const canvas = await page.locator('canvas').boundingBox();
+      const screen = await page.locator('iframe').boundingBox();
+      expect(Math.abs(canvas.width - viewport.width)).toBeLessThanOrEqual(2);
+      expect(Math.abs(canvas.height - viewport.height)).toBeLessThanOrEqual(2);
+      expect(Math.abs(screen.x + screen.width / 2 - viewport.width / 2)).toBeLessThan(2);
+    }).toPass();
+    await page.screenshot({ path: testInfo.outputPath(`cabinet-menu-${viewport.width}x${viewport.height}.png`) });
+  }
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await expect(page.locator('.cabinet-control')).toHaveCount(4);
+  await expect(selected()).toHaveText('/tech');
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  await expect(frame.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
+  await expect(frame.getByRole('link', { name: 'Back to blog', exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
+  await expect(selected()).toHaveText('Start');
+});
+
 test('original zoom keeps three invisible working action targets on every device', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   await page.goto('/');
   await expect(page.locator('#arcade-loading')).toHaveCount(0, { timeout: 30000 });
@@ -58,7 +132,8 @@ test('original zoom keeps three invisible working action targets on every device
   const originalWidth = (await screen.boundingBox()).width;
   const game = page.frameLocator('iframe');
   await game.getByRole('link', { name: 'Start', exact: true }).click();
-  const read = page.getByRole('button', { name: 'Cabinet: A: Space Read', exact: true });
+  await expect(game.locator('.frame')).toHaveClass(/cabinet-connected/);
+  const read = page.getByRole('button', { name: 'Cabinet: Z Read', exact: true });
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await expect(page.getByRole('button', { name: /^Cabinet: Move/ })).toHaveCount(0);
   await expect(read).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
@@ -77,7 +152,7 @@ test('original zoom keeps three invisible working action targets on every device
   await page.screenshot({ path: testInfo.outputPath('original-gameplay.png') });
 });
 
-test('joystick moves in four directions, Q reconnects, and Space and E retain their actions', { tag: '@webgl' }, async ({ page, context, isMobile }) => {
+test('joystick moves in four directions, Q reconnects, and Z and X retain their actions', { tag: '@webgl' }, async ({ page, context, isMobile }) => {
   await context.route('https://www.linkedin.com/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Cabinet project fixture</title>' }));
   const game = await startGame(page);
   await expect(game.locator('.gameControls')).toBeHidden();
@@ -96,30 +171,30 @@ test('joystick moves in four directions, Q reconnects, and Space and E retain th
   await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
   await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
   await expect(game.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
-  await expect(page.locator('.cabinet-control')).toHaveCount(0);
+  await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await game.getByRole('link', { name: 'Start', exact: true }).click();
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   const left = await grabJoystick(page, isMobile);
   await left.move(-30, 0);
   await expect.poll(async () => (await position(game)).x, { intervals: [16] }).toBeLessThanOrEqual(isMobile ? 24 : 40);
   await left.release();
-  await page.getByRole('button', { name: 'Cabinet: A: Space Read', exact: true }).click();
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
   await expect(game.locator('.dialogueBox')).toContainText('mirror');
   if (isMobile) {
     await page.evaluate(() => { window.open = () => { throw new Error('Popups unavailable'); }; });
-    await page.getByRole('button', { name: 'Cabinet: B: E Open', exact: true }).tap();
+    await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).tap();
     await expect(page).toHaveURL(/linkedin\.com/);
     await expect(page).toHaveTitle('Cabinet project fixture');
   } else {
     const popup = page.waitForEvent('popup');
-    await page.getByRole('button', { name: 'Cabinet: B: E Open', exact: true }).click();
+    await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).click();
     const project = await popup;
     await expect(project).toHaveTitle('Cabinet project fixture');
     await project.close();
   }
 });
 
-test('a second finger can press Space without releasing the joystick; cancellation stops movement', { tag: '@webgl' }, async ({ page, isMobile }) => {
+test('a second finger can press Z without releasing the joystick; cancellation stops movement', { tag: '@webgl' }, async ({ page, isMobile }) => {
   test.skip(!isMobile, 'Native multitouch regression.');
   const game = await startGame(page);
   const session = await page.context().newCDPSession(page);
@@ -130,7 +205,7 @@ test('a second finger can press Space without releasing the joystick; cancellati
   await send('touchStart', [center]);
   await send('touchMove', [held]);
   await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
-  const read = await page.getByRole('button', { name: 'Cabinet: A: Space Read', exact: true }).boundingBox();
+  const read = await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).boundingBox();
   const second = { x: read.x + read.width / 2, y: read.y + read.height / 2, id: 2 };
   await send('touchStart', [held, second]);
   await send('touchMove', [held]);
@@ -158,6 +233,40 @@ test('keyboard movement survives joystick release and action buttons support key
   await menu.focus();
   await page.keyboard.press('Enter');
   await expect(game.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
+});
+
+test('keyboard Z/X depress buttons and arrows/WASD tilt the physical joystick', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
+  test.skip(isMobile, 'Physical keyboard feedback.');
+  const game = await startGame(page);
+  await game.locator('.camera').click({ position: { x: 10, y: 10 } });
+  const stick = page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true });
+  // Check actions at spawn, before movement can bring the player to the exit.
+  for (const [key, label] of [['z', 'Z Read'], ['x', 'X Open']]) {
+    const button = page.getByRole('button', { name: 'Cabinet: ' + label, exact: true });
+    await page.keyboard.down(key);
+    await expect(button).toHaveAttribute('data-pressed');
+    await page.screenshot({ path: testInfo.outputPath(`keyboard-${key}.png`) });
+    await page.keyboard.up(key);
+    await expect(button).not.toHaveAttribute('data-pressed');
+  }
+  for (const [key, direction] of [['ArrowUp', 'up'], ['ArrowDown', 'down'], ['ArrowLeft', 'left'], ['ArrowRight', 'right'], ['w', 'up'], ['a', 'left'], ['s', 'down'], ['d', 'right']]) {
+    await page.keyboard.down(key);
+    await expect(stick).toHaveAttribute('data-direction', direction);
+    await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+    await page.keyboard.up(key);
+    await expect(stick).toHaveAttribute('data-direction', '');
+  }
+  await page.keyboard.down('s');
+  await page.keyboard.down('ArrowDown');
+  await page.keyboard.up('s');
+  await expect(stick).toHaveAttribute('data-direction', 'down');
+  await page.screenshot({ path: testInfo.outputPath('keyboard-stick.png') });
+  await page.keyboard.up('ArrowDown');
+  await stick.focus();
+  await page.keyboard.down('ArrowDown');
+  await expect(stick).toHaveAttribute('data-direction', 'down');
+  await page.keyboard.up('ArrowDown');
+  await expect(stick).toHaveAttribute('data-direction', '');
 });
 
 test('three action buttons form a visible row beside the joystick on desktop and mobile', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
