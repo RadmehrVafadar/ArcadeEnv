@@ -11,16 +11,13 @@ export default function AudioControls() {
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('pagehide', arcadeAudio.pause);
     window.addEventListener('pageshow', visibility);
-    const activate = () => arcadeAudio.unlock();
-    document.addEventListener('pointerdown', activate);
-    document.addEventListener('keydown', activate);
+    const removeUnlock = arcadeAudio.listen(document);
     return () => {
       arcadeAudio.pause();
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('pagehide', arcadeAudio.pause);
       window.removeEventListener('pageshow', visibility);
-      document.removeEventListener('pointerdown', activate);
-      document.removeEventListener('keydown', activate);
+      removeUnlock();
     };
   }, []);
 

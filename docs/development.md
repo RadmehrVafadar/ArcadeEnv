@@ -35,7 +35,8 @@ Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction
 Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
 The cabinet renders on demand, reducing software WebGL work during idle periods and iframe interactions.
 Audio unit tests cover synthesis, independent mute preferences, scheduling, visibility, and unavailable browser APIs.
-The audio browser test exercises real Web Audio through cabinet pointer and iframe keyboard input, preference persistence, and desktop/mobile control screenshots.
+The audio browser tests exercise real Web Audio through cabinet pointer and iframe keyboard input, preference persistence, and desktop/mobile control screenshots.
+A native-touch regression models iPhone rejection of finger-down audio unlocks and requires playback after touch release, including after iframe interaction.
 Root unit checks include the cabinet joystick's dead-zone and axis selection alongside launcher and browser configuration checks.
 Cabinet browser checks cover mouse, multitouch, keyboard coexistence, iframe reconnection, project actions, and projected controls at desktop, phone, landscape, and tablet sizes.
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.

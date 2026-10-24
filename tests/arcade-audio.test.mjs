@@ -91,3 +91,19 @@ test('missing audio and inaccessible or malformed storage are harmless', () => {
   const audio = createArcadeAudio({ get localStorage() { throw Error('denied'); } });
   assert.doesNotThrow(() => { audio.play('read'); audio.set('effects', false); });
 });
+
+test('first interaction requests iPhone playback audio instead of the muted ambient session', () => {
+  const f = fixture();
+  f.host.navigator = { audioSession: { type: 'auto' } };
+  assert.equal(f.context(), undefined);
+  f.audio.play('read');
+  assert.equal(f.host.navigator.audioSession.type, 'playback');
+  assert.equal(f.notes.length, 1);
+});
+
+test('a browser refusing audio session configuration can still play effects', () => {
+  const f = fixture();
+  f.host.navigator = { audioSession: { set type(_) { throw new Error('Unsupported session type'); } } };
+  assert.doesNotThrow(() => f.audio.play('read'));
+  assert.equal(f.notes.length, 1);
+});
