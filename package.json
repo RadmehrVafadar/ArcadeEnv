@@ -13,7 +13,7 @@
     "lint": "eslint --config scripts/eslint.config.js scripts tests playwright.config.js --max-warnings=0 && npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspace=portfolio-website",
     "test": "npm run test:unit && npm run test:browser",
-    "test:unit": "node --test tests/launcher.test.mjs tests/browser-config.test.mjs && npm run test --workspace=portfolio-website",
+    "test:unit": "node --test tests/launcher.test.mjs tests/browser-config.test.mjs tests/cabinet-input.test.mjs && npm run test --workspace=portfolio-website",
     "test:browser": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run build && npm test",
     "predeploy": "npm run build",

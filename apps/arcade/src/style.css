@@ -45,6 +45,27 @@ body {
   border: none;
 }
 
+.cabinet-control {
+  display: grid;
+  place-items: center;
+  width: var(--target-size, 24px);
+  height: var(--target-size, 24px);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cabinet-control:focus-visible {
+  outline: 3px solid #17dfea;
+  outline-offset: 2px;
+}
+
 /* Static layers keep the live iframe interactive without flicker or extra GPU passes. */
 .crt-screen::before,
 .crt-screen::after {

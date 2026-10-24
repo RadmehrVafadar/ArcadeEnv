@@ -28,6 +28,13 @@ Portrait mode places the D-pad and Space/Read and E/Open buttons below the world
 Messages stay inside the world area and cannot cover these controls.
 Touch movement uses pointer capture and stops on release, cancellation, lost capture, or focus loss.
 The action buttons use the same exhibit and door interactions as the keyboard.
+When the same-origin cabinet connects through `window.arcadeControls`, the game hides its on-screen controls and gives their space to the world.
+The cabinet joystick moves the player; its red A and B buttons read with Space and open with E, and its smaller Exit button returns to the menu with Q.
+Mobile startup instructions describe those controls, and mobile dialogue text scales to remain readable on the projected CRT.
+PC keeps its original welcome and keyboard instructions while hiding the on-screen D-pad.
+Keyboard, screen controls, and joystick track movement by source, so releasing one input does not cancel another held input.
+The cabinet connection resets on navigation and reconnects when the game is reopened.
+Standalone visits retain their on-screen controls; cross-origin embeds do not connect to the cabinet interface.
 On mobile, E/Open navigates the current top-level browser window so project links work in in-app browsers without popup support and leave the cabinet iframe.
 Desktop project links continue to open a separate tab.
 Mobile artwork, sprites, movement, and collision coordinates share a fractional scale based on the camera width.

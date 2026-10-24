@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html, useGLTF } from '@react-three/drei';
 import { Vector3 } from 'three';
+import CabinetControls from './cabinet-controls.jsx';
 
 const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
   (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
@@ -9,6 +10,8 @@ const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.
 export default function Arcade() {
   const [zoomComplete, setZoomComplete] = useState(false);
   const [ready, setReady] = useState(false);
+  const [gameInput, setGameInput] = useState(null);
+  const iframe = useRef(null);
   const invalidate = useThree(state => state.invalidate);
   const zoomStartedAt = useRef(null);
   const startZoom = useCallback(() => {
@@ -41,6 +44,11 @@ export default function Arcade() {
     }
     camera.lookAt(0, 1, 1);
     camera.updateMatrixWorld();
+    if (gameInput && iframe.current) {
+      const frame = iframe.current;
+      // Read the projected size after Html applies this frame's CSS transform.
+      requestAnimationFrame(() => gameInput.setDisplayScale(frame.getBoundingClientRect().width / 624));
+    }
     sceneRendered.current = true;
     // Html's separate React root must mount before its transform can be rendered.
     revealArcade();
@@ -51,6 +59,31 @@ export default function Arcade() {
     const timer = setTimeout(startZoom, 5000);
     return () => clearTimeout(timer);
   }, [ready, startZoom]);
+
+  useEffect(() => {
+    if (!gameInput) return;
+    const frameWindow = iframe.current.contentWindow;
+    const disconnect = () => setGameInput(null);
+    const keys = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' };
+    const keydown = event => {
+      if (event.target.closest?.('.cabinet-control') && [' ', 'Enter'].includes(event.key)) return;
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      const action = { q: 'menu', e: 'open', ' ': 'read' }[key];
+      if (keys[key] || action) event.preventDefault();
+      if (keys[key]) gameInput.setDirection('keyboard:' + event.code, keys[key]);
+      if (action && !event.repeat) gameInput.action(action);
+    };
+    const keyup = event => gameInput.setDirection('keyboard:' + event.code, null);
+    frameWindow.addEventListener('pagehide', disconnect);
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('keyup', keyup);
+    return () => {
+      gameInput.disconnect();
+      frameWindow.removeEventListener('pagehide', disconnect);
+      document.removeEventListener('keydown', keydown);
+      document.removeEventListener('keyup', keyup);
+    };
+  }, [gameInput]);
 
   useEffect(() => {
     arcade.scene.traverse(child => {
@@ -78,6 +111,7 @@ export default function Arcade() {
         castShadow
         receiveShadow
       >
+        {gameInput && <CabinetControls scene={arcade.scene} input={gameInput} />}
         <Html
           occlude
           wrapperClass="arcade"
@@ -88,11 +122,21 @@ export default function Arcade() {
         >
           <div className="crt-screen">
             <iframe
-              ref={element => { if (element) invalidate(); }}
+              ref={element => { iframe.current = element; if (element) invalidate(); }}
               src={iframeSrc}
               title="Radmehr Vafadar portfolio"
               onLoad={() => {
                 portfolioLoaded.current = true;
+                let input = null;
+                try {
+                  input = iframe.current.contentWindow.arcadeControls || null;
+                  if (input && !['connect', 'disconnect', 'setDirection', 'action', 'reset', 'setDisplayScale']
+                    .every(method => typeof input[method] === 'function')) input = null;
+                } catch (error) {
+                  if (error.name !== 'SecurityError') throw error;
+                }
+                input?.connect();
+                setGameInput(input);
                 invalidate();
               }}
             />

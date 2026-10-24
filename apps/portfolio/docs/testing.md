@@ -45,6 +45,13 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 ## Decisions and gotchas
 
 VM tests do not replace browser rendering or real pointer and touch checks.
+Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
+`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red A/B caps and smaller Exit button, the restored joystick position, and the row's visibility from the original camera.
+`../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
+Its camera regression checks the original zoom on desktop and mobile, transparent action targets, and working press feedback without visible control overlays.
+Viewport regressions verify that exactly three action buttons form a visible row beside the joystick on PC and mobile.
+Small-phone, landscape, and tablet screenshots capture the game and physical control deck together.
+The idle-rendering regression also checks that WebGL stops drawing after cabinet button feedback settles.
 Before changing UI behavior, inspect desktop and narrow-screen layouts, toggle the background, navigate every menu link, and check the browser console.
 For the arcade, check movement, exhibit prompts, Space/E interactions, and the exit door.
 Mobile browser regressions use Chromium device emulation and CDP touch input in development and production, covering small phones, portrait and landscape phones, and tablets.

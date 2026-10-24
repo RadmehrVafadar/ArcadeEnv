@@ -162,7 +162,8 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
+  await expect(portfolio.locator('.gameControls')).toBeHidden();
   if (!isMobile) {
     await test.step('Q exits only the cabinet iframe from spawn', async () => {
       await page.keyboard.press('q');
@@ -173,7 +174,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
       await expect(portfolio.locator('.character')).toBeVisible();
     });
   }
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });

@@ -16,7 +16,7 @@ function loadGame({ mobile = false } = {}) {
       if (!elements.has(selector)) {
         elements.set(selector, {
           clientWidth: 390, clientHeight: 600, offsetWidth: 390, offsetHeight: 1020,
-          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
+          style: { setProperty(name, value) { this[name] = value; } }, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
           setAttribute(name, value) { this.attributes[name] = value; },
           addEventListener(name, handler) { this.listeners.set(name, handler); },
         });
@@ -52,6 +52,90 @@ test('desktop starts with movement and exit instructions, then hides them on mov
 test('mobile keeps its touch and keyboard welcome instructions', () => {
   const { elements } = loadGame({ mobile: true });
   assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD.');
+});
+
+test('cabinet connection replaces screen controls and restores standalone instructions', () => {
+  const { game, elements } = loadGame({ mobile: true });
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /joystick/i);
+  assert.match(elements.get('.dialogueBox').innerHTML, /A: read/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /B: open/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Exit: menu/);
+  controls.disconnect();
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Use the arrows/);
+});
+
+test('PC cabinet connection preserves the original keyboard instructions', () => {
+  const { game, elements } = loadGame();
+  const original = elements.get('.dialogueBox').innerHTML;
+  game.window.arcadeControls.connect();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(elements.get('.dialogueBox').innerHTML, original);
+});
+
+test('cabinet input ownership survives another source releasing and resets independently', () => {
+  const { game, listeners } = loadGame();
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
+  controls.setDirection('joystick', 'right');
+  controls.setDirection('button', 'right');
+  controls.setDirection('joystick', null);
+  controls.reset();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.x, 102, 'Keyboard remains held after cabinet reset');
+  listeners.get('keyup')({ which: 39 });
+  controls.setDirection('joystick', 'down');
+  controls.setDirection('button', 'left');
+  controls.setDirection('button', null);
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122, 'Joystick remains held after button release');
+  controls.disconnect();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122);
+  controls.setDirection('joystick', 'down');
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122, 'Disconnected inputs are ignored');
+});
+
+test('cabinet quick actions reuse reading, opening and menu navigation', () => {
+  const { game, elements } = loadGame();
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  game.x = 40;
+  game.y = 130;
+  game.hasPlayerMoved = true;
+  const opened = [];
+  game.window.open = (...args) => opened.push(args);
+  controls.action('read');
+  assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
+  controls.action('open');
+  assert.equal(opened.length, 1);
+  controls.action('menu');
+  assert.equal(game.window.location.href, '/portfolio/');
+});
+
+test('hidden game clears all holds and cabinet text follows the projected screen scale', () => {
+  const { game, elements, listeners } = loadGame();
+  const controls = game.window.arcadeControls;
+  controls.connect();
+  controls.setDisplayScale(0.25);
+  assert.equal(elements.get('.frame').style['--cabinet-font-size'], '48px');
+  controls.setDisplayScale(0.001);
+  assert.equal(elements.get('.frame').style['--cabinet-font-size'], '48px');
+  controls.setDirection('joystick', 'down');
+  listeners.get('keydown')({ which: 39 });
+  game.document.hidden = true;
+  listeners.get('visibilitychange')();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.x, 100);
+  assert.equal(game.y, 120);
 });
 
 test('statue collisions and interaction padding support reversed coordinates', () => {

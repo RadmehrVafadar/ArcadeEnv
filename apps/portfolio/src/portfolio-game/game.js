@@ -3,6 +3,7 @@ var map = document.querySelector(".map");
 var previousInteract = false;
 var interact = false
 var mobileControls = window.matchMedia('(pointer: coarse)').matches;
+var cabinetConnected = false;
 var camera = document.querySelector('.camera');
 
 function resizeMobileWorld() {
@@ -193,7 +194,9 @@ const placeCharacter = () => {
    
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
-      dialogueBox.innerHTML = mobileControls
+      dialogueBox.innerHTML = cabinetConnected && mobileControls
+         ? '<span>Joystick: move</span><span>A: read</span><span>B: open</span><span>Exit: menu</span>'
+         : mobileControls
          ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD."
          : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>';
       dialogueBox.style.display = 'block';
@@ -273,7 +276,20 @@ const keys = {
    83: directions.down,
    68: directions.right,
 }
-const held_keys = new Set();
+const inputDirections = new Map();
+function setDirection(source, direction) {
+   if (direction && !Object.values(directions).includes(direction)) { return; }
+   if (inputDirections.get(source) === direction) { return; }
+   inputDirections.delete(source);
+   if (direction) { inputDirections.set(source, direction); }
+   held_directions = [...new Set([...inputDirections.values()].reverse())];
+}
+function clearInputs(prefix) {
+   for (const source of inputDirections.keys()) {
+      if (source.startsWith(prefix)) { inputDirections.delete(source); }
+   }
+   held_directions = [...new Set([...inputDirections.values()].reverse())];
+}
 function activateInteraction(open, repeat = false) {
    if (x > 70 && x < 130 && y < 100) {
       window.location.href = import.meta.env.BASE_URL;
@@ -295,113 +311,108 @@ document.addEventListener("keydown", (e) => {
       return;
    }
    var dir = keys[e.which];
-   if (dir) { held_keys.add(e.which); }
+   if (dir) { e.preventDefault?.(); setDirection('keyboard:' + e.which, dir); }
 
    if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) {
       activateInteraction(e.key !== ' ', e.repeat);
    }
 
-   if (dir && held_directions.indexOf(dir) === -1) {
-      held_directions.unshift(dir)
-   }
 
    if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) { interact = true }
 })
 
 document.addEventListener("keyup", (e) => {
-   var dir = keys[e.which];
-   held_keys.delete(e.which);
-   var index = held_directions.indexOf(dir);
-   if (index > -1 && !Array.from(held_keys).some(key => keys[key] === dir)) {
-      held_directions.splice(index, 1)
-   }
+   setDirection('keyboard:' + e.which, null);
 
    if (e.key === ' ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'e')) { interact = false }
 });
 
 
 
-/* BONUS! Dpad functionality for mouse and touch */
-var isPressed = false;
-const removePressedAll = () => {
-   document.querySelectorAll(".dpad-button").forEach(d => {
-      d.classList.remove("pressed")
-   })
-}
-document.body.addEventListener("mousedown", () => {
-   isPressed = true;
-})
-document.body.addEventListener("mouseup", () => {
-   isPressed = false;
-   held_directions = [];
-   removePressedAll();
-})
-const handleDpadPress = (direction, click) => {   
-   if (click) {
-      isPressed = true;
-   }
-   held_directions = (isPressed) ? [direction] : []
-   
-   if (isPressed) {
-      removePressedAll();
-      document.querySelector(".dpad-"+ direction).classList.add("pressed");
+function runAction(action) {
+   if (action === 'menu') {
+      window.location.href = import.meta.env.BASE_URL;
+   } else if (action === 'read' || action === 'open') {
+      activateInteraction(action === 'open');
+      interact = true;
+      previousInteract = false;
+      placeCharacter();
+      interact = false;
+      previousInteract = false;
    }
 }
 
-
-
-if (mobileControls) {
-   var activePointer = null;
-   const stopMovement = () => {
-      activePointer = null;
-      isPressed = false;
-      held_directions = [];
-      removePressedAll();
-   };
-   for (const direction of Object.values(directions)) {
-      const button = document.querySelector('.dpad-' + direction);
-      button.addEventListener('pointerdown', event => {
-         event.preventDefault();
-         if (activePointer !== null) { return; }
-         activePointer = event.pointerId;
-         button.setPointerCapture(event.pointerId);
-         handleDpadPress(direction, true);
-      });
-      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-         button.addEventListener(type, event => {
-            if (event.pointerId === activePointer) { stopMovement(); }
-         });
+// Same-origin parent calls stay synchronous to preserve popup user activation.
+window.arcadeControls = {
+   setDisplayScale(scale) {
+      if (scale > 0) {
+         // Html can briefly have a tiny projected width during orientation changes.
+         document.querySelector('.frame').style.setProperty('--cabinet-font-size', `${Math.min(48, Math.max(18, 12 / scale))}px`);
       }
-   }
-   window.addEventListener('blur', stopMovement);
-   document.addEventListener('visibilitychange', () => {
-      if (document.hidden) { stopMovement(); }
+   },
+   connect() {
+      cabinetConnected = true;
+      document.querySelector('.frame').classList.add('cabinet-connected');
+      resizeMobileWorld();
+   },
+   disconnect() {
+      this.reset();
+      cabinetConnected = false;
+      document.querySelector('.frame').classList.remove('cabinet-connected');
+      resizeMobileWorld();
+   },
+   setDirection(source, direction) {
+      if (cabinetConnected) { setDirection('cabinet:' + source, direction); }
+   },
+   action(action) {
+      if (cabinetConnected) { runAction(action); }
+   },
+   reset() { clearInputs('cabinet:'); },
+};
+
+const removePressedAll = () => {
+   document.querySelectorAll('.dpad-button').forEach(button => button.classList.remove('pressed'));
+};
+const handleDpadPress = direction => {
+   setDirection('dpad', direction);
+   removePressedAll();
+   if (direction) { document.querySelector('.dpad-' + direction).classList.add('pressed'); }
+};
+var activePointer = null;
+const stopMovement = () => {
+   activePointer = null;
+   handleDpadPress(null);
+};
+for (const direction of Object.values(directions)) {
+   const button = document.querySelector('.dpad-' + direction);
+   button.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      if (activePointer !== null) { return; }
+      activePointer = event.pointerId;
+      button.setPointerCapture(event.pointerId);
+      handleDpadPress(direction);
    });
-   for (const [selector, open] of [['.action-read', false], ['.action-open', true]]) {
-      document.querySelector(selector).addEventListener('click', () => {
-         activateInteraction(open);
-         interact = true;
-         placeCharacter();
-         interact = false;
-         previousInteract = false;
+   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
+      button.addEventListener(type, event => {
+         if (event.pointerId === activePointer) { stopMovement(); }
       });
    }
-} else {
-document.querySelector(".dpad-left").addEventListener("touchstart", () => handleDpadPress(directions.left, true));
-document.querySelector(".dpad-up").addEventListener("touchstart", () => handleDpadPress(directions.up, true));
-document.querySelector(".dpad-right").addEventListener("touchstart", () => handleDpadPress(directions.right, true));
-document.querySelector(".dpad-down").addEventListener("touchstart", () => handleDpadPress(directions.down, true));
-
-document.querySelector(".dpad-left").addEventListener("mousedown", () => handleDpadPress(directions.left, true));
-document.querySelector(".dpad-up").addEventListener("mousedown", () => handleDpadPress(directions.up, true));
-document.querySelector(".dpad-right").addEventListener("mousedown", () => handleDpadPress(directions.right, true));
-document.querySelector(".dpad-down").addEventListener("mousedown", () => handleDpadPress(directions.down, true));
-
-document.querySelector(".dpad-left").addEventListener("mouseover", () => handleDpadPress(directions.left));
-document.querySelector(".dpad-up").addEventListener("mouseover", () => handleDpadPress(directions.up));
-document.querySelector(".dpad-right").addEventListener("mouseover", () => handleDpadPress(directions.right));
-document.querySelector(".dpad-down").addEventListener("mouseover", () => handleDpadPress(directions.down));
 }
+for (const [selector, action] of [['.action-read', 'read'], ['.action-open', 'open']]) {
+   document.querySelector(selector).addEventListener('click', () => runAction(action));
+}
+window.addEventListener('blur', () => {
+   stopMovement();
+   clearInputs('keyboard:');
+   interact = false;
+});
+document.addEventListener('visibilitychange', () => {
+   if (document.hidden) {
+      stopMovement();
+      clearInputs('');
+      interact = false;
+   }
+});
 
 // Handle window resize to maintain proper scaling
 window.addEventListener('resize', () => {
