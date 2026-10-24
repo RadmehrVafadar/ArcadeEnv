@@ -16,7 +16,7 @@ function loadGame({ mobile = false } = {}) {
       if (!elements.has(selector)) {
         elements.set(selector, {
           clientWidth: 390, clientHeight: 600, offsetWidth: 390, offsetHeight: 1020,
-          style: {}, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
+          style: { setProperty(name, value) { this[name] = value; } }, attributes: {}, listeners: new Map(), classList: { add() {}, remove() {}, toggle() {} },
           setAttribute(name, value) { this.attributes[name] = value; },
           addEventListener(name, handler) { this.listeners.set(name, handler); },
         });
@@ -39,7 +39,7 @@ function loadGame({ mobile = false } = {}) {
 
 test('desktop starts with movement and exit instructions, then hides them on movement', () => {
   const { game, elements, listeners } = loadGame();
-  assert.equal(elements.get('.dialogueBox').innerHTML, '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl">Exit: Q</span>');
+  assert.equal(elements.get('.dialogueBox').innerHTML, '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl startupActions">Z: read / X: open / Q: exit</span>');
   listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
   runInNewContext('placeCharacter()', game);
   assert.equal(game.x, 102);
@@ -51,7 +51,91 @@ test('desktop starts with movement and exit instructions, then hides them on mov
 
 test('mobile keeps its touch and keyboard welcome instructions', () => {
   const { elements } = loadGame({ mobile: true });
-  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Space to read or E to open. At the door, either button exits. Keyboard: arrows or WASD.');
+  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Z to read or X to open. At the door, either button exits. Keyboard: arrows or WASD.');
+});
+
+test('cabinet connection replaces screen controls and restores standalone instructions', () => {
+  const { game, elements } = loadGame({ mobile: true });
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /joystick/i);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Z: read/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /X: open/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Exit: menu/);
+  controls.disconnect();
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Use the arrows/);
+});
+
+test('PC cabinet connection preserves the original keyboard instructions', () => {
+  const { game, elements } = loadGame();
+  const original = elements.get('.dialogueBox').innerHTML;
+  game.window.arcadeControls.connect();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(elements.get('.dialogueBox').innerHTML, original);
+});
+
+test('cabinet input ownership survives another source releasing and resets independently', () => {
+  const { game, listeners } = loadGame();
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  listeners.get('keydown')({ which: 39, key: 'ArrowRight' });
+  controls.setDirection('joystick', 'right');
+  controls.setDirection('button', 'right');
+  controls.setDirection('joystick', null);
+  controls.reset();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.x, 102, 'Keyboard remains held after cabinet reset');
+  listeners.get('keyup')({ which: 39 });
+  controls.setDirection('joystick', 'down');
+  controls.setDirection('button', 'left');
+  controls.setDirection('button', null);
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122, 'Joystick remains held after button release');
+  controls.disconnect();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122);
+  controls.setDirection('joystick', 'down');
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.y, 122, 'Disconnected inputs are ignored');
+});
+
+test('cabinet quick actions reuse reading, opening and menu navigation', () => {
+  const { game, elements } = loadGame();
+  const controls = game.window.arcadeControls;
+  assert.ok(controls, 'Game must expose cabinet controls');
+  controls.connect();
+  game.x = 40;
+  game.y = 130;
+  game.hasPlayerMoved = true;
+  const opened = [];
+  game.window.open = (...args) => opened.push(args);
+  controls.action('read');
+  assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
+  controls.action('open');
+  assert.equal(opened.length, 1);
+  controls.action('menu');
+  assert.equal(game.window.location.href, '/portfolio/');
+});
+
+test('hidden game clears all holds and cabinet text follows the projected screen scale', () => {
+  const { game, elements, listeners } = loadGame();
+  const controls = game.window.arcadeControls;
+  controls.connect();
+  controls.setDisplayScale(0.25);
+  assert.equal(elements.get('.frame').style['--cabinet-font-size'], '48px');
+  controls.setDisplayScale(0.001);
+  assert.equal(elements.get('.frame').style['--cabinet-font-size'], '48px');
+  controls.setDirection('joystick', 'down');
+  listeners.get('keydown')({ which: 39 });
+  game.document.hidden = true;
+  listeners.get('visibilitychange')();
+  runInNewContext('placeCharacter()', game);
+  assert.equal(game.x, 100);
+  assert.equal(game.y, 120);
 });
 
 test('statue collisions and interaction padding support reversed coordinates', () => {
@@ -108,7 +192,7 @@ test('releasing one movement alias keeps the other held key moving', () => {
 });
 
 test('door returns to the portfolio landing page for both interaction keys', () => {
-  for (const key of [' ', 'e']) {
+  for (const key of ['z', 'x']) {
     const { game, listeners } = loadGame();
     game.y = 94;
     listeners.get('keydown')({ key });
@@ -116,7 +200,7 @@ test('door returns to the portfolio landing page for both interaction keys', () 
   }
 });
 
-test('every showcase opens on the first E press after a popup receives the key release', () => {
+test('every showcase opens on the first X press after a popup receives the key release', () => {
   const { game, listeners } = loadGame();
   const opened = [];
   game.window.open = (...args) => opened.push(args);
@@ -125,28 +209,28 @@ test('every showcase opens on the first E press after a popup receives the key r
       ? Math.max(statue.rect.x1, statue.rect.x2) + 2
       : Math.min(statue.rect.x1, statue.rect.x2) - 2;
     game.y = (statue.rect.y1 + statue.rect.y2) / 2;
-    listeners.get('keydown')({ key: 'e', repeat: false });
+    listeners.get('keydown')({ key: 'x', repeat: false });
     assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
     assert.equal(opened.length, game.statues.indexOf(statue) + 1, statue.id);
     // Opening the new tab takes focus; its keyup never reaches the game.
-    listeners.get('keydown')({ key: 'e', repeat: true });
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1, `${statue.id} held E`);
+    listeners.get('keydown')({ key: 'x', repeat: true });
+    assert.equal(opened.length, game.statues.indexOf(statue) + 1, `${statue.id} held X`);
   }
 });
 
-test('E opens once per press and Space only reads the exhibit', () => {
+test('X opens once per press and Z only reads the exhibit', () => {
   const { game, elements, listeners } = loadGame();
   const opened = [];
   game.window.open = (...args) => opened.push(args);
   game.x = 40;
   game.y = 130;
   game.hasPlayerMoved = true;
-  listeners.get('keydown')({ key: ' ' });
+  listeners.get('keydown')({ key: 'z' });
   runInNewContext('placeCharacter()', game);
   assert.match(elements.get('.dialogueBox').innerHTML, /mirror/);
   assert.equal(opened.length, 0);
-  listeners.get('keyup')({ key: ' ' });
-  for (const key of ['e', 'E']) {
+  listeners.get('keyup')({ key: 'z' });
+  for (const key of ['x', 'X']) {
     listeners.get('keydown')({ key, repeat: false });
     listeners.get('keydown')({ key, repeat: true });
     listeners.get('keyup')({ key });
@@ -187,15 +271,15 @@ test('mobile action buttons can read and open every exhibit within world limits'
   }
 });
 
-test('mobile keyboard E navigates the top window once per press without popups', () => {
+test('mobile keyboard X navigates the top window once per press without popups', () => {
   const { game, listeners } = loadGame({ mobile: true });
   game.window.top = { location: { href: '' } };
   game.window.open = () => assert.fail('Popup support is unavailable');
   game.x = 24;
-  listeners.get('keydown')({ key: ' ', repeat: false });
+  listeners.get('keydown')({ key: 'z', repeat: false });
   assert.equal(game.window.top.location.href, '');
-  listeners.get('keydown')({ key: 'e', repeat: true });
+  listeners.get('keydown')({ key: 'x', repeat: true });
   assert.equal(game.window.top.location.href, '');
-  listeners.get('keydown')({ key: 'e', repeat: false });
+  listeners.get('keydown')({ key: 'x', repeat: false });
   assert.equal(game.window.top.location.href, game.statues[0].url);
 });

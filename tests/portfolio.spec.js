@@ -5,10 +5,10 @@ test('game startup instructions match desktop and touch controls', async ({ page
   await page.goto('/portfolio/src/portfolio-game/game.html');
   const dialogue = page.locator('.dialogueBox');
   if (isMobile) {
-    await expect(dialogue).toContainText('Use the arrows to move. Tap Space to read or E to open.');
+    await expect(dialogue).toContainText('Use the arrows to move. Tap Z to read or X to open.');
   } else {
-    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Exit: Q');
-    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nExit: Q');
+    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Z: read / X: open / Q: exit');
+    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nZ: read / X: open / Q: exit');
     await page.evaluate(() => document.fonts.ready);
     const lines = await dialogue.evaluate(element => {
       return [...element.children].map(node => {
@@ -162,7 +162,8 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
+  await expect(portfolio.locator('.gameControls')).toBeHidden();
   if (!isMobile) {
     await test.step('Q exits only the cabinet iframe from spawn', async () => {
       await page.keyboard.press('q');
@@ -173,12 +174,12 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
       await expect(portfolio.locator('.character')).toBeVisible();
     });
   }
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
   await page.keyboard.up('ArrowUp');
-  await page.keyboard.press('e');
+  await page.keyboard.press('x');
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe('/');

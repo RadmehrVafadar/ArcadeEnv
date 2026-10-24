@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('showcase links open on one E press after releasing E in the previous tab', async ({ page, context, isMobile }) => {
+test('showcase links open on one X press after releasing X in the previous tab', async ({ page, context, isMobile }) => {
   test.skip(isMobile, 'Mobile projects navigate the current top-level window.');
   await context.route(/^https:\/\/(radmehrvafadar\.github\.io|www\.linkedin\.com)\//, route => route.fulfill({
     contentType: 'text/html', body: '<title>Showcase</title><p>Showcase fixture</p>',
@@ -23,13 +23,13 @@ test('showcase links open on one E press after releasing E in the previous tab',
     } finally {
       await page.keyboard.up(direction);
     }
-    await expect(page.locator('.actionPrompt')).toContainText('Press E to open');
+    await expect(page.locator('.actionPrompt')).toContainText('Press X to open');
     const popupPromise = page.waitForEvent('popup');
-    await keyboard.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'e', code: 'KeyE', windowsVirtualKeyCode: 69, autoRepeat: false });
+    await keyboard.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'x', code: 'KeyX', windowsVirtualKeyCode: 88, autoRepeat: false });
     const popup = await popupPromise;
     await expect(popup).toHaveURL(url);
     await popup.bringToFront();
-    await popup.keyboard.up('e');
+    await popup.keyboard.up('x');
     await popup.close();
     await page.bringToFront();
   }

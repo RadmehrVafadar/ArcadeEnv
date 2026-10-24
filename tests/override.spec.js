@@ -8,6 +8,7 @@ test('retains an explicit external iframe override', { tag: '@webgl' }, async ({
   await page.goto('/');
   await expect(page.locator('iframe')).toHaveAttribute('src', 'https://external-portfolio.test/', { timeout: 30000 });
   await expect(page.frameLocator('iframe').getByRole('heading')).toHaveText('External portfolio');
+  await expect(page.locator('.cabinet-control')).toHaveCount(0);
 });
 
 test('mobile entry retains the explicit external portfolio override @webgl', async ({ browser, baseURL }) => {

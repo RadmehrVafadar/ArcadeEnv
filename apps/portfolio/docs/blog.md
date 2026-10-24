@@ -12,6 +12,8 @@ Open the Blog link from the portfolio to read in the current page, inside the ar
 Use `../` beneath the index folders to return to the portfolio menu without relying on browser history.
 Category and article `../` links return to their parent folder, leading back through the blog index to the menu.
 The menu link respects the portfolio base and stays inside the current tab or cabinet iframe.
+Inside the cabinet, joystick tilts step through the current page's links, Z activates the underlined link, and Exit returns directly to the portfolio menu.
+The selected link takes focus after the heading update, so Enter activates `../` immediately on entering a folder.
 The index shows `/tech`, `/hobbies`, and `/work`, including when those folders are empty.
 Folder titles sit at the right of a centered column, with `../` and article links below.
 Article pages use a narrow serif reading column on warm paper, with monospace navigation.

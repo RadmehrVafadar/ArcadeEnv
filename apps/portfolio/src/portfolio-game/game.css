@@ -219,6 +219,10 @@ body {
    display: block;
 }
 
+.startupActions {
+   font-size: 0.8em;
+}
+
 .actionPrompt {
    position:absolute;
    right: calc(var(--pixel-size) * 2);
@@ -237,6 +241,14 @@ body {
 
 .actionButtons {
    display: none;
+}
+
+.frame.cabinet-connected .gameControls {
+   display: none;
+}
+
+.cabinet-connected .dialogueBox span {
+   display: block;
 }
 
 /* Touch devices use the viewport for the world, with a separate control area. */
@@ -382,5 +394,21 @@ body {
 
    .actionPrompt {
       max-width: calc(100% - var(--controls-size) - 16px);
+   }
+}
+
+@media (pointer: coarse) {
+   .frame.cabinet-connected {
+      --controls-size: 0px;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+   }
+
+   .cabinet-connected .dialogueBox,
+   .cabinet-connected .actionPrompt {
+      font-size: var(--cabinet-font-size, 24px);
+      line-height: 1.5;
+      max-height: 60%;
+      overflow: auto;
    }
 }

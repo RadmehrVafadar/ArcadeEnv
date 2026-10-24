@@ -50,3 +50,10 @@ hr { border: 0; border-top: 1px solid #d5cfc2; margin-block: 40px; }
   .directory { padding-top: 40px; }
   .folder-title { font-size: 28px; }
 }
+/* Cabinet selection follows the reader's existing links. */
+a[data-cabinet-selected] {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}

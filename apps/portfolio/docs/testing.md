@@ -16,7 +16,7 @@ Use `npm run test:build --workspace=portfolio-website` to build and test this ap
 Root `npm run test:unit` runs launcher and browser configuration checks before this app's unit suite.
 Root `npm run check` additionally builds the combined site and runs the full browser feature suite on production desktop/mobile, plus focused development integration and content-fixture coverage.
 Game tests execute the actual script in an isolated VM with a minimal DOM substitute.
-Startup regressions check the desktop project welcome and movement and Q exit hints, preserve the mobile instructions, and verify that movement dismisses the dialogue and removes its startup styling.
+Startup regressions check the desktop project welcome and movement and Q exit hints, verify the mobile Z/X instructions, and verify that movement dismisses the dialogue and removes its startup styling.
 Browser checks verify that the welcome and two larger control rows fit a compact dialogue without clipping and capture production desktop and mobile screenshots.
 The production test reuses the existing build, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
 It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
@@ -30,7 +30,7 @@ CI records traces only on a failed test's retry and treats flaky retries as fail
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
-- `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Space/E interactions, exit, and world edges.
+- `../../tests/mobile-game.spec.js` - mobile viewport sizing, unobstructed touch controls, release and cancellation, Z/X interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
 - `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.
 - `tests/blog.test.mjs` - Markdown catalog and relative content links.
@@ -45,10 +45,21 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 ## Decisions and gotchas
 
 VM tests do not replace browser rendering or real pointer and touch checks.
+Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
+`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, Exit, and connection cleanup.
+`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Exit button, the restored joystick position, and the row's visibility from the original camera.
+`../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
+Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Exit.
+It also enters `/tech` and verifies that `../` has focus and Enter returns immediately without an extra selection key.
+Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.
+Its camera regression checks the original zoom on desktop and mobile, transparent action targets, and working press feedback without visible control overlays.
+Viewport regressions verify that exactly three action buttons form a visible row beside the joystick on PC and mobile.
+Small-phone, landscape, and tablet screenshots capture the game and physical control deck together.
+The idle-rendering regression also checks that WebGL stops drawing after cabinet button feedback settles.
 Before changing UI behavior, inspect desktop and narrow-screen layouts, toggle the background, navigate every menu link, and check the browser console.
-For the arcade, check movement, exhibit prompts, Space/E interactions, and the exit door.
+For the arcade, check movement, exhibit prompts, Z/X interactions, and the exit door.
 Mobile browser regressions use Chromium device emulation and CDP touch input in development and production, covering small phones, portrait and landscape phones, and tablets.
-The mobile project-opening regression disables popups and verifies that tapping E/Open inside an iframe navigates the top-level page to the project.
+The mobile project-opening regression disables popups and verifies that tapping X/Open inside an iframe navigates the top-level page to the project.
 They do not replace physical iOS and Android testing.
 
 ## Related

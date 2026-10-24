@@ -86,27 +86,27 @@ test('mobile movement stops on touch release and cancellation', async ({ page })
   }
 });
 
-test('mobile Space and E buttons read, open exhibits, and exit', async ({ page, context }) => {
+test('mobile Z and X buttons read, open exhibits, and exit', async ({ page, context }) => {
   await context.route('https://www.linkedin.com/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Showcase fixture</title>' }));
   await page.goto(gamePath);
   await moveTo(page, 'left', 'x', 24);
-  await page.getByRole('button', { name: 'Space: Read' }).tap();
+  await page.getByRole('button', { name: 'Z: Read' }).tap();
   await expect(page.locator('.dialogueBox')).toContainText('mirror');
   // Reading a message must not block the action or movement buttons.
-  await page.getByRole('button', { name: 'E: Open' }).tap();
+  await page.getByRole('button', { name: 'X: Open' }).tap();
   await expect(page).toHaveURL('https://www.linkedin.com/in/radmehrv/');
   await page.goto(gamePath);
   await moveTo(page, 'up', 'y', 98);
   await expect(page.locator('.actionPrompt')).toContainText('exit');
-  await page.getByRole('button', { name: 'Space: Read' }).tap();
+  await page.getByRole('button', { name: 'Z: Read' }).tap();
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await page.goto(gamePath);
   await moveTo(page, 'up', 'y', 98);
-  await page.getByRole('button', { name: 'E: Open' }).tap();
+  await page.getByRole('button', { name: 'X: Open' }).tap();
   await expect(page).toHaveURL(/\/portfolio\/$/);
 });
 
-test('mobile E opens projects outside the iframe when in-app popups are blocked', async ({ page, context }) => {
+test('mobile X opens projects outside the iframe when in-app popups are blocked', async ({ page, context }) => {
   await context.addInitScript(() => { window.open = () => null; });
   await context.route('https://radmehrvafadar.github.io/**', route => route.fulfill({
     contentType: 'text/html', body: '<title>Project fixture</title>',
@@ -117,14 +117,14 @@ test('mobile E opens projects outside the iframe when in-app popups are blocked'
   }));
   await page.goto('/embedded-game-test');
   const game = page.frameLocator('iframe');
-  await game.getByRole('button', { name: 'Space: Read' }).tap();
+  await game.getByRole('button', { name: 'Z: Read' }).tap();
   await page.keyboard.down('ArrowRight');
   try {
-    await expect(game.locator('.actionPrompt')).toContainText('Press E to open');
+    await expect(game.locator('.actionPrompt')).toContainText('Press X to open');
   } finally {
     await page.keyboard.up('ArrowRight');
   }
-  await game.getByRole('button', { name: 'E: Open' }).tap();
+  await game.getByRole('button', { name: 'X: Open' }).tap();
   await expect(page).toHaveURL('https://radmehrvafadar.github.io/Boids-algorithm-demo/');
   expect(context.pages()).toHaveLength(1);
 });
@@ -164,6 +164,6 @@ test('mobile world stays aligned and contains the character at its edges', async
   await page.screenshot({ path: testInfo.outputPath('mobile-world-bottom.png') });
   // Lower exhibits must remain reachable within the corrected world bounds.
   await moveTo(page, 'left', 'x', 48);
-  await page.getByRole('button', { name: 'Space: Read' }).tap();
+  await page.getByRole('button', { name: 'Z: Read' }).tap();
   await expect(page.locator('.dialogueBox')).toContainText('distributed video player');
 });
