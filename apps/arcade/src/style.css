@@ -134,3 +134,38 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
 }
+
+.audio-controls {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.audio-controls button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #99733a;
+  border-radius: 3px;
+  background: #171410;
+  color: #fff0d6;
+  font: clamp(10px, 2.6vw, 12px)/1.4 'Arcade Interlaced', monospace;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.audio-controls button[aria-pressed='true'] {
+  color: #fcbd46;
+  border-color: #fcbd46;
+}
+
+.audio-controls button:hover {
+  background: #34291b;
+}
+
+.audio-controls button:focus-visible {
+  outline: 2px solid #17dfea;
+  outline-offset: 3px;
+}
