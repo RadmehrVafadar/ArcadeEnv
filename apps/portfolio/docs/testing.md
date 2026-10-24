@@ -47,6 +47,7 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 VM tests do not replace browser rendering or real pointer and touch checks.
 Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
 `tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Exit, and connection cleanup.
+It verifies that both cabinet and keyboard X do nothing for every main menu selection.
 `../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Exit button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
 `../../tests/joystick-occlusion.spec.js` compares the joystick's red pixels with the iframe hidden and visible, captures desktop/mobile views, and checks iframe click-through after zoom.
 It holds the portfolio response and hides only the loading overlay during the pixel comparison, keeping mobile auto-zoom from moving the measured crop.

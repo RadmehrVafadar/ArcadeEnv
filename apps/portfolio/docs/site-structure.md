@@ -22,6 +22,7 @@ Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS 
 The labels remain still when the visitor prefers reduced motion.
 When embedded in the cabinet, the joystick steps through Start, Blog, and Resume once per tilt and wraps at either end.
 A full-width underscore marks the selected entry; Z activates its native link, and Exit reloads the main portfolio menu.
+X is the back action and does nothing on the main menu, which has no parent page.
 The same input interface lets visitors navigate blog links and return directly to the menu with Exit.
 Standalone visits retain normal link navigation without a cabinet selection marker.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
