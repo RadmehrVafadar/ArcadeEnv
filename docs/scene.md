@@ -87,6 +87,19 @@ Elliptical corner clipping, inset edge shading, and a soft reflection suggest ge
 Both decorative layers ignore pointer events, and the effect uses no animation or WebGL postprocessing.
 Visiting `/portfolio/` directly remains available on every device without the cabinet or CRT treatment.
 
+## Audio
+
+The cabinet synthesizes digital arcade effects with Web Audio, without downloads or third-party music assets.
+Button presses use short square-wave pitch drops, with separate pitches for Z, X, and Reset; joystick direction changes use a softer triangle-wave blip.
+Pointer, touch, focused-button activation, and keyboard input from the same-origin portfolio share these sounds.
+Holding a key or continuing to drag in one direction does not repeat its effect.
+The top-right Sound FX and Music buttons independently toggle effects and an original 112 BPM chiptune loop with melody, bass, and synthesized kick.
+Effects default on and music defaults off; preferences persist when local storage is available.
+Audio initializes only after interaction, respects browser autoplay restrictions, and pauses while the page is hidden.
+The sequencer uses the audio clock and a short scheduling timer without driving WebGL frames.
+Standalone portfolio pages and cross-origin iframe keyboard input do not produce cabinet sounds.
+`apps/arcade/src/arcade-audio.js` owns synthesis and lifecycle, and `audio-controls.jsx` owns the accessible toggles.
+
 ## Tech
 
 React Three Fiber manages Three.js rendering.

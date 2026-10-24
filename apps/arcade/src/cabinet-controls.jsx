@@ -1,3 +1,4 @@
+import { arcadeAudio } from './arcade-audio.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -48,11 +49,13 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
       const action = controls.find(control => control.action && control.action === cabinetKeyActions[key]);
       let changed = false;
       if (direction && keyboardDirections.current.get(source) !== direction) {
+        arcadeAudio.play('joystick');
         keyboardDirections.current.delete(source);
         keyboardDirections.current.set(source, direction);
         changed = true;
       }
       if (action && !keyboardActions.current.has(source)) {
+        arcadeAudio.play(action.action);
         keyboardActions.current.set(source, action.node);
         changed = true;
       }
@@ -66,6 +69,8 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
     };
     const documents = new Set([document, keyboardDocument].filter(Boolean));
     for (const target of documents) {
+      target.addEventListener('pointerdown', arcadeAudio.unlock);
+      target.addEventListener('keydown', arcadeAudio.unlock);
       target.addEventListener('keydown', keydown);
       target.addEventListener('keyup', keyup);
     }
@@ -78,6 +83,8 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
       document.removeEventListener('visibilitychange', hide);
       window.removeEventListener('pagehide', reset);
       for (const target of documents) {
+        target.removeEventListener('pointerdown', arcadeAudio.unlock);
+        target.removeEventListener('keydown', arcadeAudio.unlock);
         target.removeEventListener('keydown', keydown);
         target.removeEventListener('keyup', keyup);
       }
@@ -147,6 +154,8 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
           if (event.button !== 0 || [...pointers.current.values()].some(pointer => pointer.control === control)) return;
           event.preventDefault();
           event.stopPropagation();
+          arcadeAudio.unlock();
+          if (control.action) arcadeAudio.play(control.action);
           event.currentTarget.setPointerCapture(event.pointerId);
           pointers.current.set(event.pointerId, { control, x: event.clientX, y: event.clientY, direction: null });
           event.currentTarget.setAttribute('data-pressed', '');
@@ -155,7 +164,9 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
         onPointerMove={event => {
           const pointer = pointers.current.get(event.pointerId);
           if (!pointer || !control.joystick) return;
-          pointer.direction = joystickDirection(event.clientX - pointer.x, event.clientY - pointer.y);
+          const direction = joystickDirection(event.clientX - pointer.x, event.clientY - pointer.y);
+          if (direction && direction !== pointer.direction) arcadeAudio.play('joystick');
+          pointer.direction = direction;
           input.setDirection('pointer:' + event.pointerId, pointer.direction);
           invalidate();
         }}
@@ -170,6 +181,7 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
           if (![' ', 'Enter'].includes(event.key)) return;
           event.preventDefault();
           if (event.repeat) return;
+          if (control.action) arcadeAudio.play(control.action);
           heldKeys.current.add(control.node);
           event.currentTarget.setAttribute('data-pressed', '');
           if (control.action) input.action(control.action);
@@ -191,7 +203,10 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
         }}
         onClick={event => {
           // Assistive technology activates native buttons without pointer events.
-          if (event.detail === 0 && control.action) input.action(control.action);
+          if (event.detail === 0 && control.action) {
+            arcadeAudio.play(control.action);
+            input.action(control.action);
+          }
         }}
       />
     </Html>

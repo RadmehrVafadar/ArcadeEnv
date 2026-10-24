@@ -207,6 +207,7 @@ test('joystick moves in four directions, Q reconnects, and Z and X retain their 
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await game.getByRole('link', { name: 'Start', exact: true }).click();
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toHaveAttribute('data-input-page', '/portfolio/src/portfolio-game/game.html');
   const left = await grabJoystick(page, isMobile);
   await left.move(-30, 0);
   await expect.poll(async () => (await position(game)).x, { intervals: [16] }).toBeLessThanOrEqual(isMobile ? 24 : 40);
