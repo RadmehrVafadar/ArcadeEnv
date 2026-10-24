@@ -132,7 +132,8 @@ export default function Arcade() {
       >
         {gameInput && <CabinetControls scene={arcade.scene} input={gameInput} keyboardDocument={keyboardDocument.current} />}
         <Html
-          occlude
+          occlude="blending"
+          zIndexRange={[2, 0]}
           wrapperClass="arcade"
           position={[0, 2.83, 0.7]}
           transform

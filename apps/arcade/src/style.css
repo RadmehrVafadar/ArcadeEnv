@@ -28,6 +28,13 @@ body {
   overflow: hidden;
 }
 
+/* Keep depth blending above the iframe when other Html roots reset canvas styles. */
+#root canvas {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .crt-screen {
   position: relative;
   width: 624px;

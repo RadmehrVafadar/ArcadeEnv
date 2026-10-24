@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import { joystickDirection } from '../apps/arcade/src/cabinet-input.js';
 
-test('red Z/X caps, smaller Exit, and restored joystick position match the cabinet', () => {
+test('red Z/X caps, smaller Exit, and slightly left-shifted joystick match the cabinet', () => {
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)));
   const buttons = ['Cylinder.006', 'Cylinder.007', 'CabinetQuit'].map(name => model.nodes.find(node => node.name === name));
@@ -27,7 +27,9 @@ test('red Z/X caps, smaller Exit, and restored joystick position match the cabin
   const radii = buttons.map(node => model.accessors[model.meshes[model.nodes[node.children[0]].mesh].primitives[0].attributes.POSITION].max[0] * node.scale[0]);
   assert.ok(radii[2] < radii[0] * 0.75);
   assert.ok(radii[0] > 0.08 && radii[1] > 0.08, 'Z and X have larger physical caps');
-  assert.equal(model.nodes.find(node => node.name === 'Cylinder.005').translation[0], 0.6414116621017456);
+  assert.equal(model.nodes.find(node => node.name === 'Cylinder.005').translation[0], 0.5214116621017456);
+  assert.equal(model.nodes.find(node => node.name === 'Cylinder.008').translation[0], 0.5194262313842773,
+    'The fixed joystick base shifts with the shaft and ball');
   const stick = model.nodes.find(node => node.name === 'Cylinder.005');
   const ball = model.accessors[model.meshes[stick.mesh].primitives[1].attributes.POSITION];
   assert.ok(ball.max[0] * stick.scale[0] > 0.075, 'Joystick ball scales with the larger buttons');
