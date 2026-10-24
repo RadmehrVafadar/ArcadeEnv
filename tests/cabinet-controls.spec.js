@@ -95,7 +95,7 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await expect(selected()).toHaveText('Start');
   await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
   await expect(frame.locator('.character')).toBeVisible();
-  await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Cabinet: Reset: Q Menu', exact: true }).click();
   await expect(selected()).toHaveText('Start');
   const blog = await grabJoystick(page, isMobile);
   await blog.move(0, 30);
@@ -132,7 +132,7 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await expect(selected()).toHaveText('Start');
   await frame.getByRole('link', { name: 'Blog', exact: true }).click();
   await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Cabinet: Reset: Q Menu', exact: true }).click();
   await expect(selected()).toHaveText('Start');
 });
 
@@ -202,7 +202,7 @@ test('joystick moves in four directions, Q reconnects, and Z and X retain their 
   await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
   await gesture.release();
   await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
-  await page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Cabinet: Reset: Q Menu', exact: true }).click();
   await expect(game.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await game.getByRole('link', { name: 'Start', exact: true }).click();
@@ -262,7 +262,7 @@ test('keyboard movement survives joystick release and action buttons support key
   await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
   await page.keyboard.up('ArrowDown');
   await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
-  const menu = page.getByRole('button', { name: 'Cabinet: Exit: Q Menu', exact: true });
+  const menu = page.getByRole('button', { name: 'Cabinet: Reset: Q Menu', exact: true });
   await menu.focus();
   await page.keyboard.press('Enter');
   await expect(game.getByRole('link', { name: 'Start', exact: true })).toBeVisible();

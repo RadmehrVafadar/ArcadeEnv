@@ -27,7 +27,7 @@ The game has no on-screen D-pad or action buttons; the world uses the full viewp
 Touch users play through the cabinet joystick and buttons on the main page.
 Standalone game visits require a keyboard.
 The same-origin cabinet connects through `window.arcadeControls`.
-The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Exit button returns to the menu with Q.
+The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Reset button returns to the menu with Q.
 Mobile startup instructions describe those controls, and mobile dialogue text scales to remain readable on the projected CRT.
 PC keeps its welcome and movement guidance, with Z/Read, X/Open, and Q/Exit shortcuts.
 Keyboard and joystick track movement by source, so releasing one input does not cancel another held input.

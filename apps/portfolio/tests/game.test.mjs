@@ -65,7 +65,7 @@ test('cabinet connection switches between joystick and standalone keyboard instr
   assert.match(elements.get('.dialogueBox').innerHTML, /joystick/i);
   assert.match(elements.get('.dialogueBox').innerHTML, /Z: read/);
   assert.match(elements.get('.dialogueBox').innerHTML, /X: open/);
-  assert.match(elements.get('.dialogueBox').innerHTML, /Exit: menu/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Reset: menu/);
   controls.disconnect();
   runInNewContext('placeCharacter()', game);
   assert.match(elements.get('.dialogueBox').innerHTML, /Keyboard: arrows or WASD/);

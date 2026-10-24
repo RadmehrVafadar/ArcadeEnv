@@ -195,7 +195,7 @@ const placeCharacter = () => {
    // Show welcome message automatically at spawn, hide when player moves
    if (!hasPlayerMoved) {
       dialogueBox.innerHTML = cabinetConnected && mobileControls
-         ? '<span>Joystick: move</span><span>Z: read</span><span>X: open</span><span>Exit: menu</span>'
+         ? '<span>Joystick: move</span><span>Z: read</span><span>X: open</span><span>Reset: menu</span>'
          : mobileControls
          ? "Welcome to my portfolio showcase game! Keyboard: arrows or WASD. Z: read / X: open / Q: exit."
          : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl startupActions">Z: read / X: open / Q: exit</span>';

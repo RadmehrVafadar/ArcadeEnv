@@ -1,7 +1,7 @@
 export const cabinetButtons = [
   { node: 'Cylinder006', action: 'read', label: 'Z Read' },
   { node: 'Cylinder007', action: 'open', label: 'X Open' },
-  { node: 'CabinetQuit', action: 'menu', label: 'Exit: Q Menu' },
+  { node: 'CabinetQuit', action: 'menu', label: 'Reset: Q Menu' },
 ];
 
 export const cabinetKeyDirections = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' };

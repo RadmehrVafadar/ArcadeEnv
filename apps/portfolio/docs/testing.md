@@ -46,17 +46,17 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 
 VM tests do not replace browser rendering or real pointer and touch checks.
 Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
-`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Exit, and connection cleanup.
+`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Reset, and connection cleanup.
 It verifies that both cabinet and keyboard X do nothing for every main menu selection.
 `../../tests/resume-navigation.spec.js` verifies desktop menu preservation and mobile top-level resume navigation from an iframe that blocks popups.
 The mobile navigation fixture serves HTML at the PDF URL to avoid depending on a native PDF viewer; production HTTP checks verify the real PDF bytes.
-`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Exit button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
+`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Reset button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
 `../../tests/joystick-occlusion.spec.js` compares the joystick's red pixels with the iframe hidden and visible, captures desktop/mobile views, and checks iframe click-through after zoom.
 It holds the portfolio response and hides only the loading overlay during the pixel comparison, keeping mobile auto-zoom from moving the measured crop.
 A deliberate mobile delay between measuring and capturing protects against slow CI runners; the real portfolio response is released before checking zoom and navigation.
 `../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
 Its mobile history regression dispatches persisted pagehide/pageshow events and checks that cabinet controls stay connected, fallback controls remain absent, and movement still works.
-Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Exit.
+Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Reset.
 It also enters `/tech` and verifies that `../` has focus and Enter returns immediately without an extra selection key.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.
 Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.
