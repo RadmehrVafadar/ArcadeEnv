@@ -5,7 +5,7 @@ test('game startup instructions match desktop and touch controls', async ({ page
   await page.goto('/portfolio/src/portfolio-game/game.html');
   const dialogue = page.locator('.dialogueBox');
   if (isMobile) {
-    await expect(dialogue).toContainText('Use the arrows to move. Tap Z to read or X to open.');
+    await expect(dialogue).toContainText('Keyboard: arrows or WASD. Z: read / X: open / Q: exit.');
   } else {
     await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Z: read / X: open / Q: exit');
     expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nZ: read / X: open / Q: exit');
@@ -60,44 +60,11 @@ test('production portfolio serves the assembled build', async ({ request }, test
   }
 });
 
-test('directional buttons move toward their arrows with mouse or touch', async ({ page, isMobile }, testInfo) => {
-  const touch = isMobile ? await page.context().newCDPSession(page) : null;
-  for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
-    await page.goto('/portfolio/src/portfolio-game/game.html');
-    const character = page.locator('.character');
-    await expect(page.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
-    if (!isMobile) {
-      // Dismiss the desktop instructions before clicking the D-pad.
-      await page.keyboard.down('s');
-      await expect(page.locator('.dialogueBox')).toBeHidden();
-      await page.keyboard.up('s');
-    }
-    const position = () => character.evaluate((element, axis) => {
-      const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
-      return axis === 'x' ? transform.m41 : transform.m42;
-    }, axis);
-    const initial = await position();
-    const button = page.locator(`.dpad-${direction}`);
-    if (isMobile) {
-      const bounds = await button.boundingBox();
-      await touch.send('Input.dispatchTouchEvent', {
-        type: 'touchStart', touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-      });
-    } else {
-      await button.hover();
-      await page.mouse.down();
-    }
-    try {
-      await expect.poll(async () => ((await position()) - initial) * sign).toBeGreaterThan(0);
-      await expect(character).toHaveAttribute('facing', direction);
-      await expect(button).toHaveClass(/pressed/);
-    } finally {
-      if (isMobile) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-      else await page.mouse.up();
-    }
-    await expect(character).toHaveAttribute('walking', 'false');
-  }
-  await page.screenshot({ path: testInfo.outputPath('directional-controls.png') });
+test('game has no fallback directional or action buttons', async ({ page }, testInfo) => {
+  await page.goto('/portfolio/src/portfolio-game/game.html');
+  await expect(page.locator('.gameControls, .dpad, .actionButtons, button')).toHaveCount(0);
+  await expect(page.locator('.character')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('game-without-fallback-controls.png') });
 });
 
 test('game supports WASD movement and stops on key release', async ({ page }) => {
@@ -163,7 +130,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await start.click();
   await expect(portfolio.locator('.character')).toBeVisible();
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
-  await expect(portfolio.locator('.gameControls')).toBeHidden();
+  await expect(portfolio.locator('.gameControls')).toHaveCount(0);
   if (!isMobile) {
     await test.step('Q exits only the cabinet iframe from spawn', async () => {
       await page.keyboard.press('q');

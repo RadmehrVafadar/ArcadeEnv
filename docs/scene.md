@@ -44,7 +44,7 @@ The original five-button cluster is removed, the two buttons formerly beside the
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
 The joystick sits 0.12 model units left of its original deck position, with its ball aligned with the button faces from the original camera.
 Its moving shaft and ball and its separate fixed base share the same leftward shift.
-Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red EXIT (Q/Menu) button without black collars or borders.
+Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red RESET (Q/Menu) button without black collars or borders.
 The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
 The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
 Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
@@ -67,12 +67,12 @@ The cabinet connects after iframe load or the `arcade-controls-ready` event, all
 When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
-Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Exit returns to the main portfolio menu from the menu, blog, or game.
+Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Reset returns to the main portfolio menu from the menu, blog, or game.
 Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
 In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
-Only a successful connection hides the game's on-screen controls and reclaims their layout space.
-Standalone visits and incompatible or cross-origin `VITE_IFRAME_URL` pages keep their existing controls.
+The game has no fallback on-screen D-pad or action buttons, so a disconnected cabinet cannot reveal an old control overlay.
+Standalone game visits require a keyboard; incompatible or cross-origin `VITE_IFRAME_URL` pages retain their own controls.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
 The screen uses Html blending occlusion so foreground model geometry, including the joystick, covers only the overlapping iframe pixels.

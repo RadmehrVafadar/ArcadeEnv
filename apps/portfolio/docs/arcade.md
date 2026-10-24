@@ -8,10 +8,9 @@ Movement and proximity interactions let visitors explore the existing portfolio 
 
 ## How it works
 
-`game.html` supplies the map, character, directional buttons, dialogue, and interaction prompt.
+`game.html` supplies the map, character, dialogue, and interaction prompt.
 `game.js` tracks held directions and updates the character and camera using `requestAnimationFrame`.
-Arrow keys, WASD, and the on-screen directional buttons drive movement.
-Each on-screen arrow moves the character in its indicated direction using mouse or touch, matching keyboard movement and sprite facing.
+Arrow keys and WASD drive keyboard movement.
 WASD works with either letter case, and releasing one keyboard alias keeps movement active while another key for that direction remains held.
 The player remains inside map limits and cannot enter statue rectangles.
 Statue coordinates are normalized so reversed rectangle endpoints work.
@@ -24,18 +23,17 @@ The shortcut accepts either letter case and is active only on the game page duri
 The welcome message disappears after the player first moves.
 
 On devices with a coarse primary pointer, the game fills the available viewport, including safe-area padding.
-Portrait mode places the D-pad and Z/Read and X/Open buttons below the world; landscape mode places them beside it.
-Messages stay inside the world area and cannot cover these controls.
-Touch movement uses pointer capture and stops on release, cancellation, lost capture, or focus loss.
-The action buttons use the same exhibit and door interactions as the keyboard.
-When the same-origin cabinet connects through `window.arcadeControls`, the game hides its on-screen controls and gives their space to the world.
-The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Exit button returns to the menu with Q.
+The game has no on-screen D-pad or action buttons; the world uses the full viewport in portrait and landscape.
+Touch users play through the cabinet joystick and buttons on the main page.
+Standalone game visits require a keyboard.
+The same-origin cabinet connects through `window.arcadeControls`.
+The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Reset button returns to the menu with Q.
 Mobile startup instructions describe those controls, and mobile dialogue text scales to remain readable on the projected CRT.
-PC keeps its welcome and movement guidance, with Z/Read, X/Open, and Q/Exit shortcuts, while hiding the on-screen D-pad.
-Keyboard, screen controls, and joystick track movement by source, so releasing one input does not cancel another held input.
+PC keeps its welcome and movement guidance, with Z/Read, X/Open, and Q/Exit shortcuts.
+Keyboard and joystick track movement by source, so releasing one input does not cancel another held input.
 The cabinet connection resets on navigation and reconnects when the game is reopened.
-Cached browser history retains the connection while clearing held cabinet input, so returning on mobile keeps the fallback D-pad and action buttons hidden.
-Standalone visits retain their on-screen controls; cross-origin embeds do not connect to the cabinet interface.
+Cached browser history retains the connection while clearing held cabinet input.
+Cross-origin embeds do not connect to the cabinet interface.
 On mobile, X/Open navigates the current top-level browser window so project links work in in-app browsers without popup support and leave the cabinet iframe.
 Desktop project links continue to open a separate tab.
 Mobile artwork, sprites, movement, and collision coordinates share a fractional scale based on the camera width.
