@@ -11,15 +11,9 @@ async function position(page) {
 }
 
 async function holdDirection(page, direction) {
-  const touch = await page.context().newCDPSession(page);
-  const bounds = await page.locator(`.dpad-${direction}`).boundingBox();
-  await touch.send('Input.dispatchTouchEvent', {
-    type: 'touchStart', touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-  });
-  return async (type = 'touchEnd') => {
-    await touch.send('Input.dispatchTouchEvent', { type, touchPoints: [] });
-    await touch.detach();
-  };
+  const key = 'Arrow' + direction[0].toUpperCase() + direction.slice(1);
+  await page.keyboard.down(key);
+  return () => page.keyboard.up(key);
 }
 
 async function moveTo(page, direction, axis, target) {
@@ -34,10 +28,10 @@ async function moveTo(page, direction, axis, target) {
 }
 
 test.beforeEach(async ({ isMobile }) => {
-  test.skip(!isMobile, 'Mobile-only layout and touch controls');
+  test.skip(!isMobile, 'Mobile-only layout and input checks');
 });
 
-test('mobile game fills portrait, landscape, and tablet viewports without covering controls', async ({ page }, testInfo) => {
+test('mobile game fills portrait, landscape, and tablet viewports without fallback controls', async ({ page }, testInfo) => {
   for (const viewport of [{ width: 320, height: 568 }, { width: 412, height: 915 }, { width: 915, height: 412 }, { width: 768, height: 1024 }]) {
     await page.setViewportSize(viewport);
     await page.goto(gamePath);
@@ -52,57 +46,30 @@ test('mobile game fills portrait, landscape, and tablet viewports without coveri
     expect(layout.scrollHeight).toBe(viewport.height);
     expect(layout.frame.width).toBeGreaterThanOrEqual(viewport.width - 16);
     expect(layout.frame.height).toBeGreaterThanOrEqual(viewport.height - 16);
-    expect(layout.camera.width * layout.camera.height).toBeGreaterThan(viewport.width * viewport.height * 0.65);
-    for (const selector of ['.dpad-up', '.dpad-down', '.dpad-left', '.dpad-right', '.action-read', '.action-open']) {
-      const button = page.locator(selector);
-      await expect(button).toBeVisible();
-      const bounds = await button.boundingBox();
-      expect(bounds.width).toBeGreaterThanOrEqual(44);
-      expect(bounds.height).toBeGreaterThanOrEqual(44);
-      expect(bounds.x).toBeGreaterThanOrEqual(0);
-      expect(bounds.y).toBeGreaterThanOrEqual(0);
-      expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
-      expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
-      expect(await button.evaluate(element => {
-        const rect = element.getBoundingClientRect();
-        return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
-      })).toBe(true);
-    }
+    expect(layout.camera.width * layout.camera.height).toBeGreaterThan(viewport.width * viewport.height * 0.95);
+    await expect(page.locator('.gameControls, .dpad, .actionButtons, button')).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath(`mobile-${viewport.width}x${viewport.height}.png`) });
   }
 });
 
-test('mobile movement stops on touch release and cancellation', async ({ page }) => {
-  for (const type of ['touchEnd', 'touchCancel']) {
-    await page.goto(gamePath);
-    const release = await holdDirection(page, 'down');
-    await expect(page.locator('.character')).toHaveAttribute('walking', 'true');
-    await expect.poll(async () => (await position(page)).y).toBeGreaterThan(120);
-    await release(type);
-    await expect(page.locator('.character')).toHaveAttribute('walking', 'false');
-    const stopped = await position(page);
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    expect(await position(page)).toEqual(stopped);
-  }
-});
-
-test('mobile Z and X buttons read, open exhibits, and exit', async ({ page, context }) => {
+test('mobile keyboard Z and X read, open exhibits, and exit', async ({ page, context }) => {
   await context.route('https://www.linkedin.com/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Showcase fixture</title>' }));
   await page.goto(gamePath);
   await moveTo(page, 'left', 'x', 24);
-  await page.getByRole('button', { name: 'Z: Read' }).tap();
+  await page.keyboard.down('z');
   await expect(page.locator('.dialogueBox')).toContainText('mirror');
-  // Reading a message must not block the action or movement buttons.
-  await page.getByRole('button', { name: 'X: Open' }).tap();
+  await page.keyboard.up('z');
+  // Reading a message must not block subsequent actions.
+  await page.keyboard.press('x');
   await expect(page).toHaveURL('https://www.linkedin.com/in/radmehrv/');
   await page.goto(gamePath);
   await moveTo(page, 'up', 'y', 98);
   await expect(page.locator('.actionPrompt')).toContainText('exit');
-  await page.getByRole('button', { name: 'Z: Read' }).tap();
+  await page.keyboard.press('z');
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await page.goto(gamePath);
   await moveTo(page, 'up', 'y', 98);
-  await page.getByRole('button', { name: 'X: Open' }).tap();
+  await page.keyboard.press('x');
   await expect(page).toHaveURL(/\/portfolio\/$/);
 });
 
@@ -117,14 +84,15 @@ test('mobile X opens projects outside the iframe when in-app popups are blocked'
   }));
   await page.goto('/embedded-game-test');
   const game = page.frameLocator('iframe');
-  await game.getByRole('button', { name: 'Z: Read' }).tap();
+  await game.locator('.character').click();
+  await page.keyboard.press('z');
   await page.keyboard.down('ArrowRight');
   try {
     await expect(game.locator('.actionPrompt')).toContainText('Press X to open');
   } finally {
     await page.keyboard.up('ArrowRight');
   }
-  await game.getByRole('button', { name: 'X: Open' }).tap();
+  await page.keyboard.press('x');
   await expect(page).toHaveURL('https://radmehrvafadar.github.io/Boids-algorithm-demo/');
   expect(context.pages()).toHaveLength(1);
 });
@@ -164,6 +132,7 @@ test('mobile world stays aligned and contains the character at its edges', async
   await page.screenshot({ path: testInfo.outputPath('mobile-world-bottom.png') });
   // Lower exhibits must remain reachable within the corrected world bounds.
   await moveTo(page, 'left', 'x', 48);
-  await page.getByRole('button', { name: 'Z: Read' }).tap();
+  await page.keyboard.down('z');
   await expect(page.locator('.dialogueBox')).toContainText('distributed video player');
+  await page.keyboard.up('z');
 });

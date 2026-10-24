@@ -6,6 +6,11 @@ import { runInNewContext } from 'node:vm';
 const source = (await readFile(new URL('../src/portfolio-game/game.js', import.meta.url), 'utf8'))
   .replaceAll('import.meta.env.BASE_URL', JSON.stringify('/portfolio/'));
 
+test('game markup contains no fallback directional or action buttons', async () => {
+  const html = await readFile(new URL('../src/portfolio-game/game.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /gameControls|dpad|action-read|action-open|<button\b/);
+});
+
 function loadGame({ mobile = false } = {}) {
   const elements = new Map();
   const listeners = new Map();
@@ -24,9 +29,6 @@ function loadGame({ mobile = false } = {}) {
       return elements.get(selector);
     },
     addEventListener(name, handler) { listeners.set(name, handler); },
-    querySelectorAll() {
-      return [...elements].filter(([name]) => name.startsWith('.dpad-')).map(([, element]) => element);
-    },
   };
   const game = {
     document,
@@ -49,12 +51,12 @@ test('desktop starts with movement and exit instructions, then hides them on mov
   assert.equal(game.x, 102);
 });
 
-test('mobile keeps its touch and keyboard welcome instructions', () => {
+test('mobile standalone instructions describe keyboard controls', () => {
   const { elements } = loadGame({ mobile: true });
-  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Use the arrows to move. Tap Z to read or X to open. At the door, either button exits. Keyboard: arrows or WASD.');
+  assert.equal(elements.get('.dialogueBox').innerHTML, 'Welcome to my portfolio showcase game! Keyboard: arrows or WASD. Z: read / X: open / Q: exit.');
 });
 
-test('cabinet connection replaces screen controls and restores standalone instructions', () => {
+test('cabinet connection switches between joystick and standalone keyboard instructions', () => {
   const { game, elements } = loadGame({ mobile: true });
   const controls = game.window.arcadeControls;
   assert.ok(controls, 'Game must expose cabinet controls');
@@ -66,7 +68,7 @@ test('cabinet connection replaces screen controls and restores standalone instru
   assert.match(elements.get('.dialogueBox').innerHTML, /Exit: menu/);
   controls.disconnect();
   runInNewContext('placeCharacter()', game);
-  assert.match(elements.get('.dialogueBox').innerHTML, /Use the arrows/);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Keyboard: arrows or WASD/);
 });
 
 test('PC cabinet connection preserves the original keyboard instructions', () => {
@@ -166,16 +168,6 @@ test('WASD and arrow keys move in every direction and stop on release', () => {
   }
 });
 
-test('directional buttons move and face the character toward their arrows', () => {
-  for (const [direction, axis, delta] of [['up', 'y', -2], ['down', 'y', 2], ['left', 'x', -2], ['right', 'x', 2]]) {
-    const { game, elements } = loadGame();
-    const initial = game[axis];
-    runInNewContext(`handleDpadPress('${direction}', true); placeCharacter()`, game);
-    assert.equal(game[axis], initial + delta, direction);
-    assert.equal(elements.get('.character').attributes.facing, direction);
-  }
-});
-
 test('releasing one movement alias keeps the other held key moving', () => {
   for (const releaseFirst of [87, 38]) {
     const { game, listeners } = loadGame();
@@ -252,9 +244,10 @@ test('mobile artwork and movement share their fractional scale and world bounds'
   assert.equal(game.isCollidingWithAnyStatue(136, 100), false);
 });
 
-test('mobile action buttons can read and open every exhibit within world limits', () => {
+test('mobile cabinet actions can read and open every exhibit within world limits', () => {
   const { game, elements } = loadGame({ mobile: true });
   game.window.top = { location: { href: '' } };
+  game.window.arcadeControls.connect();
   game.window.open = () => assert.fail('Mobile links must not depend on popup support');
   game.hasPlayerMoved = true;
   for (const statue of game.statues) {
@@ -262,11 +255,11 @@ test('mobile action buttons can read and open every exhibit within world limits'
       ? Math.max(statue.rect.x1, statue.rect.x2) + 10 - 16
       : Math.min(statue.rect.x1, statue.rect.x2) - 10 - 16;
     game.y = Math.min(496, (statue.rect.y1 + statue.rect.y2) / 2 - 28);
-    elements.get('.action-read').listeners.get('click')();
+    game.window.arcadeControls.action('read');
     assert.equal(elements.get('.dialogueBox').innerHTML, statue.text, statue.id);
     const previousUrl = game.window.top.location.href;
     assert.notEqual(previousUrl, statue.url);
-    elements.get('.action-open').listeners.get('click')();
+    game.window.arcadeControls.action('open');
     assert.equal(game.window.top.location.href, statue.url, statue.id);
   }
 });

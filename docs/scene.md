@@ -71,8 +71,8 @@ Z activates the selected native link synchronously, opening Resume in a new tab 
 Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
 In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
-Only a successful connection hides the game's on-screen controls and reclaims their layout space.
-Standalone visits and incompatible or cross-origin `VITE_IFRAME_URL` pages keep their existing controls.
+The game has no fallback on-screen D-pad or action buttons, so a disconnected cabinet cannot reveal an old control overlay.
+Standalone game visits require a keyboard; incompatible or cross-origin `VITE_IFRAME_URL` pages retain their own controls.
 
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
 The screen uses Html blending occlusion so foreground model geometry, including the joystick, covers only the overlapping iframe pixels.

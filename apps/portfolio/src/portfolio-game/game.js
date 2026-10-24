@@ -197,7 +197,7 @@ const placeCharacter = () => {
       dialogueBox.innerHTML = cabinetConnected && mobileControls
          ? '<span>Joystick: move</span><span>Z: read</span><span>X: open</span><span>Exit: menu</span>'
          : mobileControls
-         ? "Welcome to my portfolio showcase game! Use the arrows to move. Tap Z to read or X to open. At the door, either button exits. Keyboard: arrows or WASD."
+         ? "Welcome to my portfolio showcase game! Keyboard: arrows or WASD. Z: read / X: open / Q: exit."
          : '<span class="startupWelcome">Welcome to my project showcase!</span><span class="startupControl">Move: WASD or ← ↑ ↓→</span><span class="startupControl startupActions">Z: read / X: open / Q: exit</span>';
       dialogueBox.style.display = 'block';
       if (actionPrompt) { actionPrompt.style.display = 'none'; }
@@ -370,45 +370,12 @@ window.arcadeControls = {
    reset() { clearInputs('cabinet:'); },
 };
 
-const removePressedAll = () => {
-   document.querySelectorAll('.dpad-button').forEach(button => button.classList.remove('pressed'));
-};
-const handleDpadPress = direction => {
-   setDirection('dpad', direction);
-   removePressedAll();
-   if (direction) { document.querySelector('.dpad-' + direction).classList.add('pressed'); }
-};
-var activePointer = null;
-const stopMovement = () => {
-   activePointer = null;
-   handleDpadPress(null);
-};
-for (const direction of Object.values(directions)) {
-   const button = document.querySelector('.dpad-' + direction);
-   button.addEventListener('pointerdown', event => {
-      event.preventDefault();
-      if (activePointer !== null) { return; }
-      activePointer = event.pointerId;
-      button.setPointerCapture(event.pointerId);
-      handleDpadPress(direction);
-   });
-   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-      button.addEventListener(type, event => {
-         if (event.pointerId === activePointer) { stopMovement(); }
-      });
-   }
-}
-for (const [selector, action] of [['.action-read', 'read'], ['.action-open', 'open']]) {
-   document.querySelector(selector).addEventListener('click', () => runAction(action));
-}
 window.addEventListener('blur', () => {
-   stopMovement();
    clearInputs('keyboard:');
    interact = false;
 });
 document.addEventListener('visibilitychange', () => {
    if (document.hidden) {
-      stopMovement();
       clearInputs('');
       interact = false;
    }
