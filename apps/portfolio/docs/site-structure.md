@@ -14,14 +14,17 @@ CSS animates clouds and background colors; the menu switches from a row to a col
 The menu links directly to the arcade, the Markdown blog, and the resume.
 The Blog link navigates in the current page, staying inside the cabinet iframe on desktop.
 Browser Back returns to the portfolio menu.
-The Resume link opens the PDF in a separate browser tab, preserving the portfolio menu and cabinet.
+On desktop, the Resume link opens the PDF in a separate browser tab, preserving the portfolio menu and cabinet.
 Close that tab to return to the menu; browsers configured to download PDFs leave the menu available as well.
-The link announces the new tab to assistive technology and includes a matching tooltip.
+On touch devices, Resume opens the PDF in the current top-level browser so in-app popup restrictions cannot block it or trap it inside the cabinet iframe.
+Use browser Back to return after viewing the PDF; PDF display or downloading depends on the browser.
+The link announces its device-specific destination to assistive technology and includes a matching tooltip.
 Menu links use button styling without text underlines while retaining native link navigation and keyboard focus.
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.
 When embedded in the cabinet, the joystick steps through Start, Blog, and Resume once per tilt and wraps at either end.
 A full-width underscore marks the selected entry; Z activates its native link, and Exit reloads the main portfolio menu.
+X is the back action and does nothing on the main menu, which has no parent page.
 The same input interface lets visitors navigate blog links and return directly to the menu with Exit.
 Standalone visits retain normal link navigation without a cabinet selection marker.
 Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.

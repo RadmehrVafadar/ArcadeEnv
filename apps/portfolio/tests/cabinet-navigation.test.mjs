@@ -47,11 +47,27 @@ test('cabinet menu steps once per tilt, wraps, and resets held sources', () => {
   assert.equal(selected(), 'Resume');
 });
 
-test('X activates the blog parent link independently of selection; menu X still opens selection', () => {
+test('X does nothing on every main menu selection', () => {
+  const { page, input, links, selected } = fixture();
+  input.connect();
+  for (const link of links) {
+    assert.equal(selected(), link.name);
+    input.action('open');
+    const event = new Event('keydown', { cancelable: true });
+    Object.assign(event, { key: 'x', code: 'KeyX' });
+    page.document.dispatchEvent(event);
+    assert.equal(event.defaultPrevented, true);
+    assert.equal(selected(), link.name);
+    assert.deepEqual(links.map(item => item.clicks), [0, 0, 0]);
+    assert.equal(page.location.href, '/portfolio/');
+    input.setDirection('stick', 'down');
+    input.setDirection('stick', null);
+  }
+});
+
+test('X activates the blog parent link independently of selection', () => {
   const { input, links } = fixture();
   input.connect();
-  input.action('open');
-  assert.equal(links[0].clicks, 1, 'Menu X retains native activation');
   links[1].back = true;
   input.setDirection('stick', 'up');
   input.action('open');

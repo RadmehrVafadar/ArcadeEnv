@@ -66,7 +66,7 @@ The same-origin game, menu, and blog expose `window.arcadeControls` for connecti
 The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
-Z activates the selected native link synchronously, preserving the Resume link's new tab, while Exit returns to the main portfolio menu from the menu, blog, or game.
+Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Exit returns to the main portfolio menu from the menu, blog, or game.
 Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
 In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.

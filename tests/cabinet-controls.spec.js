@@ -69,6 +69,11 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   const selected = () => frame.locator('[data-cabinet-selected]');
   await expect(selected()).toHaveText('Start');
   await expect(selected()).toHaveAccessibleName('Start');
+  await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).click();
+  await expect(selected()).toHaveText('Start');
+  await expect(frame.locator('body')).toHaveJSProperty('baseURI', new URL('/portfolio/', page.url()).href);
+  await page.keyboard.press('x');
+  await expect(selected()).toHaveText('Start');
   expect(await selected().evaluate(element => parseFloat(getComputedStyle(element, '::after').width))).toBeGreaterThan(0);
   const gesture = await grabJoystick(page, isMobile);
   await gesture.move(0, 30);
