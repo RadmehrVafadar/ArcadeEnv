@@ -195,9 +195,9 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   expect(new URL(page.url()).pathname).toBe('/');
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
-  await expect(resume).toHaveAttribute('target', '_blank');
+  await expect(resume).toHaveAttribute('target', isMobile ? '_top' : '_blank');
   await expect(resume).toHaveAttribute('rel', 'noopener noreferrer');
-  await expect(resume).toHaveAccessibleDescription('Opens in a new tab');
+  await expect(resume).toHaveAccessibleDescription(isMobile ? 'Opens PDF in the current browser' : 'Opens in a new tab');
   const resumeResponse = context.waitForEvent('response', response => response.url().endsWith('/portfolio/RVafadar_Resume.pdf'));
   await resume.click();
   await resumeResponse;
