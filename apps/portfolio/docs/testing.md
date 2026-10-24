@@ -55,6 +55,7 @@ The mobile navigation fixture serves HTML at the PDF URL to avoid depending on a
 It holds the portfolio response and hides only the loading overlay during the pixel comparison, keeping mobile auto-zoom from moving the measured crop.
 A deliberate mobile delay between measuring and capturing protects against slow CI runners; the real portfolio response is released before checking zoom and navigation.
 `../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
+Its mobile history regression dispatches persisted pagehide/pageshow events and checks that cabinet controls stay connected, fallback controls stay hidden, and movement still works.
 Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Exit.
 It also enters `/tech` and verifies that `../` has focus and Enter returns immediately without an extra selection key.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.

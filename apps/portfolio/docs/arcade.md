@@ -34,6 +34,7 @@ Mobile startup instructions describe those controls, and mobile dialogue text sc
 PC keeps its welcome and movement guidance, with Z/Read, X/Open, and Q/Exit shortcuts, while hiding the on-screen D-pad.
 Keyboard, screen controls, and joystick track movement by source, so releasing one input does not cancel another held input.
 The cabinet connection resets on navigation and reconnects when the game is reopened.
+Cached browser history retains the connection while clearing held cabinet input, so returning on mobile keeps the fallback D-pad and action buttons hidden.
 Standalone visits retain their on-screen controls; cross-origin embeds do not connect to the cabinet interface.
 On mobile, X/Open navigates the current top-level browser window so project links work in in-app browsers without popup support and leave the cabinet iframe.
 Desktop project links continue to open a separate tab.

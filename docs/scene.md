@@ -64,6 +64,7 @@ Focusing the embedded page does not cancel a captured cabinet gesture.
 
 The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
 The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
+When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Exit returns to the main portfolio menu from the menu, blog, or game.
