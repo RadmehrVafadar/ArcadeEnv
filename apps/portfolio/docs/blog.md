@@ -26,6 +26,7 @@ Use a lowercase, hyphenated filename for a stable URL and a Markdown H1 for the 
 The first H1 becomes the article title and is removed from the rendered body to avoid duplication.
 Without an H1, the filename becomes the title.
 Articles are sorted alphabetically by title.
+The Tech folder includes “Build. Build. Build.” at `#/tech/build-build-build`.
 Adding a Markdown file in a new category makes that folder appear automatically.
 Keep articles directly inside category folders; deeper article nesting is unsupported.
 

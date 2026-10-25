@@ -12,7 +12,7 @@ test('blog folders support keyboard navigation, refresh, history, and missing pa
   await expect(page.getByRole('link', { name: '/tech', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeFocused();
-  await expect(page.getByText('No articles yet.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Build. Build. Build.', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('blog-folder.png'), fullPage: true });
@@ -29,6 +29,24 @@ test('blog folders support keyboard navigation, refresh, history, and missing pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test('published Tech article renders and returns to its folder', async ({ page }, testInfo) => {
+  await page.goto(entry + '#/tech');
+  await page.getByRole('link', { name: 'Build. Build. Build.', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`${entry}#/tech/build-build-build$`));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build. Build. Build.');
+  await expect(page.locator('article')).toContainText('Master Oogway');
+  await expect(page.locator('article li')).toHaveCount(3);
+  await expect(page.locator('article strong')).toHaveText('Build something you’ve always wanted to exist.');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('published-tech-article.png'), fullPage: true });
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build. Build. Build.');
+  await page.getByRole('link', { name: 'Back to tech' }).click();
+  await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
+  await page.goto(entry + '#/hobbies');
+  await expect(page.getByText('No articles yet.')).toBeVisible();
+});
+
 test('portfolio Blog link opens the reader in the current tab', async ({ page, context }) => {
   await page.goto('/portfolio/');
   const link = page.getByRole('link', { name: 'Blog', exact: true });
@@ -43,7 +61,7 @@ test('portfolio Blog link opens the reader in the current tab', async ({ page, c
 });
 
 test('blog renders unpublished Markdown fixtures and relative article links', { tag: '@development' }, async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith('development'), 'Fixture module interception uses the development module URL; published builds contain no test articles.');
+  test.skip(!testInfo.project.name.startsWith('development'), 'Fixture module interception uses the development module URL; published builds exclude fixture articles.');
   const body = 'A quiet place for longer thoughts.\n\n## A small heading\n\n- First point\n- Second point\n\n> A little breathing room.\n\n```js\nconst sentence = "' + 'long text '.repeat(25) + '";\n```\n\n| Name | Value |\n| --- | --- |\n| Note | Readable |\n\n- [x] Checked\n\n[Next note](../work/next.md)\n\n<script>alert("unsafe")</script>';
   const articles = [
     { category: 'tech', slug: 'a-note', title: 'On keeping things simple', body, path: './content/tech/a-note.md' },
