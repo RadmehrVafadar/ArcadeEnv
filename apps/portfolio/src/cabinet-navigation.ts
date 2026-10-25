@@ -15,6 +15,9 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
   const document = root.ownerDocument
   const page = document.defaultView!
   const held = new Map<string, string>()
+  const article = root.querySelector<HTMLElement>('[data-cabinet-scroll]')
+  let scrollFrame: number | undefined
+  let previousTime: number | undefined
   let connected = false
   let selected = 0
   const links = () => Array.from(root.querySelectorAll<HTMLAnchorElement>('a[href]'))
@@ -25,6 +28,27 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
     items.forEach((link, i) => link.toggleAttribute('data-cabinet-selected', i === selected))
     if (focus) items[selected].focus({ preventScroll: true })
   }
+  const scroll = (time: number) => {
+    // Cap elapsed time so a delayed frame cannot jump past the reading position.
+    const distance = Math.min(time - (previousTime ?? time - 16), 50) * 0.3
+    previousTime = time
+    const directions = [...held.values()]
+    const x = Number(directions.includes('right')) - Number(directions.includes('left'))
+    const y = Number(directions.includes('down')) - Number(directions.includes('up'))
+    if (x) {
+      const overflow = Array.from(article!.querySelectorAll<HTMLElement>('pre, .table-scroll')).find(element => {
+        const bounds = element.getBoundingClientRect()
+        return element.scrollWidth > element.clientWidth && bounds.bottom > 0 && bounds.top < page.innerHeight
+      })
+      // Wide code and tables scroll independently of the reading column.
+      const target = overflow || page
+      target.scrollBy({ left: x * distance, behavior: 'instant' })
+    }
+    if (y) page.scrollBy({ top: y * distance, behavior: 'instant' })
+    scrollFrame = page.requestAnimationFrame(scroll)
+  }
+  const blur = () => input.reset()
+  const visibility = () => { if (document.hidden) input.reset() }
   const keydown = (event: KeyboardEvent) => {
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
     const direction = { ArrowDown: 'down', s: 'down', ArrowUp: 'up', w: 'up', ArrowRight: 'right', d: 'right', ArrowLeft: 'left', a: 'left' }[key]
@@ -45,10 +69,13 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
     connect() {
       if (connected) return
       connected = true
-      select(0)
+      const first = root.querySelector<HTMLAnchorElement>('[data-cabinet-default] a[href]')
+      select(first ? links().indexOf(first) : 0)
       document.addEventListener('keydown', keydown)
       document.addEventListener('keyup', keyup)
       root.addEventListener('focusin', focusin)
+      page.addEventListener('blur', blur)
+      document.addEventListener('visibilitychange', visibility)
     },
     disconnect() {
       if (!connected) return
@@ -58,13 +85,28 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
       document.removeEventListener('keydown', keydown)
       document.removeEventListener('keyup', keyup)
       root.removeEventListener('focusin', focusin)
+      page.removeEventListener('blur', blur)
+      document.removeEventListener('visibilitychange', visibility)
     },
-    reset() { held.clear() },
+    reset() {
+      held.clear()
+      if (scrollFrame !== undefined) page.cancelAnimationFrame(scrollFrame)
+      scrollFrame = undefined
+      previousTime = undefined
+    },
     setDirection(source, direction) {
       if (!connected) return
-      if (!direction) { held.delete(source); return }
+      if (!direction) {
+        held.delete(source)
+        if (article && !held.size) input.reset()
+        return
+      }
       if (held.get(source) === direction) return
       held.set(source, direction)
+      if (article) {
+        if (scrollFrame === undefined) scrollFrame = page.requestAnimationFrame(scroll)
+        return
+      }
       select(selected + (['down', 'right'].includes(direction) ? 1 : -1))
     },
     action(action) {

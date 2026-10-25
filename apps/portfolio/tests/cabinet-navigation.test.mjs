@@ -2,8 +2,16 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { installCabinetNavigation } from '../src/cabinet-navigation.ts';
 
-function fixture() {
+function fixture({ article = false, defaultIndex = -1 } = {}) {
   const page = new EventTarget();
+  const frames = new Map();
+  let nextFrame = 0;
+  page.scrollX = 100;
+  page.scrollY = 100;
+  page.innerHeight = 720;
+  page.scrollBy = ({ left = 0, top = 0 }) => { page.scrollX += left; page.scrollY += top; };
+  page.requestAnimationFrame = callback => { frames.set(++nextFrame, callback); return nextFrame; };
+  page.cancelAnimationFrame = id => frames.delete(id);
   page.document = new EventTarget();
   page.location = { href: '/portfolio/' };
   const root = new EventTarget();
@@ -17,11 +25,20 @@ function fixture() {
     click() { this.clicks++; },
   }));
   root.querySelectorAll = () => links;
-  root.querySelector = () => links.find(link => link.back) || null;
+  root.querySelector = selector => {
+    if (selector === '[data-cabinet-default] a[href]') return links[defaultIndex] || null;
+    if (selector === '[data-cabinet-scroll]') return article ? { querySelectorAll: () => [] } : null;
+    return links.find(link => link.back) || null;
+  };
   let ready = 0;
   page.addEventListener('arcade-controls-ready', () => ready++);
   const cleanup = installCabinetNavigation(root, '/portfolio/');
-  return { page, links, cleanup, input: page.arcadeControls, ready,
+  return { page, links, cleanup, input: page.arcadeControls, ready, frames,
+    frame(time) {
+      const pending = [...frames.values()];
+      frames.clear();
+      pending.forEach(callback => callback(time));
+    },
     selected: () => links.find(link => link.selected)?.name };
 }
 
@@ -45,6 +62,63 @@ test('cabinet menu steps once per tilt, wraps, and resets held sources', () => {
   assert.equal(selected(), 'Start');
   input.setDirection('stick', 'up');
   assert.equal(selected(), 'Resume');
+});
+
+test('a populated folder initially selects its first article and still reaches its parent', () => {
+  const { input, links, selected } = fixture({ defaultIndex: 1 });
+  links[0].back = true;
+  input.connect();
+  assert.equal(selected(), 'Blog');
+  input.action('read');
+  assert.equal(links[1].clicks, 1);
+  input.setDirection('stick', 'up');
+  assert.equal(selected(), 'Start');
+  input.action('open');
+  assert.equal(links[0].clicks, 1);
+});
+
+test('article directions scroll continuously, preserve held aliases, and stop on release and reset', () => {
+  const { page, input, frame, frames, selected, cleanup } = fixture({ article: true });
+  input.connect();
+  input.setDirection('stick', 'down');
+  frame(0);
+  const first = page.scrollY;
+  assert.ok(first > 100);
+  frame(16);
+  assert.ok(page.scrollY > first, 'Holding the stick keeps scrolling without repeat input');
+  assert.equal(selected(), 'Start', 'Article movement does not cycle its links');
+  input.setDirection('keyboard:KeyS', 'down');
+  input.setDirection('stick', null);
+  const held = page.scrollY;
+  frame(32);
+  assert.ok(page.scrollY > held, 'Releasing one source preserves another held source');
+  input.setDirection('keyboard:KeyS', null);
+  assert.equal(frames.size, 0);
+  const stopped = page.scrollY;
+  frame(48);
+  assert.equal(page.scrollY, stopped);
+  for (const [direction, axis, sign] of [['up', 'scrollY', -1], ['right', 'scrollX', 1], ['left', 'scrollX', -1]]) {
+    const before = page[axis];
+    input.setDirection('stick', direction);
+    frame(64);
+    assert.ok((page[axis] - before) * sign > 0, direction);
+    input.reset();
+    assert.equal(frames.size, 0);
+  }
+  for (const eventTarget of [page, page.document]) {
+    input.setDirection('stick', 'down');
+    if (eventTarget === page.document) page.document.hidden = true;
+    eventTarget.dispatchEvent(new Event(eventTarget === page ? 'blur' : 'visibilitychange'));
+    assert.equal(frames.size, 0, 'Blur and hidden pages stop scrolling');
+  }
+  page.document.hidden = false;
+  input.setDirection('stick', 'down');
+  input.disconnect();
+  assert.equal(frames.size, 0);
+  input.connect();
+  input.setDirection('stick', 'down');
+  cleanup();
+  assert.equal(frames.size, 0);
 });
 
 test('X does nothing on every main menu selection', () => {

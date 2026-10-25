@@ -47,6 +47,23 @@ test('published Tech article renders and returns to its folder', async ({ page }
   await expect(page.getByText('No articles yet.')).toBeVisible();
 });
 
+test('article links underline only the cabinet selection', async ({ page }, testInfo) => {
+  await page.goto(entry + '#/tech');
+  const article = page.getByRole('link', { name: 'Build. Build. Build.', exact: true });
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  await page.evaluate(() => window.arcadeControls.connect());
+  await expect(article).toBeFocused();
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('underline');
+  await page.screenshot({ path: testInfo.outputPath('blog-first-article-selected.png'), fullPage: true });
+  await page.keyboard.press('ArrowUp');
+  await expect(page.getByRole('link', { name: 'Back to blog' })).toBeFocused();
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  await page.goto(entry + '#/hobbies');
+  await expect(page.getByText('No articles yet.')).toBeVisible();
+  await page.evaluate(() => window.arcadeControls.connect());
+  await expect(page.getByRole('link', { name: 'Back to blog' })).toBeFocused();
+});
+
 test('portfolio Blog link opens the reader in the current tab', async ({ page, context }) => {
   await page.goto('/portfolio/');
   const link = page.getByRole('link', { name: 'Blog', exact: true });
@@ -58,6 +75,40 @@ test('portfolio Blog link opens the reader in the current tab', async ({ page, c
   await page.goBack();
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await expect(link).toBeVisible();
+});
+
+test('article scrolling handles held WASD, arrow keys, and overflowing code', { tag: '@development' }, async ({ page }, testInfo) => {
+  const articles = [{ category: 'tech', slug: 'scroll', title: 'Scroll fixture',
+    body: '```txt\n' + 'wide code '.repeat(100) + '\n```\n\n' + 'A paragraph for scrolling.\n\n'.repeat(60), path: './content/tech/scroll.md' }];
+  await page.route('**/src/blog-website/content.ts*', route => route.fulfill({
+    contentType: 'application/javascript', body: `export const articles = ${JSON.stringify(articles)}; export const assets = {};`,
+  }));
+  await page.goto(entry + '#/tech/scroll');
+  await page.evaluate(() => window.arcadeControls.connect());
+  const code = page.locator('pre');
+  const scrollX = () => code.evaluate(element => element.scrollLeft);
+  const scrollY = () => page.evaluate(() => window.scrollY);
+  for (const [key, sign] of [['d', 1], ['ArrowLeft', -1], ['ArrowRight', 1], ['a', -1]]) {
+    const before = await scrollX();
+    await page.keyboard.down(key);
+    await expect.poll(async () => ((await scrollX()) - before) * sign).toBeGreaterThan(20);
+    await page.keyboard.up(key);
+  }
+  expect(await page.evaluate(() => window.scrollX)).toBe(0);
+  for (const [key, sign] of [['s', 1], ['ArrowUp', -1], ['ArrowDown', 1], ['w', -1]]) {
+    const before = await scrollY();
+    await page.keyboard.down(key);
+    await expect.poll(async () => ((await scrollY()) - before) * sign).toBeGreaterThan(20);
+    await page.keyboard.up(key);
+  }
+  await page.keyboard.down('ArrowDown');
+  await expect.poll(scrollY).toBeGreaterThan(200);
+  await page.evaluate(() => window.arcadeControls.disconnect());
+  await page.keyboard.up('ArrowDown');
+  const stopped = await scrollY();
+  await page.waitForTimeout(100);
+  expect(await scrollY()).toBe(stopped);
+  await page.screenshot({ path: testInfo.outputPath('article-scrolling.png'), fullPage: true });
 });
 
 test('blog renders unpublished Markdown fixtures and relative article links', { tag: '@development' }, async ({ page }, testInfo) => {

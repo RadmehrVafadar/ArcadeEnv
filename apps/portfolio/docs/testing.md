@@ -57,7 +57,9 @@ A deliberate mobile delay between measuring and capturing protects against slow 
 `../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
 Its mobile history regression dispatches persisted pagehide/pageshow events and checks that cabinet controls stay connected, fallback controls remain absent, and movement still works.
 Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Reset.
-It also enters `/tech` and verifies that `../` has focus and Enter returns immediately without an extra selection key.
+It also enters `/tech`, verifies that its first article has focus, and opens it with Enter.
+Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
+Development fixtures verify all WASD and arrow directions, horizontal code overflow, and stopping on disconnect.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.
 Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.
 Its camera regression checks the original zoom on desktop and mobile, transparent action targets, and working press feedback without visible control overlays.

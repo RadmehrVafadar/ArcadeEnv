@@ -12,10 +12,15 @@ Open the Blog link from the portfolio to read in the current page, inside the ar
 Use `../` beneath the index folders to return to the portfolio menu without relying on browser history.
 Category and article `../` links return to their parent folder, leading back through the blog index to the menu.
 The menu link respects the portfolio base and stays inside the current tab or cabinet iframe.
-Inside the cabinet, joystick tilts step through the current page's links, Z activates the underlined link, and Reset returns directly to the portfolio menu.
+Inside the cabinet, joystick tilts step through folder links, Z activates the underlined link, and Reset returns directly to the portfolio menu.
+Folders containing articles initially select their first article; empty folders select `../`.
+Article links have no permanent underline; the current cabinet selection supplies the underline.
+While reading an article, holding the joystick, WASD, or arrow keys scrolls continuously in the requested direction.
+Left and right scroll the first visible overflowing code block or table, or the page when no such block is visible.
+Scrolling stops on release, reset, loss of focus, hidden pages, and navigation.
 X follows `../`, returning from an article to its folder, from a folder to the blog index, and from the index to the portfolio menu.
 The physical X button and keyboard X share this behavior regardless of the selected link; Q still exits directly to the menu.
-The selected link takes focus after the heading update, so Enter activates `../` immediately on entering a folder.
+The selected link takes focus after the heading update, so Enter opens the first article immediately on entering a populated folder.
 The index shows `/tech`, `/hobbies`, and `/work`, including when those folders are empty.
 Folder titles sit at the right of a centered column, with `../` and article links below.
 Article pages use a narrow serif reading column on warm paper, with monospace navigation.
