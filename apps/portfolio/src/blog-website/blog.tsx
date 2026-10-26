@@ -44,7 +44,7 @@ export default function Blog() {
       {(!article || missing) && <h1 className="folder-title" ref={heading} tabIndex={-1}>{title}</h1>}
       <nav className="parent" aria-label="Parent folder"><a data-cabinet-back href={article ? `#/${encodeURIComponent(category)}` : '#/'} aria-label={article ? `Back to ${category}` : 'Back to blog'}>../</a></nav>
       {missing ? <p className="empty">This page could not be found.</p> : article ?
-        <article className="prose">
+        <article className="prose" data-cabinet-scroll>
           <h1 ref={heading} tabIndex={-1}>{article.title}</h1>
           <Markdown remarkPlugins={[remarkGfm]} skipHtml components={{
             a: ({ href, children, ...props }) => <a {...props} href={resolveLocal(href || '', article, articles, assets)}>{children}</a>,
@@ -52,7 +52,7 @@ export default function Blog() {
             table: ({ children }) => <div className="table-scroll" tabIndex={0} role="region" aria-label="Table"><table>{children}</table></div>,
           }}>{article.body}</Markdown>
         </article> : articles.some(item => item.category === category) ?
-          <ul className="articles">{articles.filter(item => item.category === category).map(item =>
+          <ul className="articles" data-cabinet-default>{articles.filter(item => item.category === category).map(item =>
             <li key={item.slug}><a href={articleHref(item)}>{item.title}</a></li>)}</ul> :
           <p className="empty">No articles yet.</p>}
     </>}

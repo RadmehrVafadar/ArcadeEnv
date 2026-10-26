@@ -68,7 +68,10 @@ When `pagehide.persisted` indicates history caching, it clears held input but re
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Reset returns to the main portfolio menu from the menu, blog, or game.
-Blog folders and article links use the same joystick selection and Z activation, with an underline identifying the selected link.
+Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.
+Populated folders initially select their first article; empty folders initially select `../`.
+Inside an article, held joystick, WASD, and arrow inputs scroll the page, with left and right moving visible overflowing code blocks or tables.
+Releasing the input, resetting, leaving the page, or losing focus stops scrolling.
 In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
 Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
 The game has no fallback on-screen D-pad or action buttons, so a disconnected cabinet cannot reveal an old control overlay.

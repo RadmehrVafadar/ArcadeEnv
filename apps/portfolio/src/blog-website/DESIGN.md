@@ -121,7 +121,8 @@ Thin rules are reserved for quotations, table rows, and article separators.
 
 Folder links are plain monospace paths with a minimum 44px target height.
 Parent navigation has a minimum 44px square target.
-Folder and parent links gain an underline on hover; article links retain underlines.
+Folder and parent links gain an underline on hover.
+Article listings have no default underline; only the current cabinet selection is underlined.
 Keyboard focus uses a 2px interaction-colored outline with a 5px offset.
 Route changes focus the heading without a visual outline and return to the page top.
 Articles render serif prose, simple quotations, shaded monospace code, responsive images, and scrollable tables.

@@ -12,7 +12,7 @@ test('blog folders support keyboard navigation, refresh, history, and missing pa
   await expect(page.getByRole('link', { name: '/tech', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeFocused();
-  await expect(page.getByText('No articles yet.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Build. Build. Build.', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('blog-folder.png'), fullPage: true });
@@ -29,6 +29,41 @@ test('blog folders support keyboard navigation, refresh, history, and missing pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test('published Tech article renders and returns to its folder', async ({ page }, testInfo) => {
+  await page.goto(entry + '#/tech');
+  await page.getByRole('link', { name: 'Build. Build. Build.', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`${entry}#/tech/build-build-build$`));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build. Build. Build.');
+  await expect(page.locator('article')).toContainText('Master Oogway');
+  await expect(page.locator('article li')).toHaveCount(3);
+  await expect(page.locator('article strong')).toHaveText('Build something you’ve always wanted to exist.');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('published-tech-article.png'), fullPage: true });
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build. Build. Build.');
+  await page.getByRole('link', { name: 'Back to tech' }).click();
+  await expect(page.getByRole('heading', { name: 'tech', exact: true })).toBeVisible();
+  await page.goto(entry + '#/hobbies');
+  await expect(page.getByText('No articles yet.')).toBeVisible();
+});
+
+test('article links underline only the cabinet selection', async ({ page }, testInfo) => {
+  await page.goto(entry + '#/tech');
+  const article = page.getByRole('link', { name: 'Build. Build. Build.', exact: true });
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  await page.evaluate(() => window.arcadeControls.connect());
+  await expect(article).toBeFocused();
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('underline');
+  await page.screenshot({ path: testInfo.outputPath('blog-first-article-selected.png'), fullPage: true });
+  await page.keyboard.press('ArrowUp');
+  await expect(page.getByRole('link', { name: 'Back to blog' })).toBeFocused();
+  expect(await article.evaluate(element => getComputedStyle(element).textDecorationLine)).toBe('none');
+  await page.goto(entry + '#/hobbies');
+  await expect(page.getByText('No articles yet.')).toBeVisible();
+  await page.evaluate(() => window.arcadeControls.connect());
+  await expect(page.getByRole('link', { name: 'Back to blog' })).toBeFocused();
+});
+
 test('portfolio Blog link opens the reader in the current tab', async ({ page, context }) => {
   await page.goto('/portfolio/');
   const link = page.getByRole('link', { name: 'Blog', exact: true });
@@ -42,8 +77,42 @@ test('portfolio Blog link opens the reader in the current tab', async ({ page, c
   await expect(link).toBeVisible();
 });
 
+test('article scrolling handles held WASD, arrow keys, and overflowing code', { tag: '@development' }, async ({ page }, testInfo) => {
+  const articles = [{ category: 'tech', slug: 'scroll', title: 'Scroll fixture',
+    body: '```txt\n' + 'wide code '.repeat(100) + '\n```\n\n' + 'A paragraph for scrolling.\n\n'.repeat(60), path: './content/tech/scroll.md' }];
+  await page.route('**/src/blog-website/content.ts*', route => route.fulfill({
+    contentType: 'application/javascript', body: `export const articles = ${JSON.stringify(articles)}; export const assets = {};`,
+  }));
+  await page.goto(entry + '#/tech/scroll');
+  await page.evaluate(() => window.arcadeControls.connect());
+  const code = page.locator('pre');
+  const scrollX = () => code.evaluate(element => element.scrollLeft);
+  const scrollY = () => page.evaluate(() => window.scrollY);
+  for (const [key, sign] of [['d', 1], ['ArrowLeft', -1], ['ArrowRight', 1], ['a', -1]]) {
+    const before = await scrollX();
+    await page.keyboard.down(key);
+    await expect.poll(async () => ((await scrollX()) - before) * sign).toBeGreaterThan(20);
+    await page.keyboard.up(key);
+  }
+  expect(await page.evaluate(() => window.scrollX)).toBe(0);
+  for (const [key, sign] of [['s', 1], ['ArrowUp', -1], ['ArrowDown', 1], ['w', -1]]) {
+    const before = await scrollY();
+    await page.keyboard.down(key);
+    await expect.poll(async () => ((await scrollY()) - before) * sign).toBeGreaterThan(20);
+    await page.keyboard.up(key);
+  }
+  await page.keyboard.down('ArrowDown');
+  await expect.poll(scrollY).toBeGreaterThan(200);
+  await page.evaluate(() => window.arcadeControls.disconnect());
+  await page.keyboard.up('ArrowDown');
+  const stopped = await scrollY();
+  await page.waitForTimeout(100);
+  expect(await scrollY()).toBe(stopped);
+  await page.screenshot({ path: testInfo.outputPath('article-scrolling.png'), fullPage: true });
+});
+
 test('blog renders unpublished Markdown fixtures and relative article links', { tag: '@development' }, async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith('development'), 'Fixture module interception uses the development module URL; published builds contain no test articles.');
+  test.skip(!testInfo.project.name.startsWith('development'), 'Fixture module interception uses the development module URL; published builds exclude fixture articles.');
   const body = 'A quiet place for longer thoughts.\n\n## A small heading\n\n- First point\n- Second point\n\n> A little breathing room.\n\n```js\nconst sentence = "' + 'long text '.repeat(25) + '";\n```\n\n| Name | Value |\n| --- | --- |\n| Note | Readable |\n\n- [x] Checked\n\n[Next note](../work/next.md)\n\n<script>alert("unsafe")</script>';
   const articles = [
     { category: 'tech', slug: 'a-note', title: 'On keeping things simple', body, path: './content/tech/a-note.md' },
