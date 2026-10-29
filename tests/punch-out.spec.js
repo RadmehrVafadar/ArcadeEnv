@@ -18,6 +18,10 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
   await expect(page.locator('#instructions')).toContainText('Z + X');
+  await expect(page.locator('#instructions')).toContainText('Tap Start');
+  await expect(page.locator('#instructions')).toContainText('HOLD START TO RESET');
+  await expect(page.locator('#status')).toHaveText('Press Q to start');
+  await expect(page.locator('#instructions')).not.toContainText(/WASD|Z: B|X: A|Shift|0\.6 sec|Exit/);
   await page.keyboard.press('q');
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 3, pressed: 1 });
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 3, pressed: 0 });

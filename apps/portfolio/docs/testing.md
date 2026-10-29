@@ -50,6 +50,7 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 VM tests do not replace browser rendering or real pointer and touch checks.
 Punch-Out CI substitutes only the official pinned loader with a deterministic emulator adapter; it does not fetch or store a ROM and does not claim live gameplay coverage.
 The fixture implements `gameManager.simulateInput` and polls simultaneous held buttons on running emulated frames, rather than treating canvas keyboard events as NES input.
+Instruction regressions check the simplified cabinet mappings, prominent HOLD START TO RESET reminder, and Press Q to start prompt.
 Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused input checks.
 Separately verify the real external source in a browser: check the direct CORS response and NES header, title screen, starting a bout, movement, both punches, Start/Select, gesture audio, and exit back to the exhibit.
 Capture desktop and mobile instructions and live gameplay, checking the centered viewport, cabinet transitions, readable copy, and absence of emulator touch controls or toolbars.

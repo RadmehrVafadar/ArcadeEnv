@@ -45,6 +45,8 @@ The runtime also waits for actual emulated frames before releasing or repeating 
 Tap Start or Q to send Start on release, or hold for 600 ms to exit without Start.
 Enter and Shift provide direct Start and Select.
 Instructions precede the viewport; Z/X begins play, and tapping Start/Q or pressing Enter begins play with Start.
+The instruction card lists joystick movement, Z/X punches, Z+X Select, and Tap Start, with a bordered HOLD START TO RESET reminder and Press Q to start prompt.
+Alternate keyboard mappings remain available without appearing on the card.
 Held inputs and timers clear on blur, cancellation, hiding, navigation, and disconnect; hidden games pause and resume without replaying input.
 Exit restores the saved exhibit position, and Q/menu works normally after release.
 
