@@ -12,7 +12,7 @@ Open the Blog link from the portfolio to read in the current page, inside the ar
 Use `../` beneath the index folders to return to the portfolio menu without relying on browser history.
 Category and article `../` links return to their parent folder, leading back through the blog index to the menu.
 The menu link respects the portfolio base and stays inside the current tab or cabinet iframe.
-Inside the cabinet, joystick tilts step through folder links, Z activates the underlined link, and Reset returns directly to the portfolio menu.
+Inside the cabinet, joystick tilts step through folder links, Z activates the underlined link, and Start returns directly to the portfolio menu.
 Folders containing articles initially select their first article; empty folders select `../`.
 Article links have no permanent underline; the current cabinet selection supplies the underline.
 While reading an article, holding the joystick, WASD, or arrow keys scrolls continuously in the requested direction.

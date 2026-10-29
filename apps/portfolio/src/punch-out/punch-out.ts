@@ -38,12 +38,12 @@ const start = () => {
   resetControls()
   clearSession()
   const attempt = session
-  setState('loading', 'Loading the ring... Reset / Q: exit')
+  setState('loading', 'Loading the ring... Start / Q: exit')
   const fail = () => {
     if (attempt !== session) return
     resetControls()
     clearSession()
-    setState('error', 'The ring could not load. Z: retry / Reset or Q: exit')
+    setState('error', 'The ring could not load. Z: retry / Start or Q: exit')
   }
   timeout = window.setTimeout(fail, 45000)
   frame = document.createElement('iframe')
@@ -59,7 +59,7 @@ const start = () => {
     emulator.start(() => {
       if (attempt !== session) return
       clearTimeout(timeout)
-      setState('ready', 'Z / X: play. Reset / Enter: Start')
+      setState('ready', 'Z / X: play. Start / Enter: Start')
       emulator.pause()
     }, fail)
   }

@@ -23,9 +23,9 @@ Menu links use button styling without text underlines while retaining native lin
 Start, Blog, and Resume text bops upward by 3px and back in a stepped 600ms CSS loop, keeping the link hit areas stationary.
 The labels remain still when the visitor prefers reduced motion.
 When embedded in the cabinet, the joystick steps through Start, Blog, and Resume once per tilt and wraps at either end.
-A full-width underscore marks the selected entry; Z activates its native link, and Reset reloads the main portfolio menu.
+A full-width underscore marks the selected entry; Z activates its native link, and Start reloads the main portfolio menu.
 X is the back action and does nothing on the main menu, which has no parent page.
-The same input interface lets visitors navigate blog links and return directly to the menu with Reset.
+The same input interface lets visitors navigate blog links and return directly to the menu with Start.
 Standalone visits retain normal link navigation without a cabinet selection marker.
 Punch-Out is reached through the showcase exhibit and adds no main-menu entry.
 Its same-origin wrapper and isolated emulator runtime are separate HTML entries beneath `src/punch-out/`.

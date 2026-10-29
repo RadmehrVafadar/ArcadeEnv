@@ -30,7 +30,7 @@ CI records traces only on a failed test's retry and treats flaky retries as fail
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
-- `tests/punch-out-input.test.mjs` - deterministic source ownership, punch transitions, short taps, 60 ms chord boundaries, 600 ms Reset tap/hold, direct Start/Select, and timer cancellation.
+- `tests/punch-out-input.test.mjs` - deterministic source ownership, punch transitions, short taps, 60 ms chord boundaries, 600 ms Start tap/hold, direct Start/Select, and timer cancellation.
 - `tests/punch-out-sampling.test.mjs` - slow-core sampling, separate repeated presses, concurrent directions, and immediate queue cancellation.
 - `../../tests/punch-out.spec.js` - internal exhibit entry, parent/iframe keyboard, cabinet feedback, multitouch, visibility, retry, teardown, and return position using `../../tests/fixtures/emulator.js` without ROM bytes.
 - `../../tests/mobile-game.spec.js` - full-viewport mobile sizing without fallback controls, keyboard Z/X interactions, exit, and world edges.
@@ -58,17 +58,17 @@ Live Chromium desktop and iPhone 13 emulation verified a 200 CORS response with 
 The focused input and retry regressions also pass in WebKit with an iPhone viewport; physical iPhone Safari remains untested.
 Review the captured [desktop instructions](../../../docs/screenshots/punch-out-instructions-desktop.png), [desktop gameplay](../../../docs/screenshots/punch-out-gameplay-desktop.png), [mobile instructions](../../../docs/screenshots/punch-out-instructions-mobile.png), and [mobile gameplay](../../../docs/screenshots/punch-out-gameplay-mobile.png).
 Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
-`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Reset, and connection cleanup.
+`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Start, and connection cleanup.
 It verifies that both cabinet and keyboard X do nothing for every main menu selection.
 `../../tests/resume-navigation.spec.js` verifies desktop menu preservation and mobile top-level resume navigation from an iframe that blocks popups.
 The mobile navigation fixture serves HTML at the PDF URL to avoid depending on a native PDF viewer; production HTTP checks verify the real PDF bytes.
-`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Reset button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
+`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Start button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
 `../../tests/joystick-occlusion.spec.js` compares the joystick's red pixels with the iframe hidden and visible, captures desktop/mobile views, and checks iframe click-through after zoom.
 It holds the portfolio response and hides only the loading overlay during the pixel comparison, keeping mobile auto-zoom from moving the measured crop.
 A deliberate mobile delay between measuring and capturing protects against slow CI runners; the real portfolio response is released before checking zoom and navigation.
 `../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
 Its mobile history regression dispatches persisted pagehide/pageshow events and checks that cabinet controls stay connected, fallback controls remain absent, and movement still works.
-Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Reset.
+Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Start.
 It also enters `/tech`, verifies that its first article has focus, and opens it with Enter.
 Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
 They move focus from the embedded reader to a cabinet button while the joystick is held, verifying that internal focus changes do not interrupt scrolling.

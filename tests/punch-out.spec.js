@@ -68,7 +68,7 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   expect(await page.locator('#emulator-frame').evaluate(el => el.contentWindow.EJS_emulator.paused)).toBe(false);
 });
 
-test('entry stays in the cabinet, held inputs animate, Reset returns to the exhibit', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
+test('entry stays in the cabinet, held inputs animate, Start returns to the exhibit', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.setTimeout(90000);
   await mockEmulator(page);
   await page.goto('/');
@@ -176,7 +176,7 @@ test('entry stays in the cabinet, held inputs animate, Reset returns to the exhi
   await expect(frame.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
 });
 
-test('failure retries with Z and Reset cancels pending initialization and exits', async ({ page }) => {
+test('failure retries with Z and Start cancels pending initialization and exits', async ({ page }) => {
   await mockEmulator(page, { fail: true });
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'error');

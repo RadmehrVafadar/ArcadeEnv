@@ -31,7 +31,7 @@ The game has no on-screen D-pad or action buttons; the world uses the full viewp
 Touch users play through the cabinet joystick and buttons on the main page.
 Standalone game visits require a keyboard.
 The same-origin cabinet connects through `window.arcadeControls`.
-The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Reset button returns to the menu with Q.
+The cabinet joystick moves the player; its red Z and X buttons read with Z and open with X, and its smaller Start button returns to the menu with Q.
 Mobile startup instructions describe those controls, and mobile dialogue text scales to remain readable on the projected CRT.
 PC keeps its welcome and movement guidance, with Z/Read, X/Open, and Q/Exit shortcuts.
 Keyboard and joystick track movement by source, so releasing one input does not cancel another held input.
@@ -42,9 +42,9 @@ Punch-Out extends it with source-aware button transitions, mapping Z to NES B, X
 Each initial punch waits up to 60 ms for an overlapping Z+X chord, which sends Select and suppresses both punches until released.
 Short unchorded taps and newly released held punches remain pressed for at least 32 ms so the NES core samples them.
 The runtime also waits for actual emulated frames before releasing or repeating an input, preserving taps on slow renderers; reset discards queued transitions immediately.
-Tap Reset or Q to send Start on release, or hold for 600 ms to exit without Start.
+Tap Start or Q to send Start on release, or hold for 600 ms to exit without Start.
 Enter and Shift provide direct Start and Select.
-Instructions precede the viewport; Z/X begins play, and tapping Reset/Q or pressing Enter begins play with Start.
+Instructions precede the viewport; Z/X begins play, and tapping Start/Q or pressing Enter begins play with Start.
 Held inputs and timers clear on blur, cancellation, hiding, navigation, and disconnect; hidden games pause and resume without replaying input.
 Exit restores the saved exhibit position, and Q/menu works normally after release.
 
@@ -52,7 +52,7 @@ EmulatorJS 4.2.3 loads the NES core from its [official CDN](https://cdn.emulator
 The emulator requests the URL-encoded `Mike Tyson's Punch-Out!! (U) (PRG1) [!].nes` filename directly from `https://nesninja.com/downloadsnes/` using CORS.
 No ROM bytes are bundled, proxied, uploaded, or served by this deployment.
 Each session runs in a disposable same-origin runtime iframe; retry or exit removes its realm, cancelling pending requests and destroying audio and emulator resources.
-Initialization times out after 45 seconds, with Z to retry and Reset/Q to exit inside the cabinet.
+Initialization times out after 45 seconds, with Z to retry and Start/Q to exit inside the cabinet.
 Audio starts automatically where browser policy permits and resumes from cabinet or keyboard gestures without a separate focus click.
 Input uses EmulatorJS's `gameManager.simulateInput` joypad API without depending on focus or synthetic keyboard events.
 Native keys in the runtime are intercepted first and forwarded through the same adapter and cabinet feedback, preserving chord timing without duplicate input.

@@ -4,12 +4,12 @@ import { readFileSync } from 'node:fs';
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import { cabinetButtons, joystickDirection } from '../apps/arcade/src/cabinet-input.js';
 
-test('red Z/X caps, smaller Reset, and slightly left-shifted joystick match the cabinet', () => {
-  assert.equal(cabinetButtons.find(button => button.action === 'menu').label, 'Reset: Q Menu');
+test('red Z/X caps, smaller Start, and slightly left-shifted joystick match the cabinet', () => {
+  assert.equal(cabinetButtons.find(button => button.action === 'menu').label, 'Start: Q Menu');
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)));
   const buttons = ['Cylinder.006', 'Cylinder.007', 'CabinetQuit'].map(name => model.nodes.find(node => node.name === name));
-  for (const [index, label] of ['Z', 'X', 'RESET'].entries()) {
+  for (const [index, label] of ['Z', 'X', 'START'].entries()) {
     const cap = model.nodes[buttons[index].children[0]];
     assert.equal(cap.extras?.label, label);
     const material = model.materials[model.meshes[cap.mesh].primitives[0].material];
