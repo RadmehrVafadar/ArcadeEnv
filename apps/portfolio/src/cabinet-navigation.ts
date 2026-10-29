@@ -48,7 +48,8 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
     if (y) page.scrollBy({ top: y * distance, behavior: 'instant' })
     scrollFrame = page.requestAnimationFrame(scroll)
   }
-  const blur = () => { if (!page.parent.document.hasFocus()) input.reset() }
+  // Focus can briefly report false while moving from the iframe to cabinet hardware.
+  const blur = () => queueMicrotask(() => { if (!page.parent.document.hasFocus()) input.reset() })
   const visibility = () => { if (document.hidden) input.reset() }
   const keydown = (event: KeyboardEvent) => {
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key

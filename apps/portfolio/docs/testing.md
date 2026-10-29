@@ -74,6 +74,7 @@ It also enters `/tech`, verifies that its first article has focus, and opens it 
 Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
 They cover the natural article height and a constrained 95-pixel scroll range, measuring available distance after fonts are ready instead of requiring a fixed scroll beyond the document boundary.
 They move focus from the embedded reader to a cabinet button while the joystick is held, verifying that internal focus changes do not interrupt scrolling.
+The focus handoff regression temporarily reports an unfocused parent during blur, then restores focus before the next microtask, while separate checks still require real browser focus loss to clear input.
 Development fixtures verify all WASD and arrow directions, horizontal code overflow, and stopping on disconnect.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.
 Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.

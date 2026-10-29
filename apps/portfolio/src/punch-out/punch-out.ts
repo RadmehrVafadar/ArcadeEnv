@@ -114,7 +114,7 @@ for (const type of ['keydown', 'keyup']) document.addEventListener(type, event =
   if (directions[key]) input.setDirection(source, type === 'keydown' ? directions[key] : null)
   if (actions[key]) input.setButton!(source, actions[key], type === 'keydown')
 })
-window.addEventListener('blur', () => { if (!window.parent.document.hasFocus()) input.reset() })
+window.addEventListener('blur', () => queueMicrotask(() => { if (!window.parent.document.hasFocus()) input.reset() }))
 document.addEventListener('visibilitychange', () => {
   input.reset()
   if (document.hidden) { if (state === 'ready' || state === 'playing') current()?.pause() }

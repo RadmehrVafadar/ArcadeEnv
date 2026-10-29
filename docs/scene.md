@@ -61,6 +61,7 @@ Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or
 Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
 Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
 Moving focus between the embedded page and cabinet controls does not cancel a held cabinet gesture or article scroll.
+Embedded blur handlers check focus in a microtask so a transient unfocused state during that handoff cannot release the joystick.
 
 The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
 Punch-Out additionally implements optional `setButton(source, action, pressed, cancelled?)` for held read/open/menu buttons and direct Start/Select.

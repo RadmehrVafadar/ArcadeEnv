@@ -115,6 +115,14 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await expect(page.locator('[data-direction="left"]')).toBeVisible();
   await expect.poll(() => events(frame)).toContainEqual({ player: 0, button: 0, pressed: 1 });
   await frame.locator('body').focus();
+  await frame.locator('body').evaluate(() => {
+    const parentDocument = window.parent.document;
+    const hasFocus = parentDocument.hasFocus.bind(parentDocument);
+    window.addEventListener('blur', () => {
+      parentDocument.hasFocus = () => false;
+      queueMicrotask(() => { parentDocument.hasFocus = hasFocus; });
+    }, { capture: true, once: true });
+  });
   await read.focus();
   await expect.poll(async () => (await samples(frame)).at(-1)).toEqual([0, 6]);
   await page.keyboard.up('z');
