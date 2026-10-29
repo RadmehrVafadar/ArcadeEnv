@@ -13,6 +13,8 @@ function fixture({ article = false, defaultIndex = -1 } = {}) {
   page.requestAnimationFrame = callback => { frames.set(++nextFrame, callback); return nextFrame; };
   page.cancelAnimationFrame = id => frames.delete(id);
   page.document = new EventTarget();
+  page.document.hasFocus = () => false;
+  page.parent = page;
   page.location = { href: '/portfolio/' };
   const root = new EventTarget();
   page.document.defaultView = page;
@@ -77,7 +79,7 @@ test('a populated folder initially selects its first article and still reaches i
   assert.equal(links[0].clicks, 1);
 });
 
-test('article directions scroll continuously, preserve held aliases, and stop on release and reset', () => {
+test('article directions scroll continuously, preserve held aliases, and stop on release and reset', async () => {
   const { page, input, frame, frames, selected, cleanup } = fixture({ article: true });
   input.connect();
   input.setDirection('stick', 'down');
@@ -109,6 +111,7 @@ test('article directions scroll continuously, preserve held aliases, and stop on
     input.setDirection('stick', 'down');
     if (eventTarget === page.document) page.document.hidden = true;
     eventTarget.dispatchEvent(new Event(eventTarget === page ? 'blur' : 'visibilitychange'));
+    await Promise.resolve();
     assert.equal(frames.size, 0, 'Blur and hidden pages stop scrolling');
   }
   page.document.hidden = false;
@@ -137,6 +140,43 @@ test('X does nothing on every main menu selection', () => {
     input.setDirection('stick', 'down');
     input.setDirection('stick', null);
   }
+});
+
+test('reader focus moving into the cabinet preserves held input; leaving the browser clears it', async () => {
+  const { page, input, frame, frames } = fixture({ article: true });
+  page.parent = { document: { hasFocus: () => true } };
+  input.connect();
+  input.setDirection('pointer:1', 'down');
+  frame(0);
+  const before = page.scrollY;
+  page.dispatchEvent(new Event('blur'));
+  await Promise.resolve();
+  frame(16);
+  assert.ok(page.scrollY > before, 'The physical joystick keeps scrolling across internal focus changes');
+  page.parent.document.hasFocus = () => false;
+  page.dispatchEvent(new Event('blur'));
+  await Promise.resolve();
+  assert.equal(frames.size, 0, 'Leaving the browser still releases held input');
+});
+
+test('a transient unfocused parent during an internal focus handoff preserves the joystick', async () => {
+  const { page, input, frame, frames } = fixture({ article: true });
+  let focused = true;
+  page.parent = { document: { hasFocus: () => focused } };
+  input.connect();
+  input.setDirection('pointer:1', 'down');
+  frame(0);
+  const before = page.scrollY;
+  focused = false;
+  page.dispatchEvent(new Event('blur'));
+  focused = true;
+  await Promise.resolve();
+  frame(16);
+  assert.ok(page.scrollY > before, 'The internal handoff must not release the held joystick');
+  focused = false;
+  page.dispatchEvent(new Event('blur'));
+  await Promise.resolve();
+  assert.equal(frames.size, 0, 'A real browser focus loss still clears input');
 });
 
 test('X activates the blog parent link independently of selection', () => {

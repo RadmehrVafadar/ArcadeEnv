@@ -44,7 +44,7 @@ The original five-button cluster is removed, the two buttons formerly beside the
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
 The joystick sits 0.12 model units left of its original deck position, with its ball aligned with the button faces from the original camera.
 Its moving shaft and ball and its separate fixed base share the same leftward shift.
-Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red RESET (Q/Menu) button without black collars or borders.
+Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red START (Q/Menu) button without black collars or borders.
 The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
 The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
 Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
@@ -60,14 +60,27 @@ Button depression and joystick tilt invalidate frames only while settling, with 
 Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
 Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
 Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
-Focusing the embedded page does not cancel a captured cabinet gesture.
+Moving focus between the embedded page and cabinet controls does not cancel a held cabinet gesture or article scroll.
+Embedded blur handlers check focus in a microtask so a transient unfocused state during that handoff cannot release the joystick.
 
 The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
+Punch-Out additionally implements optional `setButton(source, action, pressed, cancelled?)` for held read/open/menu buttons and direct Start/Select.
+On this page, cabinet pointers and keyboard events in either the parent or portfolio iframe share that adapter, including independent direction-plus-punch sources and cabinet feedback.
+The runtime sends NES joypad states through EmulatorJS's `gameManager.simulateInput` API, independently of keyboard focus.
+Cancellation, blur, hiding, navigation, and disconnect clear held inputs and pending chord, tap, and exit timers.
 The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
 When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
-Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Reset returns to the main portfolio menu from the menu, blog, or game.
+Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Start returns to the main portfolio menu from the menu, blog, or game.
+The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
+Its instruction card pairs Return with Hold Start/Q, Move & dodge with Joystick, Select with z + x, and Start with Q on separate amber and cream lines, with space between pairs.
+Press Start flashes when ready, remaining steady when reduced motion is preferred.
+Tap Start or Q for Start; hold either for 600 ms to return to the exhibit without sending Start.
+Enter and Shift also send Start and Select.
+Z or X dismisses the instructions after loading, and gameplay displays only a centered 4:3 viewport without emulator controls.
+The existing display-scale connection fits that viewport inside the visible screen on narrow devices, preserving the original cabinet, camera, and CRT geometry.
+Loading failures stay inside the CRT with Z to retry and Start/Q to exit.
 Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.
 Populated folders initially select their first article; empty folders initially select `../`.
 Inside an article, held joystick, WASD, and arrow inputs scroll the page, with left and right moving visible overflowing code blocks or tables.
@@ -93,7 +106,7 @@ Visiting `/portfolio/` directly remains available on every device without the ca
 ## Audio
 
 The cabinet synthesizes digital arcade effects with Web Audio, without downloads or third-party music assets.
-Button presses use short square-wave pitch drops, with separate pitches for Z, X, and Reset; joystick direction changes use a softer triangle-wave blip.
+Button presses use short square-wave pitch drops, with separate pitches for Z, X, and Start; joystick direction changes use a softer triangle-wave blip.
 Pointer, touch, focused-button activation, and keyboard input from the same-origin portfolio share these sounds.
 Holding a key or continuing to drag in one direction does not repeat its effect.
 The top-right Sound FX and Music buttons independently toggle effects and an original 112 BPM chiptune loop with melody, bass, and synthesized kick.

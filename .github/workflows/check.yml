@@ -41,14 +41,14 @@ jobs:
         run: npm run typecheck
 
   browser_tests:
-    name: Browser tests (${{ matrix.shard }}/3)
+    name: Browser tests (${{ matrix.shard }}/6)
     needs: quality
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5, 6]
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --init --ipc=host
@@ -80,11 +80,11 @@ jobs:
       - name: Run browser tests without WebGL
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/portfolio.json
-        run: npm run test:browser -- --grep-invert @webgl --shard=${{ matrix.shard }}/3 --output test-results/portfolio
+        run: npm run test:browser -- --grep-invert @webgl --shard=${{ matrix.shard }}/6 --output test-results/portfolio
       - name: Run WebGL browser tests serially
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/webgl.json
-        run: npm run test:browser -- --grep @webgl --workers=1 --fully-parallel --shard=${{ matrix.shard }}/3 --output test-results/webgl
+        run: npm run test:browser -- --grep @webgl --workers=1 --fully-parallel --shard=${{ matrix.shard }}/6 --output test-results/webgl
       - name: Upload browser timing reports, failure screenshots, and traces
         if: ${{ always() }}
         uses: actions/upload-artifact@v7

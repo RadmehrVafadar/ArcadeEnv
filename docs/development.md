@@ -39,6 +39,10 @@ The audio browser tests exercise real Web Audio through cabinet pointer and ifra
 A native-touch regression models iPhone rejection of finger-down audio unlocks and requires playback after touch release, including after iframe interaction.
 Root unit checks include the cabinet joystick's dead-zone and axis selection alongside launcher and browser configuration checks.
 Cabinet browser checks cover mouse, multitouch, keyboard coexistence, iframe reconnection, project actions, and projected controls at desktop, phone, landscape, and tablet sizes.
+Punch-Out checks intercept only the pinned EmulatorJS loader with a deterministic adapter fixture, exercising the real routes, input timing, keyboard and multitouch sources, animations, loading failure, cancellation, and return navigation without ROM data or external availability.
+The fixture accepts the NES joypad API and samples held buttons only on running core frames; canvas key events alone cannot satisfy input assertions.
+The real game loads EmulatorJS 4.2.3 and the NES core directly from `cdn.emulatorjs.org` and requests its ROM directly from NES Ninja using browser CORS; the build, dev proxy, and deployment never contain or serve the ROM.
+Live-source gameplay and audio verification is separate from CI; see [portfolio testing](../apps/portfolio/docs/testing.md).
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
 Lighting, iframe labels, and CRT layer assertions share an initial scene load; hover zoom and CRT click-through share another.
@@ -63,9 +67,10 @@ They run on separate runners in the official `mcr.microsoft.com/playwright:v1.64
 The container uses `--init --ipc=host` for process cleanup and Chromium shared memory.
 Keep the image version aligned with the locked `@playwright/test` version when updating Playwright; a browser configuration guard verifies the match.
 Tests tagged `@webgl` run with one worker per runner so software-rendered scenes do not compete; the remaining portfolio checks retain two workers per runner.
-Both browser groups use Playwright's three-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+Both browser groups use Playwright's six-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+The smaller shards reduce the heavy desktop scene workload assigned to the first runner without adding competing WebGL workers.
 Each shard runs the HMR dependency before its selected browser tests, retaining the stylesheet mutation and restoration ordering.
-The required `Tests` job aggregates `Quality` and all three browser shards and fails if any dependency fails, is cancelled, or is skipped.
+The required `Tests` job aggregates `Quality` and all six browser shards and fails if any dependency fails, is cancelled, or is skipped.
 Matrix failures do not cancel the remaining shards, preserving their results and artifacts.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
 Quality and browser jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
