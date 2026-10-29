@@ -67,9 +67,10 @@ They run on separate runners in the official `mcr.microsoft.com/playwright:v1.64
 The container uses `--init --ipc=host` for process cleanup and Chromium shared memory.
 Keep the image version aligned with the locked `@playwright/test` version when updating Playwright; a browser configuration guard verifies the match.
 Tests tagged `@webgl` run with one worker per runner so software-rendered scenes do not compete; the remaining portfolio checks retain two workers per runner.
-Both browser groups use Playwright's three-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+Both browser groups use Playwright's six-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+The smaller shards reduce the heavy desktop scene workload assigned to the first runner without adding competing WebGL workers.
 Each shard runs the HMR dependency before its selected browser tests, retaining the stylesheet mutation and restoration ordering.
-The required `Tests` job aggregates `Quality` and all three browser shards and fails if any dependency fails, is cancelled, or is skipped.
+The required `Tests` job aggregates `Quality` and all six browser shards and fails if any dependency fails, is cancelled, or is skipped.
 Matrix failures do not cancel the remaining shards, preserving their results and artifacts.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
 Quality and browser jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.

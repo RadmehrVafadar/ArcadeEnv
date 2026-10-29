@@ -17,10 +17,12 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   await mockEmulator(page);
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('#instructions')).toContainText('Z + X');
-  await expect(page.locator('#instructions')).toContainText('Tap Start');
-  await expect(page.locator('#instructions')).toContainText('HOLD START TO RESET');
-  await expect(page.locator('#status')).toHaveText('Press Q to start');
+  await expect(page.locator('#instructions dl > div')).toHaveText(['ReturnHold Start/Q', 'Move & dodgeJoystick', 'Selectz + x', 'StartQ']);
+  await expect(page.locator('#status')).toHaveText('Press Start');
+  await expect(page.locator('#status')).toHaveCSS('animation-name', 'press-start-flash');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('#status')).toHaveCSS('animation-name', 'none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(page.locator('#instructions')).not.toContainText(/WASD|Z: B|X: A|Shift|0\.6 sec|Exit/);
   await page.keyboard.press('q');
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 3, pressed: 1 });
@@ -97,7 +99,7 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await expect(emulator.locator('.ejs_virtualGamepad_parent')).toBeHidden();
   await expect(emulator.locator('.ejs_menu_bar')).toBeHidden();
   expect(await frame.locator('#instructions').evaluate(element => element.scrollHeight <= element.clientHeight)).toBe(true);
-  await page.screenshot({ path: testInfo.outputPath('punch-out-instructions.png') });
+  await page.screenshot({ path: testInfo.outputPath('punch-out-instructions.png'), animations: 'disabled' });
   const read = page.locator('[data-action="read"]'), open = page.locator('[data-action="open"]'), reset = page.locator('[data-action="menu"]');
   await read.click();
   await expect(frame.locator('#instructions')).toBeHidden();

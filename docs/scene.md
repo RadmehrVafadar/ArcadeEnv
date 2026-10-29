@@ -73,7 +73,8 @@ On the menu, each joystick tilt advances or reverses the selected link, wraps at
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Start returns to the main portfolio menu from the menu, blog, or game.
 The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
-Its amber instruction card lists joystick movement, Z/X punches, Z+X Select, and Tap Start, with a bordered HOLD START TO RESET reminder and Press Q to start prompt.
+Its instruction card pairs Return with Hold Start/Q, Move & dodge with Joystick, Select with z + x, and Start with Q on separate amber and cream lines, with space between pairs.
+Press Start flashes when ready, remaining steady when reduced motion is preferred.
 Tap Start or Q for Start; hold either for 600 ms to return to the exhibit without sending Start.
 Enter and Shift also send Start and Select.
 Z or X dismisses the instructions after loading, and gameplay displays only a centered 4:3 viewport without emulator controls.

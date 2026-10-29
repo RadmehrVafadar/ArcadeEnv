@@ -50,7 +50,7 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 VM tests do not replace browser rendering or real pointer and touch checks.
 Punch-Out CI substitutes only the official pinned loader with a deterministic emulator adapter; it does not fetch or store a ROM and does not claim live gameplay coverage.
 The fixture implements `gameManager.simulateInput` and polls simultaneous held buttons on running emulated frames, rather than treating canvas keyboard events as NES input.
-Instruction regressions check the simplified cabinet mappings, prominent HOLD START TO RESET reminder, and Press Q to start prompt.
+Instruction regressions check the four cabinet mappings and flashing Press Start prompt, including a steady prompt for reduced motion.
 Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused input checks.
 Separately verify the real external source in a browser: check the direct CORS response and NES header, title screen, starting a bout, movement, both punches, Start/Select, gesture audio, and exit back to the exhibit.
 Capture desktop and mobile instructions and live gameplay, checking the centered viewport, cabinet transitions, readable copy, and absence of emulator touch controls or toolbars.
@@ -72,6 +72,7 @@ Its mobile history regression dispatches persisted pagehide/pageshow events and 
 Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Start.
 It also enters `/tech`, verifies that its first article has focus, and opens it with Enter.
 Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
+They cover the natural article height and a constrained 95-pixel scroll range, measuring available distance after fonts are ready instead of requiring a fixed scroll beyond the document boundary.
 They move focus from the embedded reader to a cabinet button while the joystick is held, verifying that internal focus changes do not interrupt scrolling.
 Development fixtures verify all WASD and arrow directions, horizontal code overflow, and stopping on disconnect.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.

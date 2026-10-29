@@ -47,3 +47,10 @@ test('passing tests do not record traces and flaky retries still fail the run', 
   assert.equal(config.use.trace, 'on-first-retry');
   assert.equal(config.failOnFlakyTests, true);
 });
+
+test('CI spreads scene work over six isolated browser shards', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/check.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /shard: \[1, 2, 3, 4, 5, 6\]/);
+  assert.match(workflow, /Browser tests \(\$\{\{ matrix.shard \}\}\/6\)/);
+  assert.match(workflow, /--grep @webgl --workers=1 --fully-parallel --shard=\$\{\{ matrix.shard \}\}\/6/);
+});

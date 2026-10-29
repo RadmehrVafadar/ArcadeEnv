@@ -59,7 +59,7 @@ const start = () => {
     emulator.start(() => {
       if (attempt !== session) return
       clearTimeout(timeout)
-      setState('ready', 'Press Q to start')
+      setState('ready', 'Press Start')
       emulator.pause()
     }, fail)
   }

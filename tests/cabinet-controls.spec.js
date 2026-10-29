@@ -127,24 +127,38 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await page.keyboard.press('Enter');
   await expect(frame.getByRole('heading', { name: 'Build. Build. Build.', exact: true })).toBeVisible();
   const scrollY = () => frame.locator('body').evaluate(() => window.scrollY);
-  const scroll = await grabJoystick(page, isMobile);
-  await scroll.move(0, 30);
-  // Focus can move between the reader and cabinet while the physical stick stays held.
-  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).focus();
-  await expect.poll(scrollY).toBeGreaterThan(100);
-  await scroll.release();
-  await frame.locator('body').evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  const stopped = await scrollY();
-  await page.waitForTimeout(100);
-  expect(await scrollY()).toBe(stopped);
-  await page.keyboard.down('ArrowUp');
-  await expect.poll(scrollY).toBeLessThan(stopped - 30);
-  await page.keyboard.up('ArrowUp');
-  await frame.getByRole('heading', { name: 'Build. Build. Build.', exact: true }).focus();
-  const before = await scrollY();
-  await page.keyboard.down('s');
-  await expect.poll(scrollY).toBeGreaterThan(before + 30);
-  await page.keyboard.up('s');
+  for (const shortRange of [false, true]) {
+    // Also exercise the 95-pixel range seen in CI, without requiring impossible scroll distances.
+    const maxScroll = await frame.locator('main').evaluate(async (element, short) => {
+      await document.fonts.ready;
+      element.style.height = short ? `${innerHeight + 95}px` : '';
+      element.style.overflow = short ? 'hidden' : '';
+      window.scrollTo(0, 0);
+      return document.scrollingElement.scrollHeight - innerHeight;
+    }, shortRange);
+    testInfo.annotations.push({ type: 'article-scroll-range', description: `${shortRange ? 'short' : 'natural'}: ${maxScroll}` });
+    expect(maxScroll).toBeGreaterThan(0);
+    const scroll = await grabJoystick(page, isMobile);
+    await scroll.move(0, 30);
+    // Focus can move between the reader and cabinet while the physical stick stays held.
+    await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).focus();
+    await expect.poll(scrollY).toBeGreaterThan(Math.min(100, maxScroll / 2));
+    await scroll.release();
+    await frame.locator('body').evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const stopped = await scrollY();
+    await page.waitForTimeout(100);
+    expect(await scrollY()).toBe(stopped);
+    await page.keyboard.down('ArrowUp');
+    await expect.poll(scrollY).toBeLessThan(stopped - Math.min(30, stopped / 2));
+    await page.keyboard.up('ArrowUp');
+    await frame.getByRole('heading', { name: 'Build. Build. Build.', exact: true }).focus();
+    const before = await scrollY();
+    const distance = Math.min(30, (maxScroll - before) / 2);
+    expect(distance).toBeGreaterThan(0);
+    await page.keyboard.down('s');
+    await expect.poll(scrollY).toBeGreaterThan(before + distance);
+    await page.keyboard.up('s');
+  }
   await page.getByRole('button', { name: 'Cabinet: X Open', exact: true }).click();
   await expect(article).toBeFocused();
   const parent = await grabJoystick(page, isMobile);

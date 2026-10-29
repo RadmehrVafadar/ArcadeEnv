@@ -22,15 +22,17 @@ body:focus { outline: none; }
   background: #0b0c0f;
 }
 h1 { font-size: clamp(28px, 7vw, 42px); line-height: 1.25; margin: 0; }
-dl { display: grid; gap: 8px; margin: 0; font-size: clamp(16px, 3.4vw, 22px); line-height: 1.3; }
+dl { display: grid; gap: 20px; margin: 0; font-size: clamp(16px, 3.4vw, 22px); line-height: 1.3; }
 dd { margin: 0; color: #fff0d6; }
-#reset-instruction { margin: 0; padding: 14px 10px; border: 1px solid currentColor; background: #fcbd4610; font-size: clamp(22px, 4vw, 28px); line-height: 1.35; }
 #status { margin: 0; font-size: clamp(17px, 3.6vw, 24px); line-height: 1.5; color: #fff0d6; }
+[data-state='ready'] #status { animation: press-start-flash 1.2s steps(1, end) infinite; }
+@keyframes press-start-flash { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { [data-state='ready'] #status { animation: none; } }
 [data-state='playing'] #instructions { display: none; }
 [data-state='error'] #viewport { visibility: hidden; }
 @media (max-height: 480px) {
   #instructions { padding: 16px; gap: 12px; }
-  dl { gap: 8px; font-size: clamp(13px, 3vw, 20px); }
+  dl { gap: 14px; font-size: clamp(13px, 3vw, 20px); }
   h1 { font-size: 26px; }
   #status { font-size: 18px; }
 }
