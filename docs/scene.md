@@ -63,11 +63,21 @@ Release, cancellation, lost capture, page hiding, navigation, and focus leaving 
 Focusing the embedded page does not cancel a captured cabinet gesture.
 
 The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
+Punch-Out additionally implements optional `setButton(source, action, pressed, cancelled?)` for held read/open/menu buttons and direct Start/Select.
+On this page, cabinet pointers and keyboard events in either the parent or portfolio iframe share that adapter, including independent direction-plus-punch sources and cabinet feedback.
+Cancellation, blur, hiding, navigation, and disconnect clear held inputs and pending chord, tap, and exit timers.
 The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
 When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
 On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Reset returns to the main portfolio menu from the menu, blog, or game.
+The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
+Its amber loading screen explains joystick/arrows/WASD movement, Z as NES B, X as NES A, and Z+X within 60 ms as Select while both are held.
+Tap Reset or Q for Start; hold either for 600 ms to return to the exhibit without sending Start.
+Enter and Shift also send Start and Select.
+Z or X dismisses the instructions after loading, and gameplay displays only a centered 4:3 viewport without emulator controls.
+The existing display-scale connection fits that viewport inside the visible screen on narrow devices, preserving the original cabinet, camera, and CRT geometry.
+Loading failures stay inside the CRT with Z to retry and Reset/Q to exit.
 Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.
 Populated folders initially select their first article; empty folders initially select `../`.
 Inside an article, held joystick, WASD, and arrow inputs scroll the page, with left and right moving visible overflowing code blocks or tables.

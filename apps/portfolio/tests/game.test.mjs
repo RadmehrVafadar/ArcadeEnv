@@ -11,7 +11,7 @@ test('game markup contains no fallback directional or action buttons', async () 
   assert.doesNotMatch(html, /gameControls|dpad|action-read|action-open|<button\b/);
 });
 
-function loadGame({ mobile = false } = {}) {
+function loadGame({ mobile = false, savedPosition } = {}) {
   const elements = new Map();
   const listeners = new Map();
   const document = {
@@ -30,13 +30,14 @@ function loadGame({ mobile = false } = {}) {
     },
     addEventListener(name, handler) { listeners.set(name, handler); },
   };
+  const storage = new Map(savedPosition ? [['punch-out-return', JSON.stringify(savedPosition)]] : []);
   const game = {
     document,
     getComputedStyle: () => ({ getPropertyValue: name => document.documentElement.style[name] || '3.5px' }),
-    window: { matchMedia: () => ({ matches: mobile }), requestAnimationFrame() {}, addEventListener() {}, location: { href: '' } },
+    window: { matchMedia: () => ({ matches: mobile }), requestAnimationFrame() {}, addEventListener() {}, location: { href: '' }, sessionStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } },
   };
   runInNewContext(source, game);
-  return { game, elements, listeners };
+  return { game, elements, listeners, storage };
 }
 
 test('desktop starts with movement and exit instructions, then hides them on movement', () => {
@@ -144,7 +145,7 @@ test('statue collisions and interaction padding support reversed coordinates', (
   const { game } = loadGame();
   assert.equal(game.isCollidingWithAnyStatue(180, 130), true);
   assert.equal(game.isCollidingWithAnyStatue(100, 120), false);
-  assert.equal(game.getNearbyStatue(150, 130).id, 'Boids-Algorithm');
+  assert.equal(game.getNearbyStatue(150, 130).id, 'Punch-Out');
   assert.equal(game.getNearbyStatue(100, 120), null);
 });
 
@@ -197,16 +198,17 @@ test('every showcase opens on the first X press after a popup receives the key r
   const opened = [];
   game.window.open = (...args) => opened.push(args);
   for (const statue of game.statues) {
+    if (statue.id === 'Punch-Out') continue;
     game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
       ? Math.max(statue.rect.x1, statue.rect.x2) + 2
       : Math.min(statue.rect.x1, statue.rect.x2) - 2;
     game.y = (statue.rect.y1 + statue.rect.y2) / 2;
     listeners.get('keydown')({ key: 'x', repeat: false });
     assert.deepEqual(opened.at(-1), [statue.url, '_blank', 'noopener'], statue.id);
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1, statue.id);
+    const count = opened.length;
     // Opening the new tab takes focus; its keyup never reaches the game.
     listeners.get('keydown')({ key: 'x', repeat: true });
-    assert.equal(opened.length, game.statues.indexOf(statue) + 1, `${statue.id} held X`);
+    assert.equal(opened.length, count, `${statue.id} held X`);
   }
 });
 
@@ -230,6 +232,17 @@ test('X opens once per press and Z only reads the exhibit', () => {
   assert.equal(opened.length, 2);
 });
 
+test('a short Z tap reads Punch-Out before the next animation frame', () => {
+  const { game, elements, listeners } = loadGame({ mobile: true });
+  game.x = 128;
+  game.y = 120;
+  game.hasPlayerMoved = true;
+  listeners.get('keydown')({ key: 'z' });
+  listeners.get('keyup')({ key: 'z' });
+  runInNewContext('placeCharacter()', game);
+  assert.match(elements.get('.dialogueBox').innerHTML, /Punch-Out/);
+});
+
 test('mobile artwork and movement share their fractional scale and world bounds', () => {
   const { game, elements } = loadGame({ mobile: true });
   assert.equal(game.getCurrentPixelSize(), 1.875);
@@ -251,6 +264,7 @@ test('mobile cabinet actions can read and open every exhibit within world limits
   game.window.open = () => assert.fail('Mobile links must not depend on popup support');
   game.hasPlayerMoved = true;
   for (const statue of game.statues) {
+    if (statue.id === 'Punch-Out') continue;
     game.x = Math.min(statue.rect.x1, statue.rect.x2) === 0
       ? Math.max(statue.rect.x1, statue.rect.x2) + 10 - 16
       : Math.min(statue.rect.x1, statue.rect.x2) - 10 - 16;
@@ -262,6 +276,38 @@ test('mobile cabinet actions can read and open every exhibit within world limits
     game.window.arcadeControls.action('open');
     assert.equal(game.window.top.location.href, statue.url, statue.id);
   }
+});
+
+test('Punch-Out replaces Boids in place and opens internally with return position', () => {
+  for (const mobile of [false, true]) {
+    const { game, listeners, storage } = loadGame({ mobile });
+    game.window.top = { location: { href: '' } };
+    game.window.open = () => assert.fail('Punch-Out must stay inside the cabinet');
+    const exhibit = game.statues[1];
+    assert.equal(exhibit.id, 'Punch-Out');
+    assert.deepEqual(JSON.parse(JSON.stringify(exhibit.rect)), { x1: 204, y1: 108, x2: 154, y2: 154 });
+    assert.match(exhibit.text, /Punch-Out/);
+    game.x = mobile ? 128 : 144;
+    game.y = 120;
+    listeners.get('keydown')({ key: 'x', repeat: true });
+    assert.equal(game.window.location.href, '');
+    listeners.get('keydown')({ key: 'x' });
+    assert.equal(game.window.location.href, '/portfolio/src/punch-out/punch-out.html');
+    assert.equal(game.window.top.location.href, '');
+    assert.deepEqual(JSON.parse(storage.get('punch-out-return')), { x: game.x, y: 120 });
+  }
+});
+
+test('returning from Punch-Out restores the exhibit and normal Q/menu behavior', () => {
+  const { game, storage, listeners } = loadGame({ savedPosition: { x: 144, y: 120 } });
+  assert.equal(game.x, 144);
+  assert.equal(game.y, 120);
+  assert.equal(game.hasPlayerMoved, true);
+  assert.equal(storage.has('punch-out-return'), false);
+  listeners.get('keydown')({ key: 'q', repeat: true });
+  assert.equal(game.window.location.href, '');
+  listeners.get('keydown')({ key: 'q' });
+  assert.equal(game.window.location.href, '/portfolio/');
 });
 
 test('mobile keyboard X navigates the top window once per press without popups', () => {

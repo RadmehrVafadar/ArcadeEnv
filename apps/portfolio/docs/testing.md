@@ -30,6 +30,9 @@ CI records traces only on a failed test's retry and treats flaky retries as fail
 ## Key files
 
 - `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
+- `tests/punch-out-input.test.mjs` - deterministic source ownership, punch transitions, short taps, 60 ms chord boundaries, 600 ms Reset tap/hold, direct Start/Select, and timer cancellation.
+- `tests/punch-out-sampling.test.mjs` - slow-core sampling, separate repeated presses, concurrent directions, and immediate queue cancellation.
+- `../../tests/punch-out.spec.js` - internal exhibit entry, parent/iframe keyboard, cabinet feedback, multitouch, visibility, retry, teardown, and return position using `../../tests/fixtures/emulator.js` without ROM bytes.
 - `../../tests/mobile-game.spec.js` - full-viewport mobile sizing without fallback controls, keyboard Z/X interactions, exit, and world edges.
 - `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
 - `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.
@@ -45,6 +48,13 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 ## Decisions and gotchas
 
 VM tests do not replace browser rendering or real pointer and touch checks.
+Punch-Out CI substitutes only the official pinned loader with a deterministic emulator adapter; it does not fetch or store a ROM and does not claim live gameplay coverage.
+Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused input checks.
+Separately verify the real external source in a browser: check the direct CORS response and NES header, title screen, starting a bout, movement, both punches, Start/Select, gesture audio, and exit back to the exhibit.
+Capture desktop and mobile instructions and live gameplay, checking the centered viewport, cabinet transitions, readable copy, and absence of emulator touch controls or toolbars.
+Keep ROM bytes out of fixtures, screenshots' supporting files, build output, and committed artifacts.
+Live Chromium desktop and Pixel 7 emulation verified a 200 CORS response with the NES header, title and bout startup, movement, both punches, Start/Select delivery, an active audio signal, and exact return position with the AudioContext closed on exit.
+Review the captured [desktop instructions](../../../docs/screenshots/punch-out-instructions-desktop.png), [desktop gameplay](../../../docs/screenshots/punch-out-gameplay-desktop.png), [mobile instructions](../../../docs/screenshots/punch-out-instructions-mobile.png), and [mobile gameplay](../../../docs/screenshots/punch-out-gameplay-mobile.png).
 Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
 `tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Reset, and connection cleanup.
 It verifies that both cabinet and keyboard X do nothing for every main menu selection.

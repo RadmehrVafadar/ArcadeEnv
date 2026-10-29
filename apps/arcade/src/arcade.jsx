@@ -87,6 +87,8 @@ export default function Arcade() {
       setGameInput(null);
     };
     const keydown = event => {
+      // Stateful pages share keyboard routing with the projected cabinet controls.
+      if (gameInput.setButton) return;
       if (event.target.closest?.('.cabinet-control') && [' ', 'Enter'].includes(event.key)) return;
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
       const action = cabinetKeyActions[key];
@@ -94,7 +96,7 @@ export default function Arcade() {
       if (cabinetKeyDirections[key]) gameInput.setDirection('keyboard:' + event.code, cabinetKeyDirections[key]);
       if (action && !event.repeat) gameInput.action(action);
     };
-    const keyup = event => gameInput.setDirection('keyboard:' + event.code, null);
+    const keyup = event => { if (!gameInput.setButton) gameInput.setDirection('keyboard:' + event.code, null); };
     const lifecycle = new AbortController();
     frameWindow.addEventListener('pagehide', disconnect, { signal: lifecycle.signal });
     document.addEventListener('keydown', keydown);
@@ -150,6 +152,7 @@ export default function Arcade() {
               ref={element => { iframe.current = element; if (element) invalidate(); }}
               src={iframeSrc}
               title="Radmehr Vafadar portfolio"
+              allow="autoplay"
               onLoad={() => {
                 portfolioLoaded.current = true;
                 removeReadinessListener.current?.();

@@ -31,6 +31,17 @@ var hasPlayerMoved = false;
 var initialX = x;
 var initialY = y;
 
+try {
+   var returnPosition = JSON.parse(window.sessionStorage.getItem('punch-out-return'));
+   window.sessionStorage.removeItem('punch-out-return');
+   if (Number.isFinite(returnPosition?.x) && Number.isFinite(returnPosition?.y) &&
+       returnPosition.x >= 0 && returnPosition.x <= 176 && returnPosition.y >= 0 && returnPosition.y <= 496) {
+      x = returnPosition.x;
+      y = returnPosition.y;
+      hasPlayerMoved = true;
+   }
+} catch { /* Private browsing can disable session storage. */ }
+
 
 
 
@@ -50,10 +61,11 @@ var statues = [
       interactPadding: 10 },
 
    { 
-      id: "Boids-Algorithm", 
+      id: "Punch-Out",
       rect: { x1: 204, y1: 108, x2: 154, y2: 154 }, 
-      text: "A bird simulation? Maybe I can learn something from it.", 
-      url: 'https://radmehrvafadar.github.io/Boids-algorithm-demo/',
+      text: "Mike Tyson's Punch-Out!! Step into the ring. X: play inside this cabinet.",
+      url: import.meta.env.BASE_URL + 'src/punch-out/punch-out.html',
+      internal: true,
       interactPadding: 10 },
 
 
@@ -296,7 +308,11 @@ function activateInteraction(open, repeat = false) {
    }
    var nearbyForOpen = getNearbyStatue(x, y);
    if (open && nearbyForOpen && nearbyForOpen.url && !repeat) {
-      if (mobileControls) {
+      if (nearbyForOpen.internal) {
+         clearInputs('');
+         try { window.sessionStorage.setItem('punch-out-return', JSON.stringify({ x, y })); } catch { /* Returning still works without storage. */ }
+         window.location.href = nearbyForOpen.url;
+      } else if (mobileControls) {
          // In-app browsers may not support new tabs; leave the cabinet iframe too.
          window.top.location.href = nearbyForOpen.url;
       } else {
@@ -307,6 +323,7 @@ function activateInteraction(open, repeat = false) {
 
 document.addEventListener("keydown", (e) => {
    if (typeof e.key === 'string' && e.key.toLowerCase() === 'q') {
+      if (e.repeat) { return; }
       window.location.href = import.meta.env.BASE_URL;
       return;
    }
@@ -318,7 +335,10 @@ document.addEventListener("keydown", (e) => {
    }
 
 
-   if ((typeof e.key === 'string' && e.key.toLowerCase() === 'z') || (typeof e.key === 'string' && e.key.toLowerCase() === 'x')) { interact = true }
+   if ((typeof e.key === 'string' && e.key.toLowerCase() === 'z') || (typeof e.key === 'string' && e.key.toLowerCase() === 'x')) {
+      interact = true;
+      placeCharacter();
+   }
 })
 
 document.addEventListener("keyup", (e) => {

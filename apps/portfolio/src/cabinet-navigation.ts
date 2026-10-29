@@ -4,6 +4,7 @@ export interface CabinetInput {
   reset(): void
   setDirection(source: string, direction: string | null): void
   action(action: string): void
+  setButton?(source: string, action: string, pressed: boolean, cancelled?: boolean): void
   setDisplayScale(scale: number): void
 }
 

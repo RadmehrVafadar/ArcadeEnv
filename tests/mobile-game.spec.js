@@ -75,7 +75,7 @@ test('mobile keyboard Z and X read, open exhibits, and exit', async ({ page, con
 
 test('mobile X opens projects outside the iframe when in-app popups are blocked', async ({ page, context }) => {
   await context.addInitScript(() => { window.open = () => null; });
-  await context.route('https://radmehrvafadar.github.io/**', route => route.fulfill({
+  await context.route('https://www.linkedin.com/**', route => route.fulfill({
     contentType: 'text/html', body: '<title>Project fixture</title>',
   }));
   await page.route('**/embedded-game-test', route => route.fulfill({
@@ -86,14 +86,14 @@ test('mobile X opens projects outside the iframe when in-app popups are blocked'
   const game = page.frameLocator('iframe');
   await game.locator('.character').click();
   await page.keyboard.press('z');
-  await page.keyboard.down('ArrowRight');
+  await page.keyboard.down('ArrowLeft');
   try {
     await expect(game.locator('.actionPrompt')).toContainText('Press X to open');
   } finally {
-    await page.keyboard.up('ArrowRight');
+    await page.keyboard.up('ArrowLeft');
   }
   await page.keyboard.press('x');
-  await expect(page).toHaveURL('https://radmehrvafadar.github.io/Boids-algorithm-demo/');
+  await expect(page).toHaveURL('https://www.linkedin.com/in/radmehrv/');
   expect(context.pages()).toHaveLength(1);
 });
 

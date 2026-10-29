@@ -16,6 +16,8 @@ export default defineConfig({
         main: 'index.html',
         game: 'src/portfolio-game/game.html',
         blog: 'src/blog-website/blog.html',
+        punchOut: 'src/punch-out/punch-out.html',
+        punchOutRuntime: 'src/punch-out/runtime.html',
       },
     },
   },

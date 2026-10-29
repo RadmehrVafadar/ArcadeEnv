@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Mike Tyson's Punch-Out!!</title>
+    <link rel="stylesheet" href="./punch-out.css">
+  </head>
+  <body data-state="loading" tabindex="-1">
+    <main id="viewport" aria-label="Punch-Out game viewport"></main>
+    <section id="instructions" aria-labelledby="game-title">
+      <h1 id="game-title">Mike Tyson's<br>Punch-Out!!</h1>
+      <dl>
+        <div><dt>Joystick / arrows / WASD</dt><dd>Move &amp; dodge</dd></div>
+        <div><dt>Z: B / X: A</dt><dd>Left / right punch</dd></div>
+        <div><dt>Z + X together / Shift</dt><dd>Select</dd></div>
+        <div><dt>Tap Reset / Q / Enter</dt><dd>Start</dd></div>
+        <div><dt>Hold Reset / Q</dt><dd>Exit (0.6 sec)</dd></div>
+      </dl>
+      <p id="status" role="status" aria-live="polite">Loading the ring...</p>
+    </section>
+    <script type="module" src="./punch-out.ts"></script>
+  </body>
+</html>

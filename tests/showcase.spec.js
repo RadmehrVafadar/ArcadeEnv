@@ -13,9 +13,9 @@ test('showcase links open on one X press after releasing X in the previous tab',
     return new DOMMatrixReadOnly(getComputedStyle(element).transform).m41 / pixelSize + playerCenter;
   });
   for (const [direction, target, url] of [
-    ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
     ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehrv/'],
-    ['ArrowRight', 144, 'https://radmehrvafadar.github.io/Boids-algorithm-demo/'],
+    ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehrv/'],
+    ['ArrowLeft', 40, 'https://www.linkedin.com/in/radmehrv/'],
   ]) {
     await page.keyboard.down(direction);
     try {

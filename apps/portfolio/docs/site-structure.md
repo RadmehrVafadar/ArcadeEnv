@@ -1,6 +1,6 @@
 # Site structure
 
-The portfolio combines a React landing page with two standalone HTML pages.
+The portfolio combines a React landing page with standalone showcase, blog, and Punch-Out pages.
 
 ## Why
 
@@ -27,7 +27,9 @@ A full-width underscore marks the selected entry; Z activates its native link, a
 X is the back action and does nothing on the main menu, which has no parent page.
 The same input interface lets visitors navigate blog links and return directly to the menu with Reset.
 Standalone visits retain normal link navigation without a cabinet selection marker.
-Vite builds all three HTML entries and processes their scripts, stylesheets, and referenced images.
+Punch-Out is reached through the showcase exhibit and adds no main-menu entry.
+Its same-origin wrapper and isolated emulator runtime are separate HTML entries beneath `src/punch-out/`.
+Vite builds all five HTML entries and processes their scripts, stylesheets, and referenced images.
 Files in `public/`, including the resume, are copied unchanged into `dist/`.
 
 ## Tech
