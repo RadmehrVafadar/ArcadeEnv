@@ -54,8 +54,9 @@ No ROM bytes are bundled, proxied, uploaded, or served by this deployment.
 Each session runs in a disposable same-origin runtime iframe; retry or exit removes its realm, cancelling pending requests and destroying audio and emulator resources.
 Initialization times out after 45 seconds, with Z to retry and Reset/Q to exit inside the cabinet.
 Audio starts automatically where browser policy permits and resumes from cabinet or keyboard gestures without a separate focus click.
-Input focuses the emulator viewport automatically, forwarding its keyboard events through the same adapter and cabinet feedback.
-The pinned legacy NES core uses its direct keyboard interface for adapter-generated transitions; native keys are intercepted first so they cannot bypass chord timing or duplicate input.
+Input uses EmulatorJS's `gameManager.simulateInput` joypad API without depending on focus or synthetic keyboard events.
+Native keys in the runtime are intercepted first and forwarded through the same adapter and cabinet feedback, preserving chord timing without duplicate input.
+Moving focus between the embedded page and cabinet controls preserves held input; leaving the browser clears it.
 External source/CDN availability and the source's unverified redistribution authorization remain limitations.
 On mobile, X/Open navigates the current top-level browser window so project links work in in-app browsers without popup support and leave the cabinet iframe.
 Desktop project links continue to open a separate tab.

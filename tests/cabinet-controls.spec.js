@@ -129,6 +129,8 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   const scrollY = () => frame.locator('body').evaluate(() => window.scrollY);
   const scroll = await grabJoystick(page, isMobile);
   await scroll.move(0, 30);
+  // Focus can move between the reader and cabinet while the physical stick stays held.
+  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).focus();
   await expect.poll(scrollY).toBeGreaterThan(100);
   await scroll.release();
   await frame.locator('body').evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));

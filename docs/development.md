@@ -40,6 +40,7 @@ A native-touch regression models iPhone rejection of finger-down audio unlocks a
 Root unit checks include the cabinet joystick's dead-zone and axis selection alongside launcher and browser configuration checks.
 Cabinet browser checks cover mouse, multitouch, keyboard coexistence, iframe reconnection, project actions, and projected controls at desktop, phone, landscape, and tablet sizes.
 Punch-Out checks intercept only the pinned EmulatorJS loader with a deterministic adapter fixture, exercising the real routes, input timing, keyboard and multitouch sources, animations, loading failure, cancellation, and return navigation without ROM data or external availability.
+The fixture accepts the NES joypad API and samples held buttons only on running core frames; canvas key events alone cannot satisfy input assertions.
 The real game loads EmulatorJS 4.2.3 and the NES core directly from `cdn.emulatorjs.org` and requests its ROM directly from NES Ninja using browser CORS; the build, dev proxy, and deployment never contain or serve the ROM.
 Live-source gameplay and audio verification is separate from CI; see [portfolio testing](../apps/portfolio/docs/testing.md).
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.

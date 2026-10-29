@@ -11,6 +11,7 @@ async function mockEmulator(page, { delay = 0, fail = false } = {}) {
 }
 
 const events = frame => frame.locator('#emulator-frame').evaluate(element => element.contentWindow.EJS_emulator.events);
+const samples = frame => frame.locator('#emulator-frame').evaluate(element => element.contentWindow.EJS_emulator.samples);
 
 test('keyboard directions, punches, Start/Select, visibility and cancellation use the emulator adapter', async ({ page }) => {
   await mockEmulator(page);
@@ -40,6 +41,7 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   await page.keyboard.down('ArrowUp');
   await page.keyboard.down('z');
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 0, pressed: 1 });
+  await expect.poll(() => samples(page)).toContainEqual([0, 4]);
   await page.keyboard.up('z');
   await page.keyboard.up('ArrowUp');
   await page.keyboard.press('x');
@@ -106,6 +108,9 @@ test('entry stays in the cabinet, held inputs animate, Reset returns to the exhi
   await expect(read).toHaveAttribute('data-pressed');
   await expect(page.locator('[data-direction="left"]')).toBeVisible();
   await expect.poll(() => events(frame)).toContainEqual({ player: 0, button: 0, pressed: 1 });
+  await frame.locator('body').focus();
+  await read.focus();
+  await expect.poll(async () => (await samples(frame)).at(-1)).toEqual([0, 6]);
   await page.keyboard.up('z');
   await page.keyboard.up('ArrowLeft');
   await frame.locator('body').focus();
@@ -138,6 +143,7 @@ test('entry stays in the cabinet, held inputs animate, Reset returns to the exhi
     await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [left, punch] });
     await expect(read).toHaveAttribute('data-pressed');
     await expect.poll(() => events(frame)).toContainEqual({ player: 0, button: 0, pressed: 1 });
+    await expect.poll(() => samples(frame)).toContainEqual([0, 6]);
     await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await expect(read).not.toHaveAttribute('data-pressed');
     await page.waitForTimeout(40);

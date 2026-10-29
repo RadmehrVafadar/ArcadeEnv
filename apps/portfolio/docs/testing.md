@@ -49,11 +49,13 @@ The embedded portfolio regression checks the same behavior from inside the arcad
 
 VM tests do not replace browser rendering or real pointer and touch checks.
 Punch-Out CI substitutes only the official pinned loader with a deterministic emulator adapter; it does not fetch or store a ROM and does not claim live gameplay coverage.
+The fixture implements `gameManager.simulateInput` and polls simultaneous held buttons on running emulated frames, rather than treating canvas keyboard events as NES input.
 Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused input checks.
 Separately verify the real external source in a browser: check the direct CORS response and NES header, title screen, starting a bout, movement, both punches, Start/Select, gesture audio, and exit back to the exhibit.
 Capture desktop and mobile instructions and live gameplay, checking the centered viewport, cabinet transitions, readable copy, and absence of emulator touch controls or toolbars.
 Keep ROM bytes out of fixtures, screenshots' supporting files, build output, and committed artifacts.
-Live Chromium desktop and Pixel 7 emulation verified a 200 CORS response with the NES header, title and bout startup, movement, both punches, Start/Select delivery, an active audio signal, and exact return position with the AudioContext closed on exit.
+Live Chromium desktop and iPhone 13 emulation verified a 200 CORS response with the NES header, title and bout startup, movement, both punches, Start/Select delivery into the real NES core, an active audio signal, and exact return position with the AudioContext closed on exit.
+The focused input and retry regressions also pass in WebKit with an iPhone viewport; physical iPhone Safari remains untested.
 Review the captured [desktop instructions](../../../docs/screenshots/punch-out-instructions-desktop.png), [desktop gameplay](../../../docs/screenshots/punch-out-gameplay-desktop.png), [mobile instructions](../../../docs/screenshots/punch-out-instructions-mobile.png), and [mobile gameplay](../../../docs/screenshots/punch-out-gameplay-mobile.png).
 Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
 `tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Reset, and connection cleanup.
@@ -69,6 +71,7 @@ Its mobile history regression dispatches persisted pagehide/pageshow events and 
 Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Reset.
 It also enters `/tech`, verifies that its first article has focus, and opens it with Enter.
 Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
+They move focus from the embedded reader to a cabinet button while the joystick is held, verifying that internal focus changes do not interrupt scrolling.
 Development fixtures verify all WASD and arrow directions, horizontal code overflow, and stopping on disconnect.
 The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.
 Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.

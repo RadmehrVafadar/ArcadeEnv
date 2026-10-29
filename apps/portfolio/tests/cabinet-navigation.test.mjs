@@ -13,6 +13,8 @@ function fixture({ article = false, defaultIndex = -1 } = {}) {
   page.requestAnimationFrame = callback => { frames.set(++nextFrame, callback); return nextFrame; };
   page.cancelAnimationFrame = id => frames.delete(id);
   page.document = new EventTarget();
+  page.document.hasFocus = () => false;
+  page.parent = page;
   page.location = { href: '/portfolio/' };
   const root = new EventTarget();
   page.document.defaultView = page;
@@ -137,6 +139,21 @@ test('X does nothing on every main menu selection', () => {
     input.setDirection('stick', 'down');
     input.setDirection('stick', null);
   }
+});
+
+test('reader focus moving into the cabinet preserves held input; leaving the browser clears it', () => {
+  const { page, input, frame, frames } = fixture({ article: true });
+  page.parent = { document: { hasFocus: () => true } };
+  input.connect();
+  input.setDirection('pointer:1', 'down');
+  frame(0);
+  const before = page.scrollY;
+  page.dispatchEvent(new Event('blur'));
+  frame(16);
+  assert.ok(page.scrollY > before, 'The physical joystick keeps scrolling across internal focus changes');
+  page.parent.document.hasFocus = () => false;
+  page.dispatchEvent(new Event('blur'));
+  assert.equal(frames.size, 0, 'Leaving the browser still releases held input');
 });
 
 test('X activates the blog parent link independently of selection', () => {

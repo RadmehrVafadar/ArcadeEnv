@@ -4,15 +4,10 @@ import { createSampledInput } from './sampled-input'
 const dataPath = 'https://cdn.emulatorjs.org/4.2.3/data/'
 const rom = "Mike Tyson's Punch-Out!! (U) (PRG1) [!].nes"
 export const romURL = 'https://nesninja.com/downloadsnes/' + encodeURIComponent(rom).replace(/[!'()*]/g, value => '%' + value.charCodeAt(0).toString(16).toUpperCase())
-const keys: Record<NESButton, [string, string, number]> = {
-  b: ['z', 'KeyZ', 90], a: ['x', 'KeyX', 88], start: ['Enter', 'Enter', 13], select: ['Shift', 'ShiftRight', 16],
-  up: ['ArrowUp', 'ArrowUp', 38], down: ['ArrowDown', 'ArrowDown', 40], left: ['ArrowLeft', 'ArrowLeft', 37], right: ['ArrowRight', 'ArrowRight', 39],
-}
-const coreEvents = new WeakSet<Event>()
+const buttons: Record<NESButton, number> = { b: 0, select: 2, start: 3, up: 4, down: 5, left: 6, right: 7, a: 8 }
 type Emulator = {
   on(event: string, callback: () => void): void
-  gameManager?: { getFrameNum(): number }
-  canvas: HTMLCanvasElement
+  gameManager?: { getFrameNum(): number; simulateInput(player: number, button: number, pressed: number): void }
   pause(): void
   play(): void
   Module?: { pauseMainLoop?(): void; AL?: { currentCtx?: { audioCtx?: AudioContext } } }
@@ -24,12 +19,7 @@ const sampled = createSampledInput({
   requestFrame: callback => requestAnimationFrame(callback),
   cancelFrame: id => cancelAnimationFrame(id),
   send(button, pressed) {
-    // 4.2.3 legacy NES cores reliably accept their direct keyboard interface.
-    if (pressed) document.querySelector<HTMLElement>('#emulator')!.focus({ preventScroll: true })
-    const [key, code, keyCode] = keys[button]
-    const event = new KeyboardEvent(pressed ? 'keydown' : 'keyup', { key, code, keyCode, which: keyCode, bubbles: true })
-    coreEvents.add(event)
-    host.EJS_emulator?.canvas.dispatchEvent(event)
+    host.EJS_emulator?.gameManager?.simulateInput(0, buttons[button], Number(pressed))
   },
 })
 
@@ -45,7 +35,7 @@ export const runtime = {
       EJS_noAutoFocus: true,
       EJS_Buttons: Object.fromEntries(['playPause', 'restart', 'mute', 'settings', 'fullscreen', 'saveState', 'loadState', 'screenRecord', 'gamepad', 'cheat', 'volumeSlider', 'saveSavFiles', 'loadSavFiles', 'quickSave', 'quickLoad', 'screenshot', 'cacheManager', 'exitEmulation', 'netplay', 'diskButton', 'contextMenu'].map(button => [button, false])),
       EJS_defaultControls: { 0: {}, 1: {}, 2: {}, 3: {} },
-      EJS_defaultOptions: { 'virtual-gamepad': 'disabled', keyboardInput: 'enabled' },
+      EJS_defaultOptions: { 'virtual-gamepad': 'disabled', keyboardInput: 'disabled' },
       EJS_disableDatabases: true,
       EJS_disableLocalStorage: true,
       EJS_CacheLimit: 0,
@@ -80,7 +70,7 @@ export const runtime = {
 
 Object.assign(window, { punchOutRuntime: runtime })
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
-  if (window.parent === window || coreEvents.has(event)) return
+  if (window.parent === window) return
   const key = event as KeyboardEvent
   if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'z', 'x', 'q', 'Enter', 'Shift', ' '].includes(key.key.length === 1 ? key.key.toLowerCase() : key.key)) return
   key.preventDefault()

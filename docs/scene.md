@@ -60,11 +60,12 @@ Button depression and joystick tilt invalidate frames only while settling, with 
 Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
 Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
 Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
-Focusing the embedded page does not cancel a captured cabinet gesture.
+Moving focus between the embedded page and cabinet controls does not cancel a held cabinet gesture or article scroll.
 
 The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
 Punch-Out additionally implements optional `setButton(source, action, pressed, cancelled?)` for held read/open/menu buttons and direct Start/Select.
 On this page, cabinet pointers and keyboard events in either the parent or portfolio iframe share that adapter, including independent direction-plus-punch sources and cabinet feedback.
+The runtime sends NES joypad states through EmulatorJS's `gameManager.simulateInput` API, independently of keyboard focus.
 Cancellation, blur, hiding, navigation, and disconnect clear held inputs and pending chord, tap, and exit timers.
 The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
 When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
