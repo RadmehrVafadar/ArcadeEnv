@@ -1,26 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="stylesheet" href="game.css">
-  <link href="../assets/fonts/game-font.css" rel="stylesheet">
-
-<div class="frame">
-    <div class="corner_topleft"></div>
-   <div class="corner_topright"></div>
-   <div class="corner_bottomleft"></div>
-   <div class="corner_bottomright"></div>
-   
-   
-   <div class="camera">
-      <div class="map pixel-art">
-         <div class="character" facing="up" walking="true">
-            <div class="shadow pixel-art"></div>
-            <div class="character_spritesheet pixel-art"></div>
-         </div>
-      </div>
-   </div>
-    <div class="dialogueBox">
-    </div>
-
-    <div class="actionPrompt"></div>
-
-   <script type="module" src="./game.js"></script>
-</div>
+<meta name="theme-color" content="#9fa7e4">
+<title>The Museum | Radmehr Vafadar</title>
+<link href="../assets/fonts/game-font.css" rel="stylesheet">
+</head>
+<body>
+<main class="frame" aria-label="Portfolio museum">
+  <section class="world-panel" aria-label="Museum world">
+    <div class="camera"></div>
+    <a class="menu-link" href="/portfolio/">Menu <span>Q</span></a>
+    <p class="loading" role="status">Opening the museum…</p>
+    <div class="message-region"><p class="dialogueBox" role="status" aria-live="polite" hidden></p></div>
+  </section>
+</main>
+<script type="module" src="./game.ts"></script>
+</body>
+</html>

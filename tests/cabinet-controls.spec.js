@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { position, approachMirror, ready } from './game-helpers.js';
 
 test.describe.configure({ timeout: 60000 });
 
@@ -9,20 +10,12 @@ async function startGame(page) {
     await page.getByRole('button', { name: 'PRESS TO PLAY' }).click();
   }
   await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).click();
+  await ready(page.frameLocator('iframe'));
   await expect(page.frameLocator('iframe').locator('.frame')).toHaveClass(/cabinet-connected/);
   await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toHaveAttribute('data-input-page', '/portfolio/src/portfolio-game/game.html');
   await expect(page.locator('.neon-play-sign')).toHaveCount(0, { timeout: 15000 });
   return page.frameLocator('iframe');
-}
-
-async function position(game) {
-  return game.locator('.character').evaluate(element => {
-    const value = getComputedStyle(document.documentElement).getPropertyValue('--pixel-size');
-    const scale = matchMedia('(pointer: coarse)').matches ? parseFloat(value) : parseInt(value);
-    const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
-    return { x: transform.m41 / scale, y: transform.m42 / scale };
-  });
 }
 
 async function grabJoystick(page, mobile) {
@@ -94,7 +87,7 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await next.release();
   await expect(selected()).toHaveText('Start');
   await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
-  await expect(frame.locator('.character')).toBeVisible();
+  await ready(frame);
   await page.getByRole('button', { name: 'Cabinet: Start: Q Menu', exact: true }).click();
   await expect(selected()).toHaveText('Start');
   const blog = await grabJoystick(page, isMobile);
@@ -218,6 +211,7 @@ test('original zoom keeps three invisible working action targets on every device
   const originalWidth = (await screen.boundingBox()).width;
   const game = page.frameLocator('iframe');
   await game.getByRole('link', { name: 'Start', exact: true }).click();
+  await ready(game);
   await expect(game.locator('.frame')).toHaveClass(/cabinet-connected/);
   const read = page.getByRole('button', { name: 'Cabinet: Z Read', exact: true });
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
@@ -243,29 +237,26 @@ test('joystick moves in four directions, Q reconnects, and Z and X retain their 
   const game = await startGame(page);
   await expect(game.locator('.gameControls')).toHaveCount(0);
   const gesture = await grabJoystick(page, isMobile);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   for (const [direction, dx, dy] of [['up', 0, -30], ['right', 30, 0], ['down', 0, 30], ['left', -30, 0]]) {
     await gesture.move(dx, dy);
-    await expect(game.locator('.character')).toHaveAttribute('facing', direction);
-    await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+    await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-facing', direction);
+    await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   }
   await gesture.move(0, 0);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   await gesture.move(-150, 0);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   await gesture.release();
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   await page.getByRole('button', { name: 'Cabinet: Start: Q Menu', exact: true }).click();
   await expect(game.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await game.getByRole('link', { name: 'Start', exact: true }).click();
+  await ready(game);
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toHaveAttribute('data-input-page', '/portfolio/src/portfolio-game/game.html');
-  const left = await grabJoystick(page, isMobile);
-  await left.move(-30, 0);
-  await expect.poll(async () => (await position(game)).x, { intervals: [16] }).toBeLessThanOrEqual(isMobile ? 24 : 40);
-  await left.release();
-  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
+  await approachMirror(game);
   await expect(game.locator('.dialogueBox')).toContainText('mirror');
   if (isMobile) {
     await page.evaluate(() => { window.open = () => { throw new Error('Popups unavailable'); }; });
@@ -291,31 +282,31 @@ test('a second finger can press Z without releasing the joystick; cancellation s
   const held = { ...center, y: center.y + 30 };
   await send('touchStart', [center]);
   await send('touchMove', [held]);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   const read = await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).boundingBox();
   const second = { x: read.x + read.width / 2, y: read.y + read.height / 2, id: 2 };
   await send('touchStart', [held, second]);
   await send('touchMove', [held]);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   await send('touchMove', [center]);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   await send('touchMove', [held]);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   await send('touchCancel', []);
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   await session.detach();
 });
 
 test('keyboard movement survives joystick release and action buttons support keyboard activation', { tag: '@webgl' }, async ({ page, isMobile }) => {
   const game = await startGame(page);
-  await game.locator('.camera').click({ position: { x: 10, y: 10 } });
+  await game.locator('.camera').click();
   await page.keyboard.down('ArrowDown');
   const gesture = await grabJoystick(page, isMobile);
   await gesture.move(0, 30);
   await gesture.release();
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
   await page.keyboard.up('ArrowDown');
-  await expect(game.locator('.character')).toHaveAttribute('walking', 'false');
+  await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'false');
   const menu = page.getByRole('button', { name: 'Cabinet: Start: Q Menu', exact: true });
   await menu.focus();
   await page.keyboard.press('Enter');
@@ -325,7 +316,7 @@ test('keyboard movement survives joystick release and action buttons support key
 test('keyboard Z/X depress buttons and arrows/WASD tilt the physical joystick', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Physical keyboard feedback.');
   const game = await startGame(page);
-  await game.locator('.camera').click({ position: { x: 10, y: 10 } });
+  await game.locator('.camera').click();
   const stick = page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true });
   // Check actions at spawn, before movement can bring the player to the exit.
   for (const [key, label] of [['z', 'Z Read'], ['x', 'X Open']]) {
@@ -339,7 +330,7 @@ test('keyboard Z/X depress buttons and arrows/WASD tilt the physical joystick', 
   for (const [key, direction] of [['ArrowUp', 'up'], ['ArrowDown', 'down'], ['ArrowLeft', 'left'], ['ArrowRight', 'right'], ['w', 'up'], ['a', 'left'], ['s', 'down'], ['d', 'right']]) {
     await page.keyboard.down(key);
     await expect(stick).toHaveAttribute('data-direction', direction);
-    await expect(game.locator('.character')).toHaveAttribute('walking', 'true');
+    await expect(game.locator('canvas[data-ready="true"]')).toHaveAttribute('data-walking', 'true');
     await page.keyboard.up(key);
     await expect(stick).toHaveAttribute('data-direction', '');
   }
@@ -391,6 +382,21 @@ test('three action buttons form a visible row beside the joystick on desktop and
       }
     }).toPass();
     await expect(game.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
+    await expect(async () => {
+      const frameBounds = await page.locator('iframe').boundingBox();
+      const text = await game.locator('body').evaluate(() => {
+        const boxes = [...document.querySelectorAll('.menu-link, .dialogueBox')].flatMap(element => {
+          const range = document.createRange(); range.selectNodeContents(element);
+          return [...range.getClientRects()].map(rect => ({ left: rect.left, right: rect.right }));
+        });
+        return { width: innerWidth, boxes };
+      });
+      const scale = frameBounds.width / text.width;
+      for (const box of text.boxes) {
+        expect(frameBounds.x + box.left * scale).toBeGreaterThanOrEqual(0);
+        expect(frameBounds.x + box.right * scale).toBeLessThanOrEqual(viewport.width);
+      }
+    }).toPass({ timeout: 5000 });
     if (isMobile) {
       await expect(async () => {
         const fontSize = await game.locator('.dialogueBox').evaluate(element => parseFloat(getComputedStyle(element).fontSize));

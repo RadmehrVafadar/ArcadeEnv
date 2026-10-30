@@ -1,92 +1,91 @@
 # Testing
 
-The portfolio workspace checks code quality, game behavior, and production navigation without an additional test framework.
+The workspace checks authored geometry, input, production routes, and real browser behavior.
 
 ## Why
 
 Development routing can conceal missing production pages and downloads.
-Game checks protect controls, collision rules, and base-aware exit navigation.
+Game checks protect consistent collision, controls, and base-aware navigation.
 
 ## How it works
 
-`npm run lint` checks TypeScript, JavaScript, configuration, and tests.
-`npm run build` runs TypeScript checks and builds all HTML entries.
-`npm test --workspace=portfolio-website` at the repository root runs the built-in Node.js test runner against an existing portfolio build.
-Use `npm run test:build --workspace=portfolio-website` to build and test this app independently.
-Root `npm run test:unit` runs launcher and browser configuration checks before this app's unit suite.
-Root `npm run check` additionally builds the combined site and runs the full browser feature suite on production desktop/mobile, plus focused development integration and content-fixture coverage.
-Game tests execute the actual script in an isolated VM with a minimal DOM substitute.
-Startup regressions check the desktop project welcome and movement and Q exit hints, verify the mobile Z/X instructions, and verify that movement dismisses the dialogue and removes its startup styling.
-Browser checks verify that the welcome and two larger control rows fit a compact dialogue without clipping and capture production desktop and mobile screenshots.
-The production test reuses the existing build, starts a local preview server, and checks the `/portfolio/` homepage and each prefixed menu destination and its linked scripts and stylesheets over HTTP.
-It verifies that local scripts and stylesheets use the portfolio prefix and that the resume bytes match the actual PDF.
-Production tests only read `dist/`; root `npm run check` and CI build once before running the Node and browser tests.
-Browser tests use two workers, with the stylesheet-mutating HMR check isolated in a dependency project that finishes before other browser tests start.
-Menu motion checks run directly on the portfolio instead of loading the cabinet.
-Font regressions verify that both portfolio fonts load successfully without external requests in development and production on desktop and mobile.
-Mobile emulation preserves the device viewport and touch input while rendering at one device pixel per CSS pixel.
-CI records traces only on a failed test's retry and treats flaky retries as failures.
+Run root `npm run check` for lint, TypeScript, both builds, unit tests, and browser tests.
+`npm test` expects an existing build; `npm run test:unit` runs launcher, browser configuration, cabinet/audio, and portfolio module checks.
+`npm test --workspace=portfolio-website` checks the app independently against its existing build.
+Use `npm run test:build --workspace=portfolio-website` to build it first.
+
+Museum unit tests import actual TypeScript modules with Node 24 type stripping.
+They validate all six content records, map references, marker uniqueness, unsupported shapes, moved and horizontally mirrored footprints, opposite-wall lamp orientation, nearest interaction selection, source priority, and safe Punch-Out return positions.
+Browser helpers observe real Phaser canvas diagnostics and move through normal keyboard events; there is no teleport API.
+Movement helpers observe coordinate mutations directly, allow a target crossing within 12 world pixels, and correct larger misses so fixed-step catch-up cannot cause oscillation or excessive overshoot.
+Collision checks request two-pixel alignment with the exhibit base before testing its solid body.
+Interaction helpers derive approach points from Tiled footprints and require a visible description before any project action.
+Exhibit interaction regressions run at five rendered frames per second and after a 500ms frame stall, and cabinet checks wait for museum readiness before asserting reconnected controls.
+The boundary assertion preserves the original regression: the player's feet must remain within authored artwork dimensions on desktop and mobile.
+A travel assertion ensures the character reaches the bottom rather than passing from spawn without moving.
+Collision checks exercise walls and exhibit bases with the same feet body.
+All restored exhibits must be reachable and display their own descriptions automatically with X to open, hiding again outside their interaction range.
+The top-right action prompt must be absent, and opposite-wall lamp rails must overlap the stone trim.
+Movement checks compare 60 Hz and throttled 20 Hz rendering.
+Resize and orientation checks preserve position and camera scale without rebuilding geometry.
+Loading failures retain the Menu link; keyboard aliases, blur, and hidden tabs clear correctly.
+Desktop popup checks release X in the project tab and require the next single press to reopen it.
+Mobile checks disable popups and require top-level project navigation.
+
+Presentation captures include desktop, small-phone portrait, phone landscape, tablet, and the real cabinet iframe.
+Check crisp artwork, feet layering, lamp pools, readable dialogue, visible navigation, and unobstructed physical controls.
+Reference captures show the rebuilt [desktop hallway](../../../docs/screenshots/museum-desktop.png), [tablet hallway](../../../docs/screenshots/museum-tablet.png), and [phone cabinet](../../../docs/screenshots/museum-cabinet-phone.png).
+The game must have no duplicate on-screen D-pad or Read/Open buttons.
+The fractional-zoom regression checks rendered carpet pixels against the source palette, rejecting dark tile seams introduced by compositing.
+Classic-UI checks reject a reserved title bar, require the original white/black rounded dialogue style, and verify that short and long text change box dimensions without horizontal overflow.
+Cabinet text-range assertions keep Menu and dialogue inside the visible browser width, including the 412-by-915 projected-screen crop.
+Dialogue overlays the bottom of the world without reserving a bar or changing its dimensions.
+
+Production desktop and mobile run the full feature suite.
+Development projects retain `@smoke` integration and `@development` content fixtures.
+The stylesheet-mutating HMR dependency finishes before other projects.
+Mobile retains touch and viewport emulation with one device pixel per CSS pixel.
+Passing tests record no trace; CI records a failed retry and treats flaky retries as failures.
+Software WebGL tests have scoped timeouts and run serially per CI shard.
+See the root [development guide](../../../docs/development.md) for runner, cache, and sharding details.
+
+Production HTTP checks verify every prefixed HTML entry and linked local script/style, plus exact resume PDF bytes.
+The menu, blog, fonts, downloads, override, and embedded navigation retain their existing coverage.
+Cabinet browser tests use real mouse and CDP multitouch to exercise joystick directions, release/cancellation, keyboard coexistence, focus handoff, re-entry, and cached history.
+They also cover menu selection, Z activation, blog scrolling, X parent navigation, physical key feedback, and projected control geometry.
+Small-phone, landscape, and tablet captures show the game together with its physical control deck.
+Audio checks cover synthesis, mute preferences, gesture unlock, iPhone touch-release unlock, visibility, and disposal.
+Idle-rendering checks ensure cabinet feedback settles without continuous WebGL work.
+
+Punch-Out unit checks cover source ownership, chord timing, tap/hold boundaries, actual core-frame sampling, and cancellation.
+Browser checks substitute only the pinned EmulatorJS loader using a deterministic joypad fixture; CI fetches no ROM.
+They exercise internal exhibit entry, parent/iframe keyboard, cabinet feedback, simultaneous inputs, retry, teardown, and exact return position.
+The fixture samples held NES buttons only during running core frames, so canvas keyboard events alone cannot satisfy assertions.
+Instructions must fit, list the cabinet mappings, and keep Press Start steady with reduced motion.
+Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused emulator checks.
+The museum merge does not change emulator runtime behavior.
 
 ## Key files
 
-- `tests/game.test.mjs` - startup, arrow input, collisions, and interaction padding.
-- `tests/punch-out-input.test.mjs` - deterministic source ownership, punch transitions, short taps, 60 ms chord boundaries, 600 ms Start tap/hold, direct Start/Select, and timer cancellation.
-- `tests/punch-out-sampling.test.mjs` - slow-core sampling, separate repeated presses, concurrent directions, and immediate queue cancellation.
-- `../../tests/punch-out.spec.js` - internal exhibit entry, parent/iframe keyboard, cabinet feedback, multitouch, visibility, retry, teardown, and return position using `../../tests/fixtures/emulator.js` without ROM bytes.
-- `../../tests/mobile-game.spec.js` - full-viewport mobile sizing without fallback controls, keyboard Z/X interactions, exit, and world edges.
-- `tests/production.test.mjs` - built pages, scripts, stylesheets, and resume checks.
-- `../../tests/portfolio.spec.js` - assembled production HTML bytes, embedded navigation, downloads, and desktop controls.
-- `tests/blog.test.mjs` - Markdown catalog and relative content links.
-- `../../tests/blog.spec.js` - blog navigation across desktop/mobile and development/production, with unpublished article fixtures intercepted in development.
-- `../../tests/fonts.spec.js` - local font loading without external requests.
-
-Blog browser checks verify that the portfolio link opens a separate top-level tab and leaves the originating page in place.
-The embedded portfolio regression checks the same behavior from inside the arcade cabinet.
-- `.eslintrc.cjs` - lint rules and environment configuration.
-- `package.json` - verification commands.
+- `tests/game.test.mjs` - map, content, interaction, return positions, and input priority.
+- `../../tests/game-helpers.js` - normal movement and read-only canvas observations.
+- `../../tests/museum.spec.js` and `../../tests/game-boundaries.spec.js` - collision, reachability, focus, loading, speed, and boundary regression.
+- `../../tests/game-presentation.spec.js` and `../../tests/mobile-game.spec.js` - viewport geometry, overlay dialogue, mobile navigation, and screenshots.
+- `../../tests/showcase.spec.js` - repeated external-tab activation.
+- `../../tests/cabinet-controls.spec.js` - physical controls, focus, multitouch, and iframe lifecycle.
+- `tests/punch-out-input.test.mjs`, `tests/punch-out-sampling.test.mjs`, and `../../tests/punch-out.spec.js` - emulator input and integration.
+- `../../tests/fixtures/emulator.js` - deterministic loader fixture without ROM bytes.
+- `tests/production.test.mjs` and `../../tests/portfolio.spec.js` - production assets and integrated navigation.
+- `tests/cabinet-navigation.test.mjs` - menu/blog selection, synchronous activation, and cleanup.
+- `../../tests/arcade-audio.spec.js` and `../../tests/arcade-audio.test.mjs` - cabinet audio and lifecycle.
 
 ## Decisions and gotchas
 
-VM tests do not replace browser rendering or real pointer and touch checks.
-Punch-Out CI substitutes only the official pinned loader with a deterministic emulator adapter; it does not fetch or store a ROM and does not claim live gameplay coverage.
-The fixture implements `gameManager.simulateInput` and polls simultaneous held buttons on running emulated frames, rather than treating canvas keyboard events as NES input.
-Instruction regressions check the four cabinet mappings and flashing Press Start prompt, including a steady prompt for reduced motion.
-Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused input checks.
-Separately verify the real external source in a browser: check the direct CORS response and NES header, title screen, starting a bout, movement, both punches, Start/Select, gesture audio, and exit back to the exhibit.
-Capture desktop and mobile instructions and live gameplay, checking the centered viewport, cabinet transitions, readable copy, and absence of emulator touch controls or toolbars.
-Keep ROM bytes out of fixtures, screenshots' supporting files, build output, and committed artifacts.
-Live Chromium desktop and iPhone 13 emulation verified a 200 CORS response with the NES header, title and bout startup, movement, both punches, Start/Select delivery into the real NES core, an active audio signal, and exact return position with the AudioContext closed on exit.
-The focused input and retry regressions also pass in WebKit with an iPhone viewport; physical iPhone Safari remains untested.
-Review the captured [desktop instructions](../../../docs/screenshots/punch-out-instructions-desktop.png), [desktop gameplay](../../../docs/screenshots/punch-out-gameplay-desktop.png), [mobile instructions](../../../docs/screenshots/punch-out-instructions-mobile.png), and [mobile gameplay](../../../docs/screenshots/punch-out-gameplay-mobile.png).
-Cabinet input VM tests cover connection, disconnection, actions, source ownership, visibility resets, and projected text sizing.
-`tests/cabinet-navigation.test.mjs` covers one-step joystick selection, wrapping, source reset, synchronous link activation, blog X parent navigation, Start, and connection cleanup.
-It verifies that both cabinet and keyboard X do nothing for every main menu selection.
-`../../tests/resume-navigation.spec.js` verifies desktop menu preservation and mobile top-level resume navigation from an iframe that blocks popups.
-The mobile navigation fixture serves HTML at the PDF URL to avoid depending on a native PDF viewer; production HTTP checks verify the real PDF bytes.
-`../../tests/cabinet-input.test.mjs` checks joystick dead-zone and dominant-axis behavior, independently movable caps, the GLB's red Z/X caps and smaller Start button, the slightly left-shifted joystick position, and the row's visibility from the original camera.
-`../../tests/joystick-occlusion.spec.js` compares the joystick's red pixels with the iframe hidden and visible, captures desktop/mobile views, and checks iframe click-through after zoom.
-It holds the portfolio response and hides only the loading overlay during the pixel comparison, keeping mobile auto-zoom from moving the measured crop.
-A deliberate mobile delay between measuring and capturing protects against slow CI runners; the real portfolio response is released before checking zoom and navigation.
-`../../tests/cabinet-controls.spec.js` exercises real cabinet mouse and multitouch input, action navigation, re-entry, keyboard coexistence, and viewport geometry.
-Its mobile history regression dispatches persisted pagehide/pageshow events and checks that cabinet controls stay connected, fallback controls remain absent, and movement still works.
-Its menu regression selects Start, Blog, and Resume with the joystick, opens the PDF in a new tab using Z, enters the game, and returns from both the game and blog with Start.
-It also enters `/tech`, verifies that its first article has focus, and opens it with Enter.
-Article regressions cover continuous physical joystick scrolling, keyboard scrolling from the cabinet and iframe, release behavior, and removal of the underline when the article is no longer selected.
-They cover the natural article height and a constrained 95-pixel scroll range, measuring available distance after fonts are ready instead of requiring a fixed scroll beyond the document boundary.
-They move focus from the embedded reader to a cabinet button while the joystick is held, verifying that internal focus changes do not interrupt scrolling.
-The focus handoff regression temporarily reports an unfocused parent during blur, then restores focus before the next microtask, while separate checks still require real browser focus loss to clear input.
-Development fixtures verify all WASD and arrow directions, horizontal code overflow, and stopping on disconnect.
-The cabinet regression checks physical X navigation from a folder and the blog index; development article fixtures check keyboard X through all three levels.
-Keyboard feedback checks cover Z/X cap depression, all arrow and WASD joystick directions, held aliases, and input from both the parent page and iframe.
-Its camera regression checks the original zoom on desktop and mobile, transparent action targets, and working press feedback without visible control overlays.
-Viewport regressions verify that exactly three action buttons form a visible row beside the joystick on PC and mobile.
-Small-phone, landscape, and tablet screenshots capture the game and physical control deck together.
-The idle-rendering regression also checks that WebGL stops drawing after cabinet button feedback settles.
-Before changing UI behavior, inspect desktop and narrow-screen layouts, toggle the background, navigate every menu link, and check the browser console.
-For the arcade, check movement, exhibit prompts, Z/X interactions, and the exit door.
-Mobile browser regressions use Chromium device emulation and CDP touch input in development and production, covering small phones, portrait and landscape phones, and tablets.
-The mobile project-opening regression disables popups and verifies that pressing X inside an iframe navigates the top-level page to the project.
-They do not replace physical iOS and Android testing.
+Browser emulation does not replace physical iOS and Android testing.
+Separately verify the real external ROM/CDN source, starting a bout, movement, both punches, Start/Select, gesture audio, and return navigation.
+Keep ROM bytes out of fixtures, build output, and committed artifacts.
+Previous master verification captured [desktop instructions](../../../docs/screenshots/punch-out-instructions-desktop.png), [desktop gameplay](../../../docs/screenshots/punch-out-gameplay-desktop.png), [mobile instructions](../../../docs/screenshots/punch-out-instructions-mobile.png), and [mobile gameplay](../../../docs/screenshots/punch-out-gameplay-mobile.png).
+Those captures document the emulator, not the rebuilt hallway.
 
 ## Related
 

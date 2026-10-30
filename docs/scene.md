@@ -38,7 +38,7 @@ The mobile delay uses a timer after loading clears, and zoom timing excludes tim
 The HTML portfolio continues to animate and respond independently while the WebGL canvas is idle.
 
 All devices retain the original camera targets, with no additional gameplay zoom-out.
-PC instructions describe movement, Z to read, X to open, and Q to exit.
+PC museum instructions describe movement, X to open, and Q to exit, while nearby exhibit descriptions appear automatically.
 The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and Q/Menu from left to right.
 The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies Q.
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.

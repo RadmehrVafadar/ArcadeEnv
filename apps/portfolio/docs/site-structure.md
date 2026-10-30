@@ -35,7 +35,7 @@ Files in `public/`, including the resume, are copied unchanged into `dist/`.
 ## Tech
 
 React and TypeScript power the landing page.
-The arcade uses plain JavaScript and CSS; the blog mounts its own React reader from a standalone HTML entry.
+The arcade uses TypeScript, Phaser, and Tiled maps with HTML dialogue and a cabinet input adapter; the blog mounts its own React reader from a standalone HTML entry.
 
 ## Key files
 

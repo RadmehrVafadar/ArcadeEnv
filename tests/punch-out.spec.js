@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
+import { position as museumPosition, approachExhibit, ready } from './game-helpers.js';
 
 const route = '/portfolio/src/punch-out/punch-out.html';
 const fixture = await readFile(new URL('./fixtures/emulator.js', import.meta.url), 'utf8');
@@ -84,13 +85,12 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   const frame = page.frameLocator('.crt-screen > iframe');
   await expect(frame.locator('.button')).toHaveText(['Start', 'Blog', 'Resume']);
   await frame.getByRole('link', { name: 'Start', exact: true }).click();
+  await ready(frame);
   await expect(frame.locator('.frame')).toHaveClass(/cabinet-connected/);
-  await page.keyboard.down('ArrowRight');
-  await expect(frame.locator('.actionPrompt')).toContainText('X to open');
-  await page.keyboard.up('ArrowRight');
-  await page.keyboard.press('z');
+  await frame.locator('.camera').click();
+  await approachExhibit(frame, 'punch-out');
   await expect(frame.locator('.dialogueBox')).toContainText('Punch-Out');
-  const position = await frame.locator('.character').getAttribute('style');
+  const position = await museumPosition(frame);
   const before = await page.locator('.crt-screen > iframe').boundingBox();
   await page.locator('.crt-screen').evaluate(element => { window.originalCRT = element; window.originalCanvas = document.querySelector('canvas'); });
   await page.keyboard.press('x');
@@ -183,9 +183,9 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   expect(await page.evaluate(() => window.originalCRT === document.querySelector('.crt-screen') && window.originalCanvas === document.querySelector('canvas'))).toBe(true);
   await reset.hover();
   await page.mouse.down();
-  await expect(frame.locator('.character')).toBeVisible();
+  await expect(frame.locator('canvas[data-ready="true"]')).toBeVisible();
   await page.mouse.up();
-  await expect(frame.locator('.character')).toHaveAttribute('style', position);
+  expect(await museumPosition(frame)).toEqual(position);
   await page.keyboard.press('q');
   await expect(frame.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
 });

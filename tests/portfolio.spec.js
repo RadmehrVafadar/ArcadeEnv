@@ -1,53 +1,19 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { player, position, ready } from './game-helpers.js';
 
-test('game startup instructions match desktop and touch controls', async ({ page, isMobile }, testInfo) => {
+test('game startup instructions fit and disappear on movement', async ({ page }, testInfo) => {
   await page.goto('/portfolio/src/portfolio-game/game.html');
+  await ready(page);
   const dialogue = page.locator('.dialogueBox');
-  if (isMobile) {
-    await expect(dialogue).toContainText('Keyboard: arrows or WASD. Z: read / X: open / Q: exit.');
-  } else {
-    await expect(dialogue).toHaveText('Welcome to my project showcase!Move: WASD or ← ↑ ↓→Z: read / X: open / Q: exit');
-    expect(await dialogue.innerText()).toBe('Welcome to my project showcase!\nMove: WASD or ← ↑ ↓→\nZ: read / X: open / Q: exit');
-    await page.evaluate(() => document.fonts.ready);
-    const lines = await dialogue.evaluate(element => {
-      return [...element.children].map(node => {
-        const range = document.createRange();
-        range.selectNodeContents(node);
-        return [...range.getClientRects()].map(rect => ({ top: rect.top, right: rect.right }));
-      });
-    });
-    expect(lines.map(line => line.length)).toEqual([1, 1, 1]);
-    expect(lines[1][0].top).toBeGreaterThan(lines[0][0].top);
-    const bounds = await dialogue.boundingBox();
-    for (const line of lines) expect(line[0].right).toBeLessThan(bounds.x + bounds.width);
-    const sizes = await dialogue.evaluate(element => ({
-      controls: parseFloat(getComputedStyle(element.querySelector('.startupControl')).fontSize),
-      welcome: parseFloat(getComputedStyle(element.querySelector('.startupWelcome')).fontSize),
-      clientHeight: element.clientHeight, scrollHeight: element.scrollHeight,
-    }));
-    expect(sizes.controls).toBeGreaterThan(16);
-    expect(sizes.controls).toBeGreaterThan(sizes.welcome);
-    expect(bounds.height).toBeLessThan(150);
-    expect(sizes.scrollHeight).toBe(sizes.clientHeight);
-    for (const viewport of [{ width: 1280, height: 720 }, { width: 800, height: 600 }, { width: 624, height: 780 }]) {
-      await page.setViewportSize(viewport);
-      const panel = await dialogue.boundingBox();
-      expect(panel.y).toBeGreaterThanOrEqual(0);
-      expect(panel.y + panel.height).toBeLessThanOrEqual(viewport.height);
-      const content = await dialogue.evaluate(element => ({
-        width: element.clientWidth, scrollWidth: element.scrollWidth,
-        height: element.clientHeight, scrollHeight: element.scrollHeight,
-      }));
-      expect(content.scrollWidth).toBe(content.width);
-      expect(content.scrollHeight).toBe(content.height);
-      await page.screenshot({ path: testInfo.outputPath(`game-startup-${viewport.width}x${viewport.height}.png`) });
-    }
-  }
+  await expect(dialogue).toContainText('Move: WASD');
+  await expect(dialogue).toContainText('Q: exit');
+  const bounds = await dialogue.boundingBox();
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(page.viewportSize().height);
   await page.screenshot({ path: testInfo.outputPath('game-startup-instructions.png') });
   await page.keyboard.down('s');
   await expect(dialogue).toBeHidden();
-  await expect(dialogue).not.toHaveClass(/startupInstructions/);
   await page.keyboard.up('s');
 });
 
@@ -60,34 +26,23 @@ test('production portfolio serves the assembled build', async ({ request }, test
   }
 });
 
-test('game has no fallback directional or action buttons', async ({ page }, testInfo) => {
-  await page.goto('/portfolio/src/portfolio-game/game.html');
-  await expect(page.locator('.gameControls, .dpad, .actionButtons, button')).toHaveCount(0);
-  await expect(page.locator('.character')).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath('game-without-fallback-controls.png') });
-});
-
 test('game supports WASD movement and stops on key release', async ({ page }) => {
-  const position = () => page.locator('.character').evaluate(element => {
-    const transform = new DOMMatrixReadOnly(getComputedStyle(element).transform);
-    return { x: transform.m41, y: transform.m42 };
-  });
   for (const [key, axis, sign] of [['w', 'y', -1], ['a', 'x', -1], ['s', 'y', 1], ['d', 'x', 1]]) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
-    const character = page.locator('.character');
+    const character = player(page);
     await expect(character).toBeVisible();
     await expect(page.locator('.dialogueBox')).toContainText('WASD');
-    const initial = (await position())[axis];
+    const initial = (await position(page))[axis];
     await page.keyboard.down(key);
     try {
-      await expect.poll(async () => ((await position())[axis] - initial) * sign).toBeGreaterThan(0);
+      await expect.poll(async () => ((await position(page))[axis] - initial) * sign).toBeGreaterThan(0);
     } finally {
       await page.keyboard.up(key);
     }
-    await expect(character).toHaveAttribute('walking', 'false');
-    const stopped = await position();
+    await expect(character).toHaveAttribute('data-walking', 'false');
+    const stopped = await position(page);
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    expect(await position()).toEqual(stopped);
+    expect(await position(page)).toEqual(stopped);
   }
 });
 
@@ -128,9 +83,8 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   const zoomedWidth = isMobile ? page.viewportSize().width : initialWidth * 1.5;
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
-  await expect(portfolio.locator('.character')).toBeVisible();
+  await expect(player(portfolio)).toBeVisible({ timeout: 15000 });
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
-  await expect(portfolio.locator('.gameControls')).toHaveCount(0);
   if (!isMobile) {
     await test.step('Q exits only the cabinet iframe from spawn', async () => {
       await page.keyboard.press('q');
@@ -138,13 +92,13 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
       expect(new URL(page.url()).pathname).toBe('/');
       expect(frame.url()).toMatch(/\/portfolio\/$/);
       await start.click();
-      await expect(portfolio.locator('.character')).toBeVisible();
+      await expect(player(portfolio)).toBeVisible({ timeout: 15000 });
     });
   }
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
-  await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
+  await expect(portfolio.locator('.dialogueBox')).toContainText('X to exit', { timeout: 10000 });
   await page.keyboard.up('ArrowUp');
   await page.keyboard.press('x');
   await expect(start).toBeVisible();
