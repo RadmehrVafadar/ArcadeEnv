@@ -10,6 +10,9 @@ The cabinet provides the presentation layer while the embedded portfolio is a se
 
 `apps/arcade/src/index.jsx` imports the arcade scene on every device.
 All browsers dynamically load `apps/arcade/src/scene.jsx`, which mounts a full-window Canvas containing the cabinet, its spotlight, and a horizontal floor.
+The entry point observes the document viewport and rounds the arcade root's width and height up to even CSS pixels, including after toolbar resizing and orientation changes.
+This avoids the [WebKit transformed Html offset](https://github.com/pmndrs/drei/issues/720) that can place the iframe below the cabinet screen in mobile in-app browsers such as LinkedIn.
+The canvas and HTML projection share the adjusted size, extending less than two pixels past the viewport without changing the screen's 3D position or camera targets.
 The initial HTML displays an amber arcade loading screen using the portfolio's locally bundled Arcade Interlaced font while the scene module and cabinet model load.
 It clears after the portfolio iframe loads and a frame renders the cabinet, with no artificial delay or percentage.
 The loading dots stay still when reduced motion is preferred, and a Skip 3D arcade link provides direct portfolio access while loading, honoring `VITE_IFRAME_URL`.
@@ -34,7 +37,63 @@ The canvas renders on demand and schedules frames only while the camera zooms, s
 The mobile delay uses a timer after loading clears, and zoom timing excludes time spent idle before interaction.
 The HTML portfolio continues to animate and respond independently while the WebGL canvas is idle.
 
+All devices retain the original camera targets, with no additional gameplay zoom-out.
+PC instructions describe movement, Z to read, X to open, and Q to exit.
+The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and Q/Menu from left to right.
+The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies Q.
+The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
+The joystick sits 0.12 model units left of its original deck position, with its ball aligned with the button faces from the original camera.
+Its moving shaft and ball and its separate fixed base share the same leftward shift.
+Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red START (Q/Menu) button without black collars or borders.
+The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
+The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
+Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
+The joystick has a polished red ball, metal shaft, and a ribbed rubber boot, all scaled up by 25% to balance the larger buttons.
+Subtle red emission and feathered transparent model geometry give the caps and joystick ball a static red glow without animated effects or extra render passes.
+Dragging the joystick beyond an eight-pixel dead zone selects its dominant axis; centering or releasing it stops movement.
+Accessible DOM buttons follow the model controls with circular targets of at least 24 CSS pixels, growing toward 44 pixels where space permits.
+Targets follow the model and stay visually transparent during hover and presses, retaining a visible keyboard focus outline.
+No HTML control overlays or labels are drawn over the buttons or joystick on any device.
+Targets shrink near viewport edges and shift onto the visible part of the hardware when needed to keep their minimum hit area reachable without moving the model or camera.
+Mouse, keyboard activation, and independent touch pointers share the game input interface, allowing movement while pressing an action.
+Button depression and joystick tilt invalidate frames only while settling, with immediate feedback when reduced motion is preferred.
+Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
+Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
+Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
+Moving focus between the embedded page and cabinet controls does not cancel a held cabinet gesture or article scroll.
+Embedded blur handlers check focus in a microtask so a transient unfocused state during that handoff cannot release the joystick.
+
+The same-origin game, menu, and blog expose `window.arcadeControls` for connection, disconnection, directional input by source, actions, reset, and projected text sizing.
+Punch-Out additionally implements optional `setButton(source, action, pressed, cancelled?)` for held read/open/menu buttons and direct Start/Select.
+On this page, cabinet pointers and keyboard events in either the parent or portfolio iframe share that adapter, including independent direction-plus-punch sources and cabinet feedback.
+The runtime sends NES joypad states through EmulatorJS's `gameManager.simulateInput` API, independently of keyboard focus.
+Cancellation, blur, hiding, navigation, and disconnect clear held inputs and pending chord, tap, and exit timers.
+The cabinet connects after iframe load or the `arcade-controls-ready` event, allowing React pages to finish mounting, and disconnects on navigation.
+When `pagehide.persisted` indicates history caching, it clears held input but retains the connection because restoration reuses the iframe without another load event.
+On the menu, each joystick tilt advances or reverses the selected link, wraps at either end, and leaves a full-width underscore beneath the current choice.
+Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
+Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Start returns to the main portfolio menu from the menu, blog, or game.
+The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
+Its instruction card pairs Return with Hold Start/Q, Move & dodge with Joystick, Select with z + x, and Start with Q on separate amber and cream lines, with space between pairs.
+Press Start flashes when ready, remaining steady when reduced motion is preferred.
+Tap Start or Q for Start; hold either for 600 ms to return to the exhibit without sending Start.
+Enter and Shift also send Start and Select.
+Z or X dismisses the instructions after loading, and gameplay displays only a centered 4:3 viewport without emulator controls.
+The existing display-scale connection fits that viewport inside the visible screen on narrow devices, preserving the original cabinet, camera, and CRT geometry.
+Loading failures stay inside the CRT with Z to retry and Start/Q to exit.
+Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.
+Populated folders initially select their first article; empty folders initially select `../`.
+Inside an article, held joystick, WASD, and arrow inputs scroll the page, with left and right moving visible overflowing code blocks or tables.
+Releasing the input, resetting, leaving the page, or losing focus stops scrolling.
+In the blog, X follows the current view's `../` link: article to folder, folder to blog index, and index to portfolio menu.
+Action calls remain synchronous with pointer or keyboard activation so desktop project popups retain user activation.
+The game has no fallback on-screen D-pad or action buttons, so a disconnected cabinet cannot reveal an old control overlay.
+Standalone game visits require a keyboard; incompatible or cross-origin `VITE_IFRAME_URL` pages retain their own controls.
+
 `apps/arcade/src/arcade.jsx` loads `apps/arcade/public/model9.glb` and places a transformed Drei Html iframe at the cabinet screen.
+The screen uses Html blending occlusion so foreground model geometry, including the joystick, covers only the overlapping iframe pixels.
+The canvas stays above the screen and below the transparent control targets, including after those targets reconnect on iframe navigation.
+Canvas pointer events pass through to the HTML while the shared scene event container retains cabinet hover and click handling.
 `VITE_IFRAME_URL` overrides the iframe and loading-screen portfolio link at build time, using root `.env.local` or the process environment.
 This URL is public configuration, so do not put secrets in it.
 
@@ -43,6 +102,21 @@ The iframe sits inside a fixed-size CRT glass wrapper with static scanlines, a f
 Elliptical corner clipping, inset edge shading, and a soft reflection suggest gently curved glass without warping the live page or moving the screen.
 Both decorative layers ignore pointer events, and the effect uses no animation or WebGL postprocessing.
 Visiting `/portfolio/` directly remains available on every device without the cabinet or CRT treatment.
+
+## Audio
+
+The cabinet synthesizes digital arcade effects with Web Audio, without downloads or third-party music assets.
+Button presses use short square-wave pitch drops, with separate pitches for Z, X, and Start; joystick direction changes use a softer triangle-wave blip.
+Pointer, touch, focused-button activation, and keyboard input from the same-origin portfolio share these sounds.
+Holding a key or continuing to drag in one direction does not repeat its effect.
+The top-right Sound FX and Music buttons independently toggle effects and an original 112 BPM chiptune loop with melody, bass, and synthesized kick.
+Effects default on and music defaults off; preferences persist when local storage is available.
+Audio initializes only after interaction, respects browser autoplay restrictions, and pauses while the page is hidden.
+Touch release and click events retry audio unlock in both the cabinet and the same-origin iframe, including when a cabinet gesture prevents the native click.
+Where supported, the browser audio session uses playback mode so iPhone Silent mode does not mute enabled sounds; playback may pause other media.
+The sequencer uses the audio clock and a short scheduling timer without driving WebGL frames.
+Standalone portfolio pages and cross-origin iframe keyboard input do not produce cabinet sounds.
+`apps/arcade/src/arcade-audio.js` owns synthesis and lifecycle, and `audio-controls.jsx` owns the accessible toggles.
 
 ## Tech
 
@@ -55,6 +129,8 @@ Drei provides GLTF loading and the HTML screen transform.
 - `apps/arcade/src/loading.css` - initial loading screen and reduced-motion styling.
 - `apps/arcade/src/scene.jsx` - renderer, cabinet lighting, and floor.
 - `apps/arcade/src/arcade.jsx` - model, camera interaction, and portfolio iframe.
+- `apps/arcade/src/cabinet-controls.jsx` - projected controls, pointer capture, and model feedback.
+- `apps/arcade/src/cabinet-input.js` - model button mapping and joystick direction calculation.
 - `apps/arcade/src/style.css` - viewport layout, background, and screen sizing.
 - `apps/arcade/public/model9.glb` - arcade model.
 

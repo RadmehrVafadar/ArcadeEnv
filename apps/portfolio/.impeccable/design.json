@@ -1,57 +1,246 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T17:24:59.430Z",
+  "generatedAt": "2026-10-30T01:48:12Z",
   "title": "Design System: Pixel Museum",
   "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.02 45)",
+          "oklch(25% 0.02 45)",
+          "oklch(35% 0.02 45)",
+          "oklch(45% 0.02 45)",
+          "oklch(58% 0.02 45)",
+          "oklch(70% 0.02 45)",
+          "oklch(83% 0.02 45)",
+          "oklch(95% 0.02 45)"
+        ]
+      },
+      "surround": {
+        "role": "neutral",
+        "displayName": "Surround",
+        "tonalRamp": [
+          "oklch(15% 0.015 45)",
+          "oklch(25% 0.015 45)",
+          "oklch(35% 0.015 45)",
+          "oklch(45% 0.015 45)",
+          "oklch(58% 0.015 45)",
+          "oklch(70% 0.015 45)",
+          "oklch(83% 0.015 45)",
+          "oklch(95% 0.015 45)"
+        ]
+      },
+      "dialogue-surface": {
+        "role": "neutral",
+        "displayName": "Dialogue surface",
+        "tonalRamp": [
+          "oklch(15% 0.025 48 / 0.949)",
+          "oklch(25% 0.025 48 / 0.949)",
+          "oklch(35% 0.025 48 / 0.949)",
+          "oklch(45% 0.025 48 / 0.949)",
+          "oklch(58% 0.025 48 / 0.949)",
+          "oklch(70% 0.025 48 / 0.949)",
+          "oklch(83% 0.025 48 / 0.949)",
+          "oklch(95% 0.025 48 / 0.949)"
+        ]
+      },
+      "prompt-surface": {
+        "role": "neutral",
+        "displayName": "Prompt surface",
+        "tonalRamp": [
+          "oklch(15% 0.02 45 / 0.929)",
+          "oklch(25% 0.02 45 / 0.929)",
+          "oklch(35% 0.02 45 / 0.929)",
+          "oklch(45% 0.02 45 / 0.929)",
+          "oklch(58% 0.02 45 / 0.929)",
+          "oklch(70% 0.02 45 / 0.929)",
+          "oklch(83% 0.02 45 / 0.929)",
+          "oklch(95% 0.02 45 / 0.929)"
+        ]
+      },
+      "parchment": {
+        "role": "primary",
+        "displayName": "Parchment",
+        "tonalRamp": [
+          "oklch(15% 0.05 85)",
+          "oklch(25% 0.05 85)",
+          "oklch(35% 0.05 85)",
+          "oklch(45% 0.05 85)",
+          "oklch(58% 0.05 85)",
+          "oklch(70% 0.05 85)",
+          "oklch(83% 0.05 85)",
+          "oklch(95% 0.05 85)"
+        ]
+      },
+      "brass": {
+        "role": "primary",
+        "displayName": "Brass",
+        "tonalRamp": [
+          "oklch(15% 0.1 80)",
+          "oklch(25% 0.1 80)",
+          "oklch(35% 0.1 80)",
+          "oklch(45% 0.1 80)",
+          "oklch(58% 0.1 80)",
+          "oklch(70% 0.1 80)",
+          "oklch(83% 0.1 80)",
+          "oklch(95% 0.1 80)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Border",
+        "tonalRamp": [
+          "oklch(15% 0.06 65)",
+          "oklch(25% 0.06 65)",
+          "oklch(35% 0.06 65)",
+          "oklch(45% 0.06 65)",
+          "oklch(58% 0.06 65)",
+          "oklch(70% 0.06 65)",
+          "oklch(83% 0.06 65)",
+          "oklch(95% 0.06 65)"
+        ]
+      },
+      "turquoise": {
+        "role": "primary",
+        "displayName": "Turquoise",
+        "tonalRamp": [
+          "oklch(15% 0.065 195)",
+          "oklch(25% 0.065 195)",
+          "oklch(35% 0.065 195)",
+          "oklch(45% 0.065 195)",
+          "oklch(58% 0.065 195)",
+          "oklch(70% 0.065 195)",
+          "oklch(83% 0.065 195)",
+          "oklch(95% 0.065 195)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Museum title",
+        "purpose": "Single header title above the world."
+      },
+      "body": {
+        "displayName": "Dialogue",
+        "purpose": "Welcome and exhibit descriptions in the floating HTML status region."
+      },
+      "prompt": {
+        "displayName": "Contextual prompt",
+        "purpose": "Nearby exhibit name and Z/X instructions."
+      },
+      "navigation": {
+        "displayName": "Menu navigation",
+        "purpose": "Persistent native link back to the portfolio."
+      },
+      "label": {
+        "displayName": "Shortcut",
+        "purpose": "Bordered Q key hint beside Menu."
+      },
+      "loading": {
+        "displayName": "Loading status",
+        "purpose": "World loading and recovery guidance."
+      }
+    },
     "shadows": [],
     "motion": [
       {
         "name": "visitor-walk",
         "value": "8 frames per second",
         "purpose": "Four-frame directional walking animation while a direction is held."
+      },
+      {
+        "name": "simulation-step",
+        "value": "60 Hz fixed step",
+        "purpose": "Stable Phaser Arcade Physics movement in world coordinates."
       }
     ],
     "breakpoints": [
       {
-        "name": "portrait-width",
-        "value": "650px"
+        "name": "coarse-portrait",
+        "value": "(pointer: coarse) and (orientation: portrait)"
       },
       {
-        "name": "compact-landscape-height",
-        "value": "500px"
+        "name": "compact-coarse-landscape",
+        "value": "(pointer: coarse) and (max-height: 500px) and (orientation: landscape)"
       }
     ]
   },
   "components": [
     {
-      "name": "Read action",
-      "kind": "button",
-      "refersTo": "action-button",
-      "description": "Exhibit inspection with a keyboard hint.",
-      "html": "<button class=\"ds-action\"><span>Space</span>Read</button>",
-      "css": ".ds-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:64px;min-height:64px;padding:8px;font:10px \"Press Start 2P\",monospace;color:#f6e4bf;background:#4b3025;border:1px solid #d7ae66;cursor:pointer}.ds-action span{color:#e6c28a;font-size:9px}.ds-action:hover,.ds-action:active{background:#654331}.ds-action:focus-visible{outline:3px solid #9ee0df;outline-offset:3px}.ds-action:disabled{opacity:.45;cursor:default}"
+      "name": "Museum header",
+      "kind": "custom",
+      "refersTo": "museum-header",
+      "description": "Compact title row with projection-aware side padding when connected to the cabinet.",
+      "html": "<header class=\"ds-header\"><h1>The Museum</h1></header>",
+      "css": ".ds-header{display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:0 20px;border-bottom:1px solid #755537;color:#f6e4bf;background:#211916;font-family:\"Press Start 2P\",monospace}.ds-header h1{margin:0;font-size:14px;line-height:1.6;font-weight:400}"
     },
     {
       "name": "Menu navigation",
       "kind": "nav",
-      "description": "Persistent exit link with its shortcut.",
-      "html": "<a class=\"ds-menu\" href=\"#\">Menu <span>Q</span></a>",
-      "css": ".ds-menu{display:flex;align-items:center;gap:12px;min-height:44px;color:#f6e4bf;font:11px \"Press Start 2P\",monospace;text-decoration:none}.ds-menu span{color:#d7ae66;border:1px solid #755537;padding:5px;font-size:9px}.ds-menu:hover{color:#9ee0df}.ds-menu:focus-visible{outline:3px solid #9ee0df;outline-offset:3px}"
+      "refersTo": "menu-link",
+      "description": "Persistent portfolio exit link with the Q shortcut.",
+      "html": "<a class=\"ds-menu\" href=\"#\"><span class=\"ds-menu-label\">Menu</span><span class=\"ds-menu-shortcut\">Q</span></a>",
+      "css": ".ds-menu{display:flex;align-items:center;gap:12px;min-height:44px;color:#f6e4bf;font:11px \"Press Start 2P\",monospace;text-decoration:none}.ds-menu-shortcut{color:var(--gold,#d7ae66);border:1px solid #755537;padding:5px;font-size:9px}.ds-menu:hover{color:#9ee0df}.ds-menu:focus-visible{outline:3px solid #9ee0df;outline-offset:3px}"
+    },
+    {
+      "name": "Shortcut key",
+      "kind": "custom",
+      "refersTo": "shortcut",
+      "description": "Small bordered key hint in the Menu link.",
+      "html": "<span class=\"ds-shortcut\">Q</span>",
+      "css": ".ds-shortcut{display:inline-block;color:var(--gold,#d7ae66);border:1px solid #755537;padding:5px;font:9px \"Press Start 2P\",monospace}"
+    },
+    {
+      "name": "Contextual prompt",
+      "kind": "custom",
+      "refersTo": "action-prompt",
+      "description": "Read-only proximity instructions kept inside the visible cabinet projection.",
+      "html": "<p class=\"ds-prompt\">Music Orb · Z to read · X to open</p>",
+      "css": ".ds-prompt{width:fit-content;max-width:calc(100% - 24px);padding:10px 12px;margin:0;background:#211916ed;border:1px solid #755537;color:#f6e4bf;font:9px/1.8 \"Press Start 2P\",monospace;pointer-events:none}"
+    },
+    {
+      "name": "Floating dialogue",
+      "kind": "custom",
+      "refersTo": "dialogue",
+      "description": "HTML welcome and exhibit descriptions displayed over the bottom of the world within projection-aware side insets.",
+      "html": "<p class=\"ds-dialogue\" role=\"status\" aria-live=\"polite\">Music Orb. A magical orb that visualises my favourite songs.</p>",
+      "css": ".ds-dialogue{max-width:76ch;margin:0 auto;padding:16px 20px;border:1px solid #755537;background:#2b201af2;color:#f6e4bf;font:10px/2 \"Press Start 2P\",monospace;pointer-events:auto}"
+    },
+    {
+      "name": "Loading status",
+      "kind": "custom",
+      "refersTo": "loading",
+      "description": "Centered loading or recovery guidance within the world panel.",
+      "html": "<p class=\"ds-loading\" role=\"status\">Opening the museum…</p>",
+      "css": ".ds-loading{display:grid;place-content:center;margin:0;padding:20px;background:#211916;color:#f6e4bf;font:12px/2 \"Press Start 2P\",monospace;text-align:center}"
     }
   ],
   "narrative": {
-    "northStar": "Warm pixel museum",
-    "overview": "These rules describe only the standalone museum game, not the portfolio landing page, blog, or 3D cabinet.\nNew raster artwork recalls the original dark wood, burgundy carpet, golden lamps, and whimsical objects while retaining the existing visitor sprite.",
-    "keyCharacteristics": [],
+    "northStar": "The original pixel hallway",
+    "overview": "These rules describe the museum game and its HTML shell.\nThe surrounding landing page, blog, resume, and 3D cabinet retain their existing design.\nThe world closely recreates the supplied hallway through new modular raster artwork while preserving the original visitor sprite.\nMuted boards and a faded runner carry the long interior, with yellow lamplight and cyan glass providing the brightest accents.\nThe interface recedes into a narrow header, contextual instructions, and floating dialogue.\nThe cabinet's projected screen bounds keep the header, prompts, and dialogue inside its visible area.",
+    "keyCharacteristics": [
+      "Grey and olive horizontal boards surround a broad faded burgundy runner.",
+      "A tall grey three-panel door and yellow lamps on iron scroll brackets preserve the reference's architecture.",
+      "Newly illustrated project objects share the hallway's chunky pixel scale and muted materials.",
+      "Crisp world pixels coexist with readable HTML text.",
+      "Exploration uses keyboard or cabinet controls without on-screen movement or action buttons."
+    ],
     "rules": [],
     "dos": [
-      "Do preserve the warm pixel-art material palette and retained visitor sprite.",
-      "Do keep dialogue, navigation, and controls readable outside the canvas.",
-      "Do render world artwork with nearest-neighbor sampling and retain the 15% camera zoom increase."
+      "Do recreate the original hallway's materials, architectural silhouettes, and exhibit pair arrangement with modular assets.",
+      "Do retain the original visitor sprite and the locally hosted pixel font.",
+      "Do keep dialogue, contextual instructions, and Menu navigation readable in HTML.",
+      "Do render the world with nearest-neighbor sampling and retain the requested 15% camera zoom increase.",
+      "Do author footprints and interaction ranges in Tiled world coordinates."
     ],
     "donts": [
-      "Don't scale collision geometry to match viewport pixels.",
-      "Don't apply these museum-specific rules to the surrounding portfolio pages."
+      "Don't add an on-screen D-pad or Read/Open buttons on any device.",
+      "Don't reserve a bottom control or dialogue bar.",
+      "Don't use the original hallway image as the runtime world or collision source.",
+      "Don't scale collision geometry from CSS or viewport pixels.",
+      "Don't apply these museum-specific rules to the surrounding portfolio, blog, or cabinet."
     ]
   }
 }

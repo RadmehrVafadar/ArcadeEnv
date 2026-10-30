@@ -48,6 +48,22 @@
   transform: scale(1.2); 
 }
 
+.button[data-cabinet-selected] {
+  position: relative;
+  outline: none;
+}
+
+.button[data-cabinet-selected]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.12em;
+  width: 100%;
+  height: 0.1em;
+  transform: translateX(-50%);
+  background-color: #ffbd36;
+}
+
 @media (max-width: 960px) {
   .container {
     flex-direction: column;

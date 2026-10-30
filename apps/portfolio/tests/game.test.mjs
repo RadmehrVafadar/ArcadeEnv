@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { loadWorld, nearRect, nearbyExhibit } from '../src/portfolio-game/model.ts';
+import { loadWorld, nearRect, nearbyExhibit, canStandAt } from '../src/portfolio-game/model.ts';
 import { exhibits } from '../src/portfolio-game/content.ts';
 import { HeldInput } from '../src/portfolio-game/input.ts';
 const map = JSON.parse(await readFile(new URL('../src/portfolio-game/world/museum.tmj', import.meta.url), 'utf8'));
 
-test('authored map has a valid spawn, exit, and only the LinkedIn exhibit', () => {
+test('authored hallway has a valid spawn, exit, and all six original project positions', () => {
   const world = loadWorld(map, exhibits);
   assert.equal(world.width, 208);
-  assert.equal(world.height, 640);
+  assert.equal(world.height, 576);
   assert.equal(world.spawn.x, world.width / 2);
-  assert.deepEqual(world.objects.filter(o => o.exhibit).map(o => o.exhibit.id), ['linkedin']);
+  assert.deepEqual(world.objects.filter(o => o.exhibit).map(o => o.exhibit.id), ['linkedin', 'punch-out', 'fake-news', 'music-orb', 'distributed-video', 'minesweeper']);
   assert.equal(nearRect(world.spawn.x, world.spawn.y, world.exit), false);
 });
 
@@ -51,6 +51,23 @@ test('interaction uses the footprint and deterministic nearest selection', () =>
   assert.equal(nearbyExhibit(68, 148, [{ ...mirror, id: 20 }, mirror]).id, mirror.id);
 });
 
+test('Punch-Out return positions respect authored walls and every exhibit footprint', () => {
+  const world = loadWorld(map, exhibits);
+  assert.equal(canStandAt(world.spawn.x, world.spawn.y, world), true);
+  assert.equal(canStandAt(140, 164, world), true);
+  for (const body of world.solids) assert.equal(canStandAt(body.x + body.width / 2, body.y + body.height / 2, world), false);
+  for (const [x, y] of [[NaN, 136], [104, Infinity], [-1, 136], [104, 600]]) assert.equal(canStandAt(x, y, world), false);
+});
+
+test('content accepts local game entries and rejects unsafe or malformed destinations', () => {
+  assert.equal(loadWorld(map, exhibits).objects.find(o => o.exhibit?.id === 'punch-out').exhibit.internal, true);
+  for (const url of ['javascript:alert(1)', '../index.html', 'https://example.com', 'src/../../index.html']) {
+    const content = structuredClone(exhibits);
+    content.find(entry => entry.id === 'punch-out').url = url;
+    assert.throws(() => loadWorld(map, content), /invalid exhibit/);
+  }
+});
+
 test('input preserves aliases and most recent direction across keyboard and pointer sources', () => {
   const input = new HeldInput();
   input.press('w', 'up'); input.press('arrowup', 'up'); input.press('a', 'left');
@@ -64,4 +81,7 @@ test('input preserves aliases and most recent direction across keyboard and poin
   assert.equal(input.direction, 'up');
   input.clear();
   assert.equal(input.direction, undefined);
+  input.press('key:s', 'down'); input.press('cabinet:stick', 'left');
+  input.clear('cabinet:');
+  assert.equal(input.direction, 'down');
 });

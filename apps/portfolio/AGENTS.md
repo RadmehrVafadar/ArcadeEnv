@@ -2,7 +2,7 @@
 
 A personal portfolio with a React landing page and a standalone arcade showcase.
 The blog reads Markdown articles from category folders.
-Stack: TypeScript, JavaScript, React, Vite, and CSS.
+Stack: TypeScript, JavaScript, React, Phaser, Tiled, Vite, and CSS.
 
 ## Commands
 
@@ -25,7 +25,7 @@ Deploy only root `dist/` using the root build command.
 
 ```text
 src/                  React landing page and shared image assets
-src/portfolio-game/   Standalone arcade HTML, JavaScript, and CSS
+src/portfolio-game/   TypeScript/Phaser game, HTML dialogue, and editable Tiled world
 src/blog-website/     Markdown blog and category content
 public/               Files copied unchanged to the build output
 tests/                Game behavior and production navigation checks

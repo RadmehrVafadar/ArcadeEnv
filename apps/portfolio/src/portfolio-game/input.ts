@@ -1,50 +1,54 @@
+import type { CabinetInput } from '../cabinet-navigation';
 export type Direction = 'up' | 'down' | 'left' | 'right';
 export const directionKeys: Record<string, Direction> = {
   w: 'up', arrowup: 'up', s: 'down', arrowdown: 'down',
   a: 'left', arrowleft: 'left', d: 'right', arrowright: 'right',
 };
-
 export class HeldInput {
   private held = new Map<string, Direction>();
-  press(source: string, direction: Direction) { if (!this.held.has(source)) this.held.set(source, direction); }
+  press(source: string, direction: Direction) { if (this.held.get(source) !== direction) { this.held.delete(source); this.held.set(source, direction); } }
   release(source: string) { this.held.delete(source); }
-  clear() { this.held.clear(); }
+  clear(prefix = '') { for (const source of this.held.keys()) if (source.startsWith(prefix)) this.held.delete(source); }
   get direction(): Direction | undefined { const values = [...this.held.values()]; return values[values.length - 1]; }
 }
-
-export function bindInput(root: HTMLElement, input: HeldInput, action: (open: boolean) => void, exit: () => void) {
+export function bindInput(root: HTMLElement, input: HeldInput, action: (open: boolean) => void, exit: () => void, connection: (connected: boolean) => void, resume: () => void) {
   const controller = new AbortController();
   const options = { signal: controller.signal };
-  const clear = () => {
-    input.clear();
-    root.querySelectorAll('.pressed').forEach(button => button.classList.remove('pressed'));
+  let connected = false;
+  const adapter: CabinetInput = {
+    connect() { connected = true; root.classList.add('cabinet-connected'); connection(true); },
+    disconnect() { adapter.reset(); connected = false; root.classList.remove('cabinet-connected'); connection(false); },
+    reset() { input.clear('cabinet:'); },
+    setDirection(source, direction) {
+      if (!connected) return;
+      resume();
+      const key = `cabinet:${source}`;
+      if (direction && ['up', 'down', 'left', 'right'].includes(direction)) input.press(key, direction as Direction);
+      else input.release(key);
+    },
+    action(value) { if (connected) { resume(); if (value === 'menu') exit(); else if (value === 'read' || value === 'open') action(value === 'open'); } },
+    setDisplayScale(scale) {
+      if (!(scale > 0)) return;
+      root.style.setProperty('--cabinet-font-size', `${Math.min(48, Math.max(18, 12 / scale))}px`);
+      const frame = window.frameElement?.getBoundingClientRect();
+      const projection = frame?.width ? window.innerWidth / frame.width : 0;
+      root.style.setProperty('--cabinet-inset-left', `${frame ? Math.max(0, -frame.left) * projection : 0}px`);
+      root.style.setProperty('--cabinet-inset-right', `${frame ? Math.max(0, frame.right - window.parent.innerWidth) * projection : 0}px`);
+    },
   };
   document.addEventListener('keydown', event => {
     const key = event.key.toLowerCase();
-    // Native focused buttons retain Enter/Space activation without duplicate game actions.
-    if ((event.target instanceof HTMLButtonElement || event.target instanceof HTMLAnchorElement) && (key === ' ' || key === 'enter')) return;
     if (directionKeys[key]) { event.preventDefault(); input.press(`key:${key}`, directionKeys[key]); }
-    if (key === ' ' || key === 'e') { event.preventDefault(); if (!event.repeat) action(key === 'e'); }
+    if (key === 'z' || key === 'x') { event.preventDefault(); if (!event.repeat) action(key === 'x'); }
     if (key === 'q' && !event.repeat) exit();
   }, options);
   document.addEventListener('keyup', event => input.release(`key:${event.key.toLowerCase()}`), options);
-  for (const button of root.querySelectorAll<HTMLButtonElement>('[data-direction]')) {
-    button.addEventListener('pointerdown', event => {
-      event.preventDefault();
-      button.setPointerCapture(event.pointerId);
-      input.press(`pointer:${event.pointerId}`, button.dataset.direction as Direction);
-      button.classList.add('pressed');
-    }, options);
-    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-      button.addEventListener(type, event => {
-        input.release(`pointer:${(event as PointerEvent).pointerId}`);
-        button.classList.remove('pressed');
-      }, options);
-    }
-  }
-  root.querySelector('.action-read')!.addEventListener('click', () => action(false), options);
-  root.querySelector('.action-open')!.addEventListener('click', () => action(true), options);
-  window.addEventListener('blur', clear, options);
-  document.addEventListener('visibilitychange', clear, options);
-  return () => { clear(); controller.abort(); };
+  window.addEventListener('blur', () => queueMicrotask(() => {
+    try { if (window.parent.document.hasFocus()) return; } catch { /* Cross-origin pages cannot inspect parent focus. */ }
+    input.clear();
+  }), options);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) input.clear(); }, options);
+  window.arcadeControls = adapter;
+  window.dispatchEvent(new Event('arcade-controls-ready'));
+  return () => { input.clear(); adapter.disconnect(); controller.abort(); if (window.arcadeControls === adapter) delete window.arcadeControls; };
 }

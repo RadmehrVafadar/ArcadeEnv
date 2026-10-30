@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { gamePath, ready } from './game-helpers.js';
 
 test('player stays within authored world boundaries on every device', async ({ page }) => {
   test.setTimeout(20000);
-  await page.goto('/portfolio/src/portfolio-game/game.html');
+  await page.goto(gamePath);
+  await ready(page);
   await page.keyboard.down('ArrowDown');
   try {
     // Travel farther than the complete original map, including at 30 FPS.
@@ -21,4 +23,5 @@ test('player stays within authored world boundaries on every device', async ({ p
     return { bottom: character.bottom - map.top, worldHeight: map.height };
   });
   expect(bounds.bottom).toBeLessThanOrEqual(bounds.worldHeight);
+  expect(bounds.bottom).toBeGreaterThan(bounds.worldHeight - 32);
 });

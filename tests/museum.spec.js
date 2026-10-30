@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gamePath, ready, player, position, approachMirror } from './game-helpers.js';
+import { gamePath, ready, player, position, approachMirror, approachExhibit } from './game-helpers.js';
 
 test('walls and exhibit footprints block the same feet body on every device', async ({ page }) => {
   await page.goto(gamePath);
@@ -10,10 +10,10 @@ test('walls and exhibit footprints block the same feet body on every device', as
   await page.waitForTimeout(200);
   expect((await position(page)).x).toBe(58);
   await page.keyboard.up('ArrowLeft');
-  await page.keyboard.press('Space');
+  await page.keyboard.press('z');
   await expect(page.locator('.dialogueBox')).toContainText('Hey a mirror!');
   await page.keyboard.down('ArrowDown');
-  await expect.poll(async () => (await position(page)).y, { timeout: 10000 }).toBe(620);
+  await expect.poll(async () => (await position(page)).y, { timeout: 10000 }).toBe(556);
   await page.keyboard.up('ArrowDown');
 });
 
@@ -24,12 +24,24 @@ test('movement aliases survive release and focus loss clears movement', async ({
   await page.keyboard.down('ArrowDown');
   await page.keyboard.up('s');
   await expect(player(page)).toHaveAttribute('data-walking', 'true');
-  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await page.evaluate(() => { document.hasFocus = () => false; window.dispatchEvent(new Event('blur')); });
   await expect(player(page)).toHaveAttribute('data-walking', 'false');
   const stopped = await position(page);
   await page.waitForTimeout(150);
   expect(await position(page)).toEqual(stopped);
   await page.keyboard.up('ArrowDown');
+});
+
+test('every restored project is reachable and resolves its own description', async ({ page }, testInfo) => {
+  await page.goto(gamePath);
+  await ready(page);
+  for (const [id, title] of [['linkedin', 'The looking glass'], ['punch-out', "Mike Tyson's Punch-Out!!"], ['fake-news', 'Fake News Detector'], ['music-orb', 'Music Orb'], ['distributed-video', 'Distributed Video Streaming'], ['minesweeper', 'Minesweeper']]) {
+    await approachExhibit(page, id);
+    await expect(page.locator('.actionPrompt')).toContainText(title);
+    await page.keyboard.press('z');
+    await expect(page.locator('.dialogueBox')).toContainText(title);
+    await page.screenshot({ path: testInfo.outputPath(`exhibit-${id}.png`) });
+  }
 });
 
 test('movement speed stays consistent at reduced rendering rates', async ({ browser, baseURL }) => {

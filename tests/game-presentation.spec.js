@@ -1,25 +1,22 @@
 import { test, expect } from '@playwright/test';
-import { gamePath, player, ready, approachMirror } from './game-helpers.js';
+import { gamePath, player, ready, approachMirror, moveTo } from './game-helpers.js';
 
-test('hallway controls stay mobile-only with 15% closer camera framing', async ({ page, isMobile }, testInfo) => {
+test('hallway uses the full viewport with 15% closer camera framing and no duplicate controls', async ({ page }, testInfo) => {
   for (const viewport of [{ width: 1280, height: 720 }, { width: 624, height: 780 }]) {
     await page.setViewportSize(viewport);
     await page.goto(gamePath);
     await ready(page);
     const controls = page.locator('.gameControls');
-    if (isMobile) await expect(controls).toBeVisible();
-    else {
-      await expect(controls).toBeHidden();
-      const world = await page.locator('.world-panel').boundingBox();
-      const frame = await page.locator('.frame').boundingBox();
-      expect(world.width).toBe(frame.width);
-    }
+    await expect(controls).toHaveCount(0);
+    const world = await page.locator('.world-panel').boundingBox();
+    const frame = await page.locator('.frame').boundingBox();
+    expect(world.width).toBe(frame.width);
     const framing = await player(page).evaluate(canvas => {
       const zoom = Number(canvas.dataset.zoom);
       const worldWidth = Number(canvas.dataset.worldWidth);
       return {
         zoomMultiplier: zoom / (canvas.clientWidth / (worldWidth - 16)),
-        longHallway: Number(canvas.dataset.worldHeight) >= worldWidth * 3,
+        longHallway: Number(canvas.dataset.worldHeight) >= worldWidth * 2.5,
       };
     });
     expect(framing.zoomMultiplier).toBeCloseTo(1.15, 4);
@@ -28,17 +25,45 @@ test('hallway controls stay mobile-only with 15% closer camera framing', async (
   }
 });
 
-test('dialogue overlays the bottom of the world without reserving a bar', async ({ page, isMobile }, testInfo) => {
+test('fractional camera zoom preserves the carpet palette across tile boundaries', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(gamePath);
+  await ready(page);
+  await moveTo(page, 'down', 'y', 256);
+  const unexpectedPixels = await player(page).evaluate(async canvas => {
+    const atlasUrl = performance.getEntriesByType('resource').find(entry => /\/tiles(?:-|\.png)/.test(entry.name)).name;
+    const atlas = new Image();
+    atlas.src = atlasUrl;
+    await atlas.decode();
+    const sample = document.createElement('canvas');
+    sample.width = atlas.width; sample.height = atlas.height;
+    const context = sample.getContext('2d');
+    context.drawImage(atlas, 0, 0);
+    const palette = new Set();
+    // This strip contains only the authored carpet, away from the visitor and lamp pools.
+    for (let index = 12; index <= 27; index++) {
+      const pixels = context.getImageData(index % 8 * 16, Math.floor(index / 8) * 16, 16, 16).data;
+      for (let i = 0; i < pixels.length; i += 4) palette.add(`${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`);
+    }
+    const zoom = Number(canvas.dataset.zoom);
+    const x = Math.ceil((60 - Number(canvas.dataset.cameraX)) * zoom);
+    const y = Math.ceil((232 - Number(canvas.dataset.cameraY)) * zoom);
+    const pixels = canvas.getContext('2d').getImageData(x, y, Math.floor(24 * zoom), Math.floor(40 * zoom)).data;
+    let unexpected = 0;
+    for (let i = 0; i < pixels.length; i += 4) if (!palette.has(`${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`)) unexpected++;
+    return unexpected;
+  });
+  expect(unexpectedPixels).toBe(0);
+});
+
+test('dialogue overlays the bottom of the world without reserving a bar', async ({ page }, testInfo) => {
   await page.goto(gamePath);
   await ready(page);
   const world = page.locator('.world-panel');
   const dialogue = page.locator('.dialogueBox');
   const initial = await world.boundingBox();
   const frame = await page.locator('.frame').boundingBox();
-  if (isMobile) {
-    const controls = await page.locator('.gameControls').boundingBox();
-    expect(controls.y + controls.height).toBe(frame.y + frame.height);
-  } else expect(initial.y + initial.height).toBe(frame.y + frame.height);
+  expect(initial.y + initial.height).toBe(frame.y + frame.height);
   const checkOverlay = async () => {
     const box = await dialogue.boundingBox();
     expect(box.y).toBeGreaterThanOrEqual(initial.y);
@@ -51,7 +76,7 @@ test('dialogue overlays the bottom of the world without reserving a bar', async 
   await approachMirror(page);
   await expect(dialogue).toBeHidden();
   expect(await world.boundingBox()).toEqual(initial);
-  await page.keyboard.press('Space');
+  await page.keyboard.press('z');
   await expect(dialogue).toContainText('Hey a mirror!');
   await checkOverlay();
   await page.screenshot({ path: testInfo.outputPath('exhibit-overlay.png') });

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { before, after, test } from 'node:test';
 import { preview } from 'vite';
 
@@ -15,8 +16,17 @@ after(async () => {
   if (server) await new Promise((resolve) => server.httpServer.close(resolve));
 });
 
+test('production contains no ROM files or NES bytes', async () => {
+  for (const entry of await readdir(new URL('../dist/', import.meta.url), { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    assert.doesNotMatch(entry.name, /\.(nes|fds|zip|7z)$/i);
+    const bytes = await readFile(join(entry.parentPath, entry.name));
+    assert.notDeepEqual([...bytes.subarray(0, 4)], [78, 69, 83, 26], entry.name);
+  }
+});
+
 test('production includes every existing menu destination and the resume', async () => {
-  for (const href of ['/portfolio/', '/portfolio/src/portfolio-game/game.html', '/portfolio/src/blog-website/blog.html', '/portfolio/RVafadar_Resume.pdf']) {
+  for (const href of ['/portfolio/', '/portfolio/src/portfolio-game/game.html', '/portfolio/src/blog-website/blog.html', '/portfolio/src/punch-out/punch-out.html', '/portfolio/src/punch-out/runtime.html', '/portfolio/RVafadar_Resume.pdf']) {
     const response = await fetch(new URL(href, origin));
     assert.equal(response.status, 200, href);
     if (href.endsWith('.pdf')) {

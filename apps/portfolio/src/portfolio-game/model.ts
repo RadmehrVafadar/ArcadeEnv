@@ -18,7 +18,7 @@ export interface MuseumMap {
   tilesets: { firstgid: number; name: string; tiles?: Tile[]; source?: string }[];
 }
 export interface PlacedObject extends Rect {
-  id: number; texture: string; bodies: Rect[]; exhibit?: Exhibit; padding: number;
+  id: number; texture: string; bodies: Rect[]; exhibit?: Exhibit; padding: number; decoration: boolean; opacity: number;
 }
 export const property = (properties: Property[] | undefined, name: string) => properties?.find(p => p.name === name)?.value;
 const fail = (message: string): never => { throw new Error(`Museum map: ${message}`); };
@@ -36,7 +36,7 @@ export function loadWorld(map: MuseumMap, content: Exhibit[]) {
   for (const entry of content) {
     if (ids.has(entry.id)) fail(`duplicate exhibit ID ${entry.id}`);
     ids.add(entry.id);
-    if (!entry.title || !entry.description || !/^https:\/\//.test(entry.url)) fail(`invalid exhibit ${entry.id}`);
+    if (!entry.title || !entry.description || !(entry.internal ? /^src\/[a-z0-9/-]+\.html$/.test(entry.url) : /^https:\/\//.test(entry.url))) fail(`invalid exhibit ${entry.id}`);
   }
   for (const name of ['floor', 'walls', 'decoration', 'foreground', 'objects']) {
     if (map.layers.filter(layer => layer.name === name).length !== 1) fail(`expected one ${name} layer`);
@@ -82,10 +82,23 @@ export function loadWorld(map: MuseumMap, content: Exhibit[]) {
     }
     const padding = Number(property(tile.properties, 'interactionPadding') ?? 18);
     if (!Number.isFinite(padding) || padding < 0) fail('invalid interaction padding');
-    return { ...rect, id: object.id, texture: tile.image.replace('.png', ''), bodies, exhibit, padding };
+    const decoration = map.layers.find(layer => layer.objects?.includes(object))!.name === 'decoration';
+    const opacity = Number(property(object.properties, 'opacity') ?? 1);
+    if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1) fail('invalid object opacity');
+    return { ...rect, id: object.id, texture: tile.image.replace('.png', ''), bodies, exhibit, padding, decoration, opacity };
   });
   if (content.some(entry => !placedIds.has(entry.id))) fail('unplaced exhibit content');
-  return { width, height, tileSize: map.tilewidth, spawn, exit, objects };
+  const solids = map.layers.filter(layer => layer.type === 'tilelayer').flatMap(layer => (layer.data ?? []).flatMap((gid, index) =>
+    property(tiles.get(gid)?.properties, 'collides') === true
+      ? [{ x: index % map.width * map.tilewidth, y: Math.floor(index / map.width) * map.tileheight, width: map.tilewidth, height: map.tileheight }] : []));
+  solids.push(...objects.flatMap(object => object.bodies));
+  return { width, height, tileSize: map.tilewidth, spawn, exit, objects, solids };
+}
+
+// The same 12-by-8 feet body used by Arcade Physics, including after returning from Punch-Out.
+export function canStandAt(x: number, y: number, world: ReturnType<typeof loadWorld>) {
+  return Number.isFinite(x) && Number.isFinite(y) && x >= 6 && y >= 4 && x <= world.width - 6 && y <= world.height - 4
+    && !world.solids.some(body => x + 6 > body.x && x - 6 < body.x + body.width && y + 4 > body.y && y - 4 < body.y + body.height);
 }
 
 export function nearRect(x: number, y: number, rect: Rect, padding = 0) {

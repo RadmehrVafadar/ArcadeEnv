@@ -34,6 +34,15 @@ The `development-hmr` dependency project finishes its stylesheet mutation and re
 Menu motion checks open `/portfolio/` directly; cabinet loading, CRT interaction, hover zoom, and embedded navigation retain real scene coverage.
 Scene tests have a scoped 60-second total budget for loading, rendering, and interaction; lightweight browser tests keep the 30-second default.
 The cabinet renders on demand, reducing software WebGL work during idle periods and iframe interactions.
+Audio unit tests cover synthesis, independent mute preferences, scheduling, visibility, and unavailable browser APIs.
+The audio browser tests exercise real Web Audio through cabinet pointer and iframe keyboard input, preference persistence, and desktop/mobile control screenshots.
+A native-touch regression models iPhone rejection of finger-down audio unlocks and requires playback after touch release, including after iframe interaction.
+Root unit checks include the cabinet joystick's dead-zone and axis selection alongside launcher and browser configuration checks.
+Cabinet browser checks cover mouse, multitouch, keyboard coexistence, iframe reconnection, project actions, and projected controls at desktop, phone, landscape, and tablet sizes.
+Punch-Out checks intercept only the pinned EmulatorJS loader with a deterministic adapter fixture, exercising the real routes, input timing, keyboard and multitouch sources, animations, loading failure, cancellation, and return navigation without ROM data or external availability.
+The fixture accepts the NES joypad API and samples held buttons only on running core frames; canvas key events alone cannot satisfy input assertions.
+The real game loads EmulatorJS 4.2.3 and the NES core directly from `cdn.emulatorjs.org` and requests its ROM directly from NES Ninja using browser CORS; the build, dev proxy, and deployment never contain or serve the ROM.
+Live-source gameplay and audio verification is separate from CI; see [portfolio testing](../apps/portfolio/docs/testing.md).
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
 Lighting, iframe labels, and CRT layer assertions share an initial scene load; hover zoom and CRT click-through share another.
@@ -46,21 +55,30 @@ The mobile delay check observes loading-screen removal directly so a late animat
 The embedded navigation test uses `history.back()` on desktop and mobile because only the iframe navigates.
 It leaves scene screenshots to the dedicated appearance tests so software WebGL capture time cannot exhaust its navigation budget.
 Automatic zoom tests hold the portfolio response while measuring the initial screen width, preventing a slow runner from taking its baseline after zooming has finished.
+The joystick clipping regression holds that response through both pixel captures and includes a delayed mobile capture so automatic zoom cannot invalidate the measured crop.
 Screenshots and JSON timing reports are saved under ignored `test-results/`, and the list reporter prints each test's duration.
 CI retries a failure once to record its trace; passing first attempts record no trace, and flaky retries still fail the run.
 `npm run test:unit` runs launcher checks, browser configuration guards, and the portfolio unit suite.
 
 `.github/workflows/check.yml` runs the required `Quality` and `Tests` jobs for each opened or reopened pull request and whenever commits are pushed to it.
 The `Quality` job runs `npm run lint` and `npm run typecheck`.
-The `Tests` job follows `Quality`, reusing its installed-dependency cache before installing Chromium with its system dependencies, building both apps, and running unit tests and two browser groups.
-Tests tagged `@webgl` run with one worker so software-rendered scenes do not compete; the remaining portfolio checks retain two workers.
+Three `Browser tests` matrix jobs follow `Quality`, each reusing its installed-dependency cache before building both apps and running unit tests and its share of two browser groups.
+They run on separate runners in the official `mcr.microsoft.com/playwright:v1.64.1-noble` container, which includes browsers and their system dependencies, avoiding package-mirror downloads during test setup.
+The container uses `--init --ipc=host` for process cleanup and Chromium shared memory.
+Keep the image version aligned with the locked `@playwright/test` version when updating Playwright; a browser configuration guard verifies the match.
+Tests tagged `@webgl` run with one worker per runner so software-rendered scenes do not compete; the remaining portfolio checks retain two workers per runner.
+Both browser groups use Playwright's six-way sharding, with `--fully-parallel` on WebGL to distribute individual cases rather than whole files while `--workers=1` keeps execution serial within each runner.
+The smaller shards reduce the heavy desktop scene workload assigned to the first runner without adding competing WebGL workers.
+Each shard runs the HMR dependency before its selected browser tests, retaining the stylesheet mutation and restoration ordering.
+The required `Tests` job aggregates `Quality` and all six browser shards and fails if any dependency fails, is cancelled, or is skipped.
+Matrix failures do not cancel the remaining shards, preserving their results and artifacts.
 The two browser groups save artifacts under `test-results/portfolio/` and `test-results/webgl/` so the second run cannot erase the first run's results.
-Both jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
-Both restore installed workspace dependencies using an exact cache key containing the operating system, architecture, Node version, and root lockfile hash.
+Quality and browser jobs use Ubuntu and Node.js 24 and install the locked npm dependencies.
+They restore installed workspace dependencies using an exact cache key containing the operating system, architecture, Node version, and root lockfile hash.
 Cache misses use `npm ci --prefer-offline --no-audit --no-fund`; cache hits skip installation entirely, and no partial-key restore is used.
-Together, they run the same checks as local `npm run check`, keeping builds and their consuming tests in one job.
+Together, they run the same checks as local `npm run check`, keeping each shard's build and its consuming tests on the same runner.
 New commits cancel an older run for the same pull request.
-Runs upload available JSON timing reports, failure screenshots, and retry traces as the `browser-test-results` artifact with an `always()` condition, retained for seven days.
+Each shard uploads available JSON timing reports, failure screenshots, and retry traces as a separate `browser-test-results-<shard>` artifact with an `always()` condition, retained for seven days.
 After committing and pushing the workflow, results appear in the pull request's Checks tab.
 To require passing checks before merging, configure a GitHub branch ruleset for `master` that requires both the `Quality` and `Tests` status checks.
 Replace the former `Lint, types, build, and tests` required check with these two names if it was already configured.

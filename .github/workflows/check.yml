@@ -40,11 +40,18 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
-  tests:
-    name: Tests
+  browser_tests:
+    name: Browser tests (${{ matrix.shard }}/6)
     needs: quality
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --init --ipc=host
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,8 +73,6 @@ jobs:
       - name: Install dependencies
         if: steps.dependencies.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline --no-audit --no-fund
-      - name: Install Chromium and system dependencies
-        run: npx playwright install --with-deps chromium
       - name: Build both apps
         run: npm run build
       - name: Run unit tests
@@ -75,16 +80,31 @@ jobs:
       - name: Run browser tests without WebGL
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/portfolio.json
-        run: npm run test:browser -- --grep-invert @webgl --output test-results/portfolio
+        run: npm run test:browser -- --grep-invert @webgl --shard=${{ matrix.shard }}/6 --output test-results/portfolio
       - name: Run WebGL browser tests serially
         env:
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/webgl.json
-        run: npm run test:browser -- --grep @webgl --workers=1 --output test-results/webgl
+        run: npm run test:browser -- --grep @webgl --workers=1 --fully-parallel --shard=${{ matrix.shard }}/6 --output test-results/webgl
       - name: Upload browser timing reports, failure screenshots, and traces
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
-          name: browser-test-results
+          name: browser-test-results-${{ matrix.shard }}
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
+
+  tests:
+    name: Tests
+    needs: [quality, browser_tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require quality and every browser shard to pass
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          BROWSER_RESULT: ${{ needs.browser_tests.result }}
+        run: |
+          test "$QUALITY_RESULT" = success
+          test "$BROWSER_RESULT" = success

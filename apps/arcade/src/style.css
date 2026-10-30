@@ -22,6 +22,19 @@ body,
   transition: --myColor1 1s, --myColor2 1s;
 }
 
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Keep depth blending above the iframe when other Html roots reset canvas styles. */
+#root canvas {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .crt-screen {
   position: relative;
   width: 624px;
@@ -37,6 +50,27 @@ body,
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.cabinet-control {
+  display: grid;
+  place-items: center;
+  width: var(--target-size, 24px);
+  height: var(--target-size, 24px);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cabinet-control:focus-visible {
+  outline: 3px solid #17dfea;
+  outline-offset: 2px;
 }
 
 /* Static layers keep the live iframe interactive without flicker or extra GPU passes. */
@@ -99,4 +133,39 @@ body,
 @keyframes neon-text-bop {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
+}
+
+.audio-controls {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.audio-controls button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #99733a;
+  border-radius: 3px;
+  background: #171410;
+  color: #fff0d6;
+  font: clamp(10px, 2.6vw, 12px)/1.4 'Arcade Interlaced', monospace;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.audio-controls button[aria-pressed='true'] {
+  color: #fcbd46;
+  border-color: #fcbd46;
+}
+
+.audio-controls button:hover {
+  background: #34291b;
+}
+
+.audio-controls button:focus-visible {
+  outline: 2px solid #17dfea;
+  outline-offset: 3px;
 }

@@ -7,7 +7,7 @@ test('game startup instructions fit and disappear on movement', async ({ page },
   await ready(page);
   const dialogue = page.locator('.dialogueBox');
   await expect(dialogue).toContainText('Move: WASD');
-  await expect(dialogue).toContainText('Exit: Q');
+  await expect(dialogue).toContainText('Q: exit');
   const bounds = await dialogue.boundingBox();
   expect(bounds.y).toBeGreaterThanOrEqual(0);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(page.viewportSize().height);
@@ -24,44 +24,6 @@ test('production portfolio serves the assembled build', async ({ request }, test
     expect(response.ok()).toBe(true);
     expect(await response.body()).toEqual(await readFile(new URL(`../dist/portfolio/${file}`, import.meta.url)));
   }
-});
-
-test('mobile directional buttons move toward their arrows', async ({ page, isMobile }, testInfo) => {
-  test.skip(!isMobile, 'Directional buttons are exclusive to mobile.');
-  const touch = isMobile ? await page.context().newCDPSession(page) : null;
-  for (const [direction, axis, sign] of [['up', 'y', -1], ['down', 'y', 1], ['left', 'x', -1], ['right', 'x', 1]]) {
-    await page.goto('/portfolio/src/portfolio-game/game.html');
-    const character = player(page);
-    await expect(page.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
-    if (!isMobile) {
-      // Dismiss the desktop instructions before clicking the D-pad.
-      await page.keyboard.down('s');
-      await expect(page.locator('.dialogueBox')).toBeHidden();
-      await page.keyboard.up('s');
-    }
-    const readAxis = async () => (await position(page))[axis];
-    const initial = await readAxis();
-    const button = page.locator(`.dpad-${direction}`);
-    if (isMobile) {
-      const bounds = await button.boundingBox();
-      await touch.send('Input.dispatchTouchEvent', {
-        type: 'touchStart', touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-      });
-    } else {
-      await button.hover();
-      await page.mouse.down();
-    }
-    try {
-      await expect.poll(async () => ((await readAxis()) - initial) * sign).toBeGreaterThan(0);
-      await expect(character).toHaveAttribute('data-facing', direction);
-      await expect(button).toHaveClass(/pressed/);
-    } finally {
-      if (isMobile) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-      else await page.mouse.up();
-    }
-    await expect(character).toHaveAttribute('data-walking', 'false');
-  }
-  await page.screenshot({ path: testInfo.outputPath('directional-controls.png') });
 });
 
 test('game supports WASD movement and stops on key release', async ({ page }) => {
@@ -122,7 +84,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 }).toBeGreaterThan(zoomedWidth);
   await start.click();
   await expect(player(portfolio)).toBeVisible({ timeout: 15000 });
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   if (!isMobile) {
     await test.step('Q exits only the cabinet iframe from spawn', async () => {
       await page.keyboard.press('q');
@@ -133,12 +95,12 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
       await expect(player(portfolio)).toBeVisible({ timeout: 15000 });
     });
   }
-  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Welcome' : 'Move: WASD');
+  await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
   await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
   await page.keyboard.up('ArrowUp');
-  await page.keyboard.press('e');
+  await page.keyboard.press('x');
   await expect(start).toBeVisible();
   expect(frame.url()).toMatch(/\/portfolio\/$/);
   expect(new URL(page.url()).pathname).toBe('/');
@@ -154,9 +116,9 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   expect(new URL(page.url()).pathname).toBe('/');
   const resume = portfolio.getByRole('link', { name: 'Resume', exact: true });
   await expect(resume).toHaveAttribute('href', '/portfolio/RVafadar_Resume.pdf');
-  await expect(resume).toHaveAttribute('target', '_blank');
+  await expect(resume).toHaveAttribute('target', isMobile ? '_top' : '_blank');
   await expect(resume).toHaveAttribute('rel', 'noopener noreferrer');
-  await expect(resume).toHaveAccessibleDescription('Opens in a new tab');
+  await expect(resume).toHaveAccessibleDescription(isMobile ? 'Opens PDF in the current browser' : 'Opens in a new tab');
   const resumeResponse = context.waitForEvent('response', response => response.url().endsWith('/portfolio/RVafadar_Resume.pdf'));
   await resume.click();
   await resumeResponse;

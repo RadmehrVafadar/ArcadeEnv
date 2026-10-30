@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { exhibits } from './content.ts';
-import { loadWorld, nearbyExhibit, nearRect, type MuseumMap, type Rect } from './model.ts';
+import { loadWorld, nearbyExhibit, nearRect, canStandAt, type MuseumMap, type Rect } from './model.ts';
 import { HeldInput, bindInput, type Direction } from './input.ts';
 import { MuseumUI, showError } from './ui.ts';
 import mapUrl from './world/museum.tmj?url';
@@ -42,21 +42,32 @@ export class MuseumScene extends Phaser.Scene {
     this.world = loadWorld(this.cache.tilemap.get('museum').data as MuseumMap, exhibits);
     const map = this.make.tilemap({ key: 'museum' });
     const tiles = map.addTilesetImage('museum', 'tiles')!;
-    map.createLayer('floor', tiles)!.setDepth(-1000);
+    const floor = map.createLayer('floor', tiles)!;
     const walls = map.createLayer('walls', tiles)!;
     walls.setCollisionByProperty({ collides: true }).setDepth(-999);
-    map.createLayer('foreground', tiles)!.setDepth(10000);
+    const foreground = map.createLayer('foreground', tiles)!;
+    // Draw static tiles at world resolution once; fractional Canvas zoom otherwise exposes tile seams.
+    this.add.renderTexture(0, 0, this.world.width, this.world.height).setOrigin(0).setDepth(-1000).draw([floor, walls]);
+    this.add.renderTexture(0, 0, this.world.width, this.world.height).setOrigin(0).setDepth(10000).draw(foreground);
+    floor.setVisible(false); walls.setVisible(false); foreground.setVisible(false);
     this.physics.world.setBounds(0, 0, this.world.width, this.world.height);
     const obstacles = this.physics.add.staticGroup();
     for (const object of this.world.objects) {
       this.add.image(object.x, object.y, object.texture).setOrigin(0).setDisplaySize(object.width, object.height)
-        .setDepth(object.texture === 'rug' ? -998 : object.y + object.height);
+        .setAlpha(object.opacity).setDepth(object.decoration ? -998 : object.y + object.height);
       for (const body of object.bodies) {
         const zone = this.add.zone(body.x + body.width / 2, body.y + body.height / 2, body.width, body.height);
         obstacles.add(zone);
       }
     }
-    const { x, y } = this.world.spawn;
+    let { x, y } = this.world.spawn;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('punch-out-return') || 'null');
+      sessionStorage.removeItem('punch-out-return');
+      if (saved && canStandAt(saved.x, saved.y, this.world)) {
+        x = saved.x; y = saved.y; this.moved = true;
+      }
+    } catch { /* Session storage can be unavailable. */ }
     this.player = this.physics.add.sprite(x, y, 'visitor', 18).setOrigin(0.5, 0.875).setScale(0.5);
     this.player.setSize(24, 16).setOffset(20, 48).setCollideWorldBounds(true);
     this.physics.add.collider(this.player, walls);
@@ -64,11 +75,15 @@ export class MuseumScene extends Phaser.Scene {
     for (const [direction, row] of Object.entries({ up: 0, left: 1, down: 2, right: 3 })) {
       this.anims.create({ key: direction, frames: this.anims.generateFrameNumbers('visitor', { frames: [row * 9, row * 9 + 2, row * 9 + 4, row * 9 + 6] }), frameRate: 8, repeat: -1 });
     }
-    const disposeInput = bindInput(document.querySelector('.frame')!, this.inputState, open => this.act(open), exitToMenu);
     const pause = () => { this.inputState.clear(); this.player.setVelocity(0); this.physics.world.pause(); };
     const resume = () => { if (!document.hidden) this.physics.world.resume(); };
+    const disposeInput = bindInput(document.querySelector('.frame')!, this.inputState, open => this.act(open), exitToMenu, connected => this.ui.setConnected(connected), resume);
+    const blur = () => queueMicrotask(() => {
+      try { if (window.parent.document.hasFocus()) return; } catch { /* Cross-origin parent. */ }
+      pause();
+    });
     const visibility = () => document.hidden ? pause() : resume();
-    window.addEventListener('blur', pause);
+    window.addEventListener('blur', blur);
     window.addEventListener('focus', resume);
     document.addEventListener('visibilitychange', visibility);
     // Pointer entry can restore focus to an embedded game after a project tab closes.
@@ -76,7 +91,7 @@ export class MuseumScene extends Phaser.Scene {
     document.addEventListener('pointerdown', focus);
     this.events.once('shutdown', () => {
       disposeInput();
-      window.removeEventListener('blur', pause);
+      window.removeEventListener('blur', blur);
       window.removeEventListener('focus', resume);
       document.removeEventListener('visibilitychange', visibility);
       document.removeEventListener('pointerdown', focus);
@@ -119,7 +134,15 @@ export class MuseumScene extends Phaser.Scene {
     if (!object?.exhibit) return;
     this.ui.show(object.exhibit);
     // Keep this synchronous with the user gesture so popup blockers permit it.
-    if (open) { this.inputState.clear(); this.player.setVelocity(0); window.open(object.exhibit.url, '_blank', 'noopener,noreferrer'); }
+    if (open) {
+      this.inputState.clear(); this.player.setVelocity(0);
+      if (object.exhibit.internal) {
+        try { sessionStorage.setItem('punch-out-return', JSON.stringify({ x: this.player.x, y: this.player.y })); } catch { /* Returning still works without storage. */ }
+        window.location.href = import.meta.env.BASE_URL + object.exhibit.url;
+      } else if (window.matchMedia('(pointer: coarse)').matches) {
+        window.top!.location.href = object.exhibit.url;
+      } else window.open(object.exhibit.url, '_blank', 'noopener,noreferrer');
+    }
   }
 
   private movePlayer() {

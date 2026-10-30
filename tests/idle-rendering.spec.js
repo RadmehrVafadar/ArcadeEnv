@@ -29,4 +29,14 @@ test('the static cabinet stops drawing between interactions @webgl', async ({ pa
   await expect.poll(async () => (await screen.boundingBox()).width, { timeout: 15000 })
     .toBeGreaterThan(initialWidth * 1.5);
   await expect.poll(drawsWhileIdle, { timeout: 15000 }).toBe(0);
+  await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).click();
+  const control = page.getByRole('button', { name: 'Cabinet: Z Read', exact: true });
+  await expect(control).toBeVisible();
+  await expect.poll(drawsWhileIdle, { timeout: 15000 }).toBe(0);
+  await control.hover();
+  await page.mouse.down();
+  await expect(control).toHaveAttribute('data-pressed', '');
+  await page.mouse.up();
+  await expect(control).not.toHaveAttribute('data-pressed');
+  await expect.poll(drawsWhileIdle, { timeout: 15000 }).toBe(0);
 });
