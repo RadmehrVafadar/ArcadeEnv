@@ -7,9 +7,14 @@ export class MuseumUI {
   private connected = false;
   setConnected(connected: boolean) { this.connected = connected; if (!this.moved) this.welcome(); }
   private welcome() {
-    this.dialogue.textContent = this.connected && window.matchMedia('(pointer: coarse)').matches
-      ? 'Joystick: move   Z: read   X: open   Start: menu'
-      : 'Welcome to my museum. Move: WASD or arrow keys. Z: read / X: open / Q: exit.';
+    const cabinet = this.connected && window.matchMedia('(pointer: coarse)').matches;
+    const lines = cabinet
+      ? [['startupControl', 'Joystick: move'], ['startupControl', 'Z: read / X: open'], ['startupControl startupActions', 'Start: menu']]
+      : [['startupWelcome', 'Welcome to my project showcase!'], ['startupControl', 'Move: WASD or arrow keys'], ['startupControl startupActions', 'Z: read / X: open / Q: exit']];
+    this.dialogue.classList.add('startupInstructions');
+    this.dialogue.replaceChildren(...lines.map(([className, text]) => {
+      const line = document.createElement('span'); line.className = className; line.textContent = text; return line;
+    }));
   }
   ready() { document.querySelector<HTMLElement>('.loading')!.hidden = true; this.welcome(); this.dialogue.hidden = false; }
   update(moved: boolean, exhibit?: Exhibit, atExit = false) {
@@ -21,7 +26,11 @@ export class MuseumUI {
     if (this.prompt.textContent !== message) this.prompt.textContent = message;
     this.prompt.hidden = !message;
   }
-  show(exhibit: Exhibit) { this.dialogue.textContent = `${exhibit.title}. ${exhibit.description}`; this.dialogue.hidden = false; }
+  show(exhibit: Exhibit) {
+    this.dialogue.classList.remove('startupInstructions');
+    this.dialogue.textContent = `${exhibit.title}. ${exhibit.description}`;
+    this.dialogue.hidden = false;
+  }
 }
 export function showError(error: unknown) {
   console.error(error);

@@ -299,7 +299,7 @@ test('a second finger can press Z without releasing the joystick; cancellation s
 
 test('keyboard movement survives joystick release and action buttons support keyboard activation', { tag: '@webgl' }, async ({ page, isMobile }) => {
   const game = await startGame(page);
-  await game.locator('.camera').click({ position: { x: 10, y: 10 } });
+  await game.locator('.camera').click();
   await page.keyboard.down('ArrowDown');
   const gesture = await grabJoystick(page, isMobile);
   await gesture.move(0, 30);
@@ -316,7 +316,7 @@ test('keyboard movement survives joystick release and action buttons support key
 test('keyboard Z/X depress buttons and arrows/WASD tilt the physical joystick', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.skip(isMobile, 'Physical keyboard feedback.');
   const game = await startGame(page);
-  await game.locator('.camera').click({ position: { x: 10, y: 10 } });
+  await game.locator('.camera').click();
   const stick = page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true });
   // Check actions at spawn, before movement can bring the player to the exit.
   for (const [key, label] of [['z', 'Z Read'], ['x', 'X Open']]) {
@@ -385,7 +385,7 @@ test('three action buttons form a visible row beside the joystick on desktop and
     await expect(async () => {
       const frameBounds = await page.locator('iframe').boundingBox();
       const text = await game.locator('body').evaluate(() => {
-        const boxes = [...document.querySelectorAll('.museum-header h1, .menu-link, .dialogueBox')].flatMap(element => {
+        const boxes = [...document.querySelectorAll('.menu-link, .dialogueBox')].flatMap(element => {
           const range = document.createRange(); range.selectNodeContents(element);
           return [...range.getClientRects()].map(rect => ({ left: rect.left, right: rect.right }));
         });

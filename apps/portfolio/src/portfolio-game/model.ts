@@ -18,7 +18,7 @@ export interface MuseumMap {
   tilesets: { firstgid: number; name: string; tiles?: Tile[]; source?: string }[];
 }
 export interface PlacedObject extends Rect {
-  id: number; texture: string; bodies: Rect[]; exhibit?: Exhibit; padding: number; decoration: boolean; opacity: number;
+  id: number; texture: string; bodies: Rect[]; exhibit?: Exhibit; padding: number; decoration: boolean; opacity: number; flipX: boolean;
 }
 export const property = (properties: Property[] | undefined, name: string) => properties?.find(p => p.name === name)?.value;
 const fail = (message: string): never => { throw new Error(`Museum map: ${message}`); };
@@ -62,7 +62,10 @@ export function loadWorld(map: MuseumMap, content: Exhibit[]) {
   if (!inside({ ...spawn, width: 1, height: 1 }) || !inside(exit)) fail('spawn or exit outside world');
   const placedIds = new Set<string>();
   const objects: PlacedObject[] = all.filter(object => object.gid !== undefined).map(object => {
-    const tile = tiles.get(object.gid!);
+    const gid = object.gid!;
+    if (!Number.isInteger(gid) || gid < 1 || gid > 0xffffffff || (gid & 0x70000000)) fail('only horizontal tile-object flips are supported');
+    const flipX = Boolean(gid & 0x80000000);
+    const tile = tiles.get(gid & 0x0fffffff);
     if (!tile?.image || !tile.imagewidth || !tile.imageheight || object.rotation) return fail(`unsupported object ${object.name}`);
     const rect = rectangle(object);
     rect.y -= rect.height; // Tiled tile objects use a bottom-left anchor.
@@ -70,7 +73,8 @@ export function loadWorld(map: MuseumMap, content: Exhibit[]) {
     const sx = rect.width / tile.imagewidth, sy = rect.height / tile.imageheight;
     const bodies = (tile.objectgroup?.objects ?? []).map(shape => {
       const body = rectangle(shape);
-      return { x: rect.x + body.x * sx, y: rect.y + body.y * sy, width: body.width * sx, height: body.height * sy };
+      const localX = flipX ? tile.imagewidth! - body.x - body.width : body.x;
+      return { x: rect.x + localX * sx, y: rect.y + body.y * sy, width: body.width * sx, height: body.height * sy };
     });
     const exhibitId = property(object.properties, 'exhibitId');
     const exhibit = content.find(entry => entry.id === exhibitId);
@@ -85,7 +89,7 @@ export function loadWorld(map: MuseumMap, content: Exhibit[]) {
     const decoration = map.layers.find(layer => layer.objects?.includes(object))!.name === 'decoration';
     const opacity = Number(property(object.properties, 'opacity') ?? 1);
     if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1) fail('invalid object opacity');
-    return { ...rect, id: object.id, texture: tile.image.replace('.png', ''), bodies, exhibit, padding, decoration, opacity };
+    return { ...rect, id: object.id, texture: tile.image.replace('.png', ''), bodies, exhibit, padding, decoration, opacity, flipX };
   });
   if (content.some(entry => !placedIds.has(entry.id))) fail('unplaced exhibit content');
   const solids = map.layers.filter(layer => layer.type === 'tilelayer').flatMap(layer => (layer.data ?? []).flatMap((gid, index) =>

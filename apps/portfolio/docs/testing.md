@@ -15,7 +15,7 @@ Run root `npm run check` for lint, TypeScript, both builds, unit tests, and brow
 Use `npm run test:build --workspace=portfolio-website` to build it first.
 
 Museum unit tests import actual TypeScript modules with Node 24 type stripping.
-They validate all six content records, map references, marker uniqueness, unsupported shapes, moved footprints, nearest interaction selection, source priority, and safe Punch-Out return positions.
+They validate all six content records, map references, marker uniqueness, unsupported shapes, moved and horizontally mirrored footprints, opposite-wall lamp orientation, nearest interaction selection, source priority, and safe Punch-Out return positions.
 Browser helpers observe real Phaser canvas diagnostics and move through normal keyboard events; there is no teleport API.
 The boundary assertion preserves the original regression: the player's feet must remain within authored artwork dimensions on desktop and mobile.
 A travel assertion ensures the character reaches the bottom rather than passing from spawn without moving.
@@ -32,7 +32,8 @@ Check crisp artwork, feet layering, lamp pools, readable dialogue, visible navig
 Reference captures show the rebuilt [desktop hallway](../../../docs/screenshots/museum-desktop.png), [tablet hallway](../../../docs/screenshots/museum-tablet.png), and [phone cabinet](../../../docs/screenshots/museum-cabinet-phone.png).
 The game must have no duplicate on-screen D-pad or Read/Open buttons.
 The fractional-zoom regression checks rendered carpet pixels against the source palette, rejecting dark tile seams introduced by compositing.
-Cabinet text-range assertions keep the header and dialogue inside the visible browser width, including the 412-by-915 projected-screen crop.
+Classic-UI checks reject a reserved title bar, require the original white/black rounded dialogue style, and verify that short and long text change box dimensions without horizontal overflow.
+Cabinet text-range assertions keep Menu and dialogue inside the visible browser width, including the 412-by-915 projected-screen crop.
 Dialogue overlays the bottom of the world without reserving a bar or changing its dimensions.
 
 Production desktop and mobile run the full feature suite.

@@ -1,82 +1,95 @@
 ---
 name: Pixel Museum
-description: The original pixel hallway recreated as a modular interactive portfolio museum.
+description: The original pixel hallway with muted modular artwork and its light rounded dialogue.
 colors:
-  canvas: "#211916"
-  surround: "#171310"
-  dialogue-surface: "#2b201af2"
-  prompt-surface: "#211916ed"
-  parchment: "#f6e4bf"
-  brass: "#d7ae66"
-  border: "#755537"
-  turquoise: "#9ee0df"
+  surround: "#9fa7e4"
+  frame: "#83e5f8"
+  surface: "#f5f5f5"
+  ink: "#000"
+  white: "#fff"
+  prompt-surface: "rgba(0,0,0,.7)"
+  focus: "#175d9f"
+  selection: "#b9e9ff"
 typography:
-  title:
+  body:
     fontFamily: "Press Start 2P, monospace"
     fontSize: "14px"
     fontWeight: 400
-    lineHeight: 1.6
-  body:
+    lineHeight: 1.5
+  compact-body:
     fontFamily: "Press Start 2P, monospace"
-    fontSize: "10px"
+    fontSize: "11px"
     fontWeight: 400
-    lineHeight: 2
+    lineHeight: 1.7
+  startup:
+    fontFamily: "Press Start 2P, monospace"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.6
   prompt:
     fontFamily: "Press Start 2P, monospace"
-    fontSize: "9px"
+    fontSize: "12px"
     fontWeight: 400
-    lineHeight: 1.8
+    lineHeight: 1.7
   navigation:
     fontFamily: "Press Start 2P, monospace"
     fontSize: "11px"
     fontWeight: 400
-  label:
-    fontFamily: "Press Start 2P, monospace"
-    fontSize: "9px"
-    fontWeight: 400
-  loading:
-    fontFamily: "Press Start 2P, monospace"
-    fontSize: "12px"
-    fontWeight: 400
-    lineHeight: 2
-spacing:
-  shortcut: "5px"
-  small: "8px"
-  prompt: "10px"
-  medium: "12px"
-  dialogue: "16px"
-  large: "20px"
-components:
-  museum-header:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.parchment}"
-    typography: "{typography.title}"
-    padding: "0 20px"
-    height: "56px"
-  menu-link:
-    textColor: "{colors.parchment}"
-    typography: "{typography.navigation}"
-  menu-link-hover:
-    textColor: "{colors.turquoise}"
   shortcut:
-    textColor: "{colors.brass}"
-    typography: "{typography.label}"
-    padding: "5px"
+    fontFamily: "Press Start 2P, monospace"
+    fontSize: ".8em"
+    fontWeight: 400
+rounded:
+  dialogue: "2em"
+  compact: "8px"
+spacing:
+  small: "8px"
+  medium: "12px"
+  edge: "16px"
+  dialogue: "1em"
+components:
+  menu-link:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.navigation}"
+    rounded: "{rounded.compact}"
+    padding: "8px 12px"
+  menu-link-hover:
+    backgroundColor: "{colors.white}"
   action-prompt:
     backgroundColor: "{colors.prompt-surface}"
-    textColor: "{colors.parchment}"
+    textColor: "{colors.white}"
     typography: "{typography.prompt}"
-    padding: "10px 12px"
+    rounded: "{rounded.compact}"
+    padding: "6px 10px"
     width: "fit-content"
   dialogue:
-    backgroundColor: "{colors.dialogue-surface}"
-    textColor: "{colors.parchment}"
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
     typography: "{typography.body}"
-    padding: "16px 20px"
+    rounded: "{rounded.dialogue}"
+    padding: "1em"
+    width: "fit-content"
+  dialogue-coarse:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.compact-body}"
+    rounded: "{rounded.compact}"
+    padding: "12px"
+    width: "fit-content"
+  startup:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.startup}"
+    rounded: "{rounded.dialogue}"
+    padding: "1em"
+    width: "fit-content"
   loading:
-    backgroundColor: "{colors.canvas}"
-    textColor: "{colors.parchment}"
-    typography: "{typography.loading}"
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.prompt}"
+    rounded: "{rounded.dialogue}"
+    padding: "24px"
 ---
 
 # Design System: Pixel Museum
@@ -87,55 +100,59 @@ components:
 
 These rules describe the museum game and its HTML shell.
 The surrounding landing page, blog, resume, and 3D cabinet retain their existing design.
-The world closely recreates the supplied hallway through new modular raster artwork while preserving the original visitor sprite.
-Muted boards and a faded runner carry the long interior, with yellow lamplight and cyan glass providing the brightest accents.
-The interface recedes into a narrow header, contextual instructions, and floating dialogue.
-The cabinet's projected screen bounds keep the header, prompts, and dialogue inside its visible area.
+The original hallway and original light dialogue establish the visual character, with newly generated modular artwork and the retained visitor sprite.
+Dark olive-brown boards, subdued burgundy carpet, a grey door, taupe panels, and restrained brass closely follow the original hallway, while colored project accents identify individual exhibits.
+The world fills the frame, while a small floating Menu link, contextual prompt, and content-sized dialogue recede around it.
+Projection-aware text insets keep these overlays inside the visible cabinet screen.
 
 **Key Characteristics:**
 
-- Grey and olive horizontal boards surround a broad faded burgundy runner.
-- A tall grey three-panel door and yellow lamps on iron scroll brackets preserve the reference's architecture.
-- Newly illustrated project objects share the hallway's chunky pixel scale and muted materials.
-- Crisp world pixels coexist with readable HTML text.
-- Exploration uses keyboard or cabinet controls without on-screen movement or action buttons.
+- Dark olive-brown horizontal boards surround a broad subdued burgundy runner.
+- A tall three-panel grey door and inward-facing yellow lamps preserve the hallway's architecture.
+- Light rounded dialogue uses black text and a strong black border.
+- The full-height world has no title bar or reserved dialogue strip.
+- Crisp world pixels coexist with readable HTML text and physical cabinet controls.
 
 ## Colors
 
-The HTML shell uses a restrained warm palette that supports the hallway artwork.
+The original light UI sits over muted warm pixel artwork, with strong black-on-whitesmoke dialogue contrast.
 
 ### Primary
 
-- **Parchment** carries titles, dialogue, prompts, and navigation.
-- **Brass** marks the Menu shortcut and echoes the warm lamps.
-- **Turquoise** identifies keyboard focus, navigation hover, and text selection, echoing the cyan mirror.
+- **Periwinkle surround** preserves the original page background.
+- **Frame cyan** remains the fallback surface behind the world.
+- **Focus blue** marks native keyboard focus, while **Selection blue** highlights selected text.
 
 ### Neutral
 
-- **Canvas** frames the world and provides the loading surface.
-- **Surround** fills any space outside the centered frame.
-- **Dialogue surface** and **Prompt surface** use translucent warm dark fills that separate text from the artwork.
-- **Border** supplies the thin structural lines around the header, shortcut, dialogue, and prompt.
+- **Whitesmoke surface** carries dialogue, startup guidance, loading, and Menu navigation.
+- **Ink** supplies dialogue text and the strong UI borders.
+- **White** outlines the desktop frame, brightens Menu hover, and carries contextual prompt text.
+- **Prompt surface** is a compact translucent black fill over the artwork.
 
 World material colors belong to the production tiles and furnishings rather than HTML theme tokens.
-Preserve the grey/olive boards, faded burgundy runner, yellow lamps, cyan glass, and restrained iron and brass details established by the reference.
+Preserve the original dark olive-brown boards, subdued burgundy runner, grey door, taupe panels, yellow lamps, cyan glass, and restrained brass details.
+Keep colored project accents distinct without lifting the exposure of the whole scene.
+Keep existing object identities, silhouettes, proportions, and pixel dimensions when adjusting their color.
 
 ## Typography
 
 The locally hosted Press Start 2P face carries all museum text, with monospace as its fallback.
-The title, dialogue, prompt, navigation, shortcut, and loading roles use the frontmatter's observed sizes and line heights.
-Dialogue remains HTML with a maximum measure of 76 characters instead of text painted into the canvas.
-Coarse-pointer portrait layouts reduce the title to 11px and dialogue to 9px with a 1.9 line height.
-Compact coarse-pointer landscape uses 9px dialogue with a 1.7 line height.
-The cabinet adapter increases prompt and dialogue font size to compensate for CRT projection, clamped between 18px and 48px.
+Standard exhibit dialogue uses the body role, while the startup box uses a larger line-based hierarchy.
+The welcome line is .8em with .65em bottom spacing, movement occupies its own line, and the action line is .85em.
+The contextual prompt and loading status share the prompt role.
+The Menu shortcut is .8em beside its navigation label.
+
+On coarse-pointer devices, dialogue and contextual prompts use 11px text with a 1.7 line height.
+Cabinet-connected dialogue and prompts use the adapter's projection-compensated font size, clamped between 18px and 48px, with a 1.5 line height.
+Text remains HTML rather than being painted into the game canvas.
 
 ## Layout
 
-The frame fills the available viewport, including the cabinet iframe, and centers at a maximum desktop width of 1200px.
-The header occupies 56px above a world panel that receives all remaining space.
-Coarse-pointer portrait and landscape below 500px height use a 48px header.
+The frame fills the available viewport, including the cabinet iframe, and centers at a maximum width of 1200px.
+The world panel and camera occupy the full frame height.
+There is no title, header row, control strip, or reserved bottom dialogue bar.
 Safe-area padding belongs to the outer page.
-There is no reserved control strip or bottom dialogue bar.
 
 The authored world measures 208 by 576 world pixels on a 16px tile grid.
 Six exhibits occupy three left/right pairs: LinkedIn/Punch-Out, Fake News Detector/Music Orb, and Distributed Video Streaming/Minesweeper.
@@ -145,53 +162,76 @@ Static floor and wall tiles are cached together at the original world resolution
 Tiled remains the authoring and collision source for these cached layers.
 Resizing changes the viewport and camera framing, never collision geometry, furnishing positions, or the visitor's position.
 
-The contextual prompt sits 12px from the world's upper edges and ignores pointer input.
-Dialogue floats 16px above the world's bottom edge with 16px side insets and a scrollable height limit.
-Without a cabinet connection, coarse-pointer portrait uses 12px dialogue insets; compact landscape uses 12px side and 8px bottom insets.
-When connected, measured offscreen portions of the same-origin iframe add left and right insets to the header's 20px padding, the prompt's 12px edges, and the dialogue's 16px side edges.
-These projection-aware text insets preserve the world geometry, camera zoom, and cabinet pose.
-The welcome disappears on the first movement, leaving the artwork unobstructed until an exhibit is read.
+Menu floats at the top left and the compact contextual prompt floats at the top right, each inset by 12px.
+The prompt reserves horizontal room for Menu through its bounded width.
+Dialogue sits at the bottom left with 16px side and bottom insets.
+It fits its text width and height, with a maximum width of 72 characters or the available width.
+Long content scrolls within a height bounded by 60dvh and the space left below the top overlays.
+The welcome disappears on the first movement.
+
+Coarse-pointer layouts use 8px top and bottom overlay insets and remove the frame outline.
+When connected, measured offscreen portions of the same-origin iframe add projection-aware left and right insets.
+Menu adds the left inset to its 12px baseline, the prompt adds the right inset to its 12px baseline, and dialogue adds both insets to its 16px side edges.
+These text adjustments preserve world geometry, camera zoom, and cabinet pose.
 
 ## Elevation & Depth
 
-HTML panels use translucent tonal separation and thin borders without shadows.
-World depth comes from the artwork, dithered lamplight, fixed tile layers, and sorting furniture against the visitor's feet.
+HTML overlays use light fills, strong outlines, and rounded corners without shadows.
+The contextual prompt uses a translucent dark fill to remain compact over the artwork.
+World depth comes from the muted raster artwork, dithered lamplight, fixed tile layers, and sorting furniture against the visitor's feet.
 Decorations render below the visitor while foreground tiles can render above the world.
 Collision uses Tiled-authored rectangular footprints around furnishing bases rather than the full visible sprite.
 The retained visitor displays at 32px with a consistent 12-by-8 world-pixel feet body.
 
+The reusable lamp has its wall-attachment rail on the right and its shelf extending left into the room.
+The three left-wall lamp instances use Tiled horizontal flips, while the three right-wall instances remain unflipped, so every bracket attaches to its wall and faces inward.
+The loader mirrors local collision footprints with the artwork.
+Vertical and diagonal tile-object flips remain unsupported.
+
 ## Shapes
 
-The HTML shell uses square corners and crisp one-pixel borders.
+Dialogue, startup, and loading surfaces retain the original rounded form with a 4px black border and 2em corners.
+Coarse-pointer dialogue uses a 2px border and 8px corners.
+Menu uses a 2px black border and 8px corners, while the contextual prompt uses borderless 8px corners.
+The desktop frame has a 4px white outline.
 The world uses chunky pixel clusters, strong object silhouettes, a rectangular runner, a paneled door, and an oval cyan mirror.
 Do not smooth or blur the raster assets when scaling them.
 
 ## Components
 
-### Museum header and Menu
+### Floating Menu
 
-The title and Menu link anchor opposite ends of a single compact row.
-The native Menu link has a minimum 44px height, a bordered Q shortcut, and a turquoise hover state.
-Keyboard focus uses a 3px turquoise outline with a 3px offset.
+The small native Menu link overlays the world's top left with the Q shortcut beside it.
+It uses a whitesmoke fill, black text, and a minimum 44px width and height.
+Hover brightens the fill to white.
+Keyboard focus uses a 3px blue outline with a 3px offset.
 Q and the cabinet's Start action perform the same menu navigation.
 
 ### Contextual prompt
 
-The small bordered prompt names the nearby exhibit and states Z to read and X to open.
+The compact white-on-translucent-black prompt names the nearby exhibit and states Z to read and X to open.
 Near the entrance it instead states that Z or X exits.
+It occupies the top right, wraps long text, and ignores pointer input.
 It is informational and never becomes an on-screen action button.
 
 ### Floating dialogue
 
-The translucent bordered dialogue contains the welcome or an exhibit's title and description.
-It appears over the world only while text is visible and announces changes through a polite HTML status region.
-It supports scrolling when text exceeds the available space.
+The light rounded dialogue fits its title and description at the bottom left.
+It reserves no world layout space and announces changes through a polite HTML status region.
+Width and height follow the content until their bounds require wrapping or scrolling.
 Moving away to another interaction clears the previous description.
+
+### Startup guidance
+
+The original welcome reads "Welcome to my project showcase!" above separate movement and action lines.
+The movement line states WASD or arrow keys, and the action line states Z to read, X to open, and Q to exit.
+Touch cabinet visitors instead see separate Joystick, Z/X, and Start lines.
+The first movement hides the startup box.
 
 ### Loading and failure
 
-Loading text sits centered within the world panel with a 20px inset.
-A failed load replaces the status text with reload and menu guidance while the persistent header remains available.
+Loading guidance uses a light rounded panel centered within a 20px world inset.
+A failed load replaces the status text with reload and menu guidance while the floating Menu link remains available.
 
 ### Visitor and exhibits
 
@@ -206,14 +246,19 @@ Punch-Out stays in the current iframe and restores a saved session position only
 
 ### Do:
 
-- Do recreate the original hallway's materials, architectural silhouettes, and exhibit pair arrangement with modular assets.
-- Do retain the original visitor sprite and the locally hosted pixel font.
-- Do keep dialogue, contextual instructions, and Menu navigation readable in HTML.
+- Do preserve the original hallway architecture, muted material palette, and exhibit pair arrangement with modular assets.
+- Do keep wall-mounted lamps facing inward and mirror their authored footprints with the artwork.
+- Do retain the original visitor sprite and locally hosted pixel font.
+- Do use the original light rounded dialogue, periwinkle surround, and white desktop frame outline.
+- Do keep dialogue content-sized and protect all overlays with projection-aware text insets.
 - Do render the world with nearest-neighbor sampling and retain the requested 15% camera zoom increase.
 - Do author footprints and interaction ranges in Tiled world coordinates.
 
 ### Don't:
 
+- Don't add a title or header bar above the world.
+- Don't replace the original light UI with dark parchment panels.
+- Don't apply a global exposure lift to the hallway or furnishings.
 - Don't add an on-screen D-pad or Read/Open buttons on any device.
 - Don't reserve a bottom control or dialogue bar.
 - Don't use the original hallway image as the runtime world or collision source.

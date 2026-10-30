@@ -1,6 +1,10 @@
 # Museum art provenance
 
 The hallway and all six project exhibits use new artwork generated with the built-in imagegen tool on 2026-10-29.
+The same tool made a small palette correction to the material atlas to match the original hallway's muted olive-brown wood and subdued burgundy carpet.
+Furnishings retain their original muted generated sources from commit `6aa0dea`.
+The lamp source's attachment rail faces right; Tiled flips left-wall instances so each rail attaches to its wall.
+The atlas's original and current exact prompts are stored beside the sources.
 The visual reference is the original `pixelB.png` from the master branch, retained in Git history.
 The original flattened map and its project icons are never used as game textures.
 The original visitor sprite `../../assets/walk.png` remains unchanged.

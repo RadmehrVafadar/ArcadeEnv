@@ -54,7 +54,7 @@ export class MuseumScene extends Phaser.Scene {
     const obstacles = this.physics.add.staticGroup();
     for (const object of this.world.objects) {
       this.add.image(object.x, object.y, object.texture).setOrigin(0).setDisplaySize(object.width, object.height)
-        .setAlpha(object.opacity).setDepth(object.decoration ? -998 : object.y + object.height);
+        .setFlipX(object.flipX).setAlpha(object.opacity).setDepth(object.decoration ? -998 : object.y + object.height);
       for (const body of object.bodies) {
         const zone = this.add.zone(body.x + body.width / 2, body.y + body.height / 2, body.width, body.height);
         obstacles.add(zone);

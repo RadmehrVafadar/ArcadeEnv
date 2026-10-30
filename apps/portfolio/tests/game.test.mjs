@@ -27,6 +27,24 @@ test('moving a Tiled exhibit moves its artwork, footprint, and interaction toget
   assert.equal(nearbyExhibit(mirror.bodies[0].x + mirror.bodies[0].width + 8, 148, world.objects).exhibit.id, 'linkedin');
 });
 
+test('opposite-wall lamps use mirrored artwork and footprints stay attached when flipped', () => {
+  const world = loadWorld(map, exhibits);
+  const lamps = world.objects.filter(object => object.texture === 'lamp');
+  assert.equal(lamps.length, 6);
+  for (const lamp of lamps) assert.equal(lamp.flipX, lamp.x < world.width / 2);
+  const flipped = structuredClone(map);
+  const mirror = flipped.layers.find(layer => layer.name === 'objects').objects.find(object => object.id === 1);
+  mirror.gid = (mirror.gid | 0x80000000) >>> 0;
+  flipped.tilesets[1].tiles[0].objectgroup.objects[0].width = 10;
+  const result = loadWorld(flipped, exhibits).objects.find(object => object.exhibit?.id === 'linkedin');
+  assert.equal(result.flipX, true);
+  assert.equal(result.bodies[0].x, result.x + result.width - 4 - 10);
+  for (const flag of [0x40000000, 0x20000000, 0x10000000]) {
+    mirror.gid = (100 | flag) >>> 0;
+    assert.throws(() => loadWorld(flipped, exhibits), /Museum map:/);
+  }
+});
+
 test('map validation rejects missing references, duplicate IDs, absent markers, and unsupported geometry', () => {
   const invalid = [
     m => { m.layers.find(l => l.name === 'objects').objects[0].properties[0].value = 'missing'; },

@@ -16,7 +16,8 @@ Physics runs at a fixed 60 Hz with movement at 120 world pixels per second and f
 The original character retains its four-direction animation, 32px display size, and one 12-by-8 feet body on every device.
 
 `world/museum.tmj` defines a 208-by-576 hallway, spawn, door trigger, wall tiles, and reusable furnishings.
-New sprites recall the original grey paneled door, muted olive-brown boards, broad faded burgundy runner, golden lamps, and cyan mirror.
+New sprites recall the original grey paneled door, muted olive-brown boards, subdued burgundy runner, golden lamps, and cyan mirror, with colorful project accents.
+Opposite-wall lamps use Tiled horizontal flips so their bracket rails face the wall, with footprints mirrored by the loader.
 Six exhibits occupy three pairs: LinkedIn and Punch-Out, Fake News Detector and Music Orb, Distributed Video Streaming and Minesweeper.
 Their descriptions and destinations remain separate in `content.ts`.
 The new artwork replaces the former flattened project icons.
@@ -35,13 +36,15 @@ Keyboard aliases and joystick sources release independently.
 Blur and hidden tabs clear movement and pause physics; focus changes between cabinet hardware and iframe preserve held cabinet input.
 The welcome disappears after the first move, followed by contextual prompts and readable HTML descriptions.
 Dialogue appears over the bottom of the world only while text is visible and reserves no layout space.
+It restores the original whitesmoke surface, black text, black outline, and rounded corners, while width and height fit the content and long text can scroll.
+There is no title bar; a floating Menu link remains available above the full-height world, including during loading or a failed load.
 
 The game has no on-screen D-pad or Read/Open buttons.
 Touch users use the cabinet joystick, Z/X buttons, and Start; standalone visits require a keyboard.
 The same-origin cabinet connects synchronously through `window.arcadeControls`, preserving popup user activation.
 It reconnects after navigation and cached history restoration.
 Mobile dialogue scales for the projected CRT.
-Projected header, prompt, and dialogue insets keep their text inside the visible browser width when the cabinet screen extends offscreen.
+Projected Menu, prompt, and dialogue insets keep their text inside the visible browser width when the cabinet screen extends offscreen.
 Desktop external projects open a separate tab with `noopener,noreferrer`; coarse-pointer devices navigate the top-level window so in-app browsers need no popup support.
 
 The camera frames one tile less than the hallway width and applies the requested 15% additional zoom.

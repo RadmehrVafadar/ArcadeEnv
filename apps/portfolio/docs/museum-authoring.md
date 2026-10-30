@@ -38,7 +38,9 @@ To add an exhibit:
 Tile objects use bottom-left alignment.
 Collision rectangles are local to the original image dimensions; the loader applies the object's position and scale.
 Changing a placed object's position or size therefore updates the visual, solid body, and interaction region together.
-Do not flip or rotate collision objects, use polygons, add infinite-map chunks, or switch to external tilesets without extending and testing the loader first.
+Horizontal tile-object flipping is supported, including mirrored collision footprints and interaction regions.
+The lamp artwork's attachment rail faces right; left-wall lamps use Tiled's horizontal flip flag so each rail faces its outer wall.
+Do not flip vertically or diagonally, rotate collision objects, use polygons, add infinite-map chunks, or switch to external tilesets without extending and testing the loader first.
 
 ## Key files
 

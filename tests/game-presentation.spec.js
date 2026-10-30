@@ -25,6 +25,28 @@ test('hallway uses the full viewport with 15% closer camera framing and no dupli
   }
 });
 
+test('classic speech boxes fit their text and the world has no title bar', async ({ page }) => {
+  await page.goto(gamePath);
+  await ready(page);
+  await expect(page.locator('.museum-header')).toHaveCount(0);
+  const world = await page.locator('.world-panel').boundingBox();
+  const frame = await page.locator('.frame').boundingBox();
+  expect(world).toEqual(frame);
+  const dialogue = page.locator('.dialogueBox');
+  await expect(dialogue).toHaveCSS('background-color', 'rgb(245, 245, 245)');
+  await expect(dialogue).toHaveCSS('color', 'rgb(0, 0, 0)');
+  expect(await dialogue.evaluate(element => parseFloat(getComputedStyle(element).borderRadius))).toBeGreaterThanOrEqual(8);
+  await dialogue.evaluate(element => { element.textContent = 'Hello!'; });
+  const short = await dialogue.boundingBox();
+  await dialogue.evaluate(element => { element.textContent = 'Explore the museum and discover a new project. '.repeat(15); });
+  const long = await dialogue.boundingBox();
+  expect(long.width).toBeGreaterThan(short.width);
+  expect(long.height).toBeGreaterThan(short.height);
+  expect(long.y).toBeGreaterThanOrEqual(world.y);
+  expect(long.y + long.height).toBeLessThanOrEqual(world.y + world.height);
+  expect(await dialogue.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+});
+
 test('fractional camera zoom preserves the carpet palette across tile boundaries', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(gamePath);
