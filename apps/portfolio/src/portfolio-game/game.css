@@ -64,22 +64,6 @@ canvas { display:block; image-rendering:pixelated }
   line-height:1.7;
   text-align:center
 }
-.actionPrompt {
-  position:absolute;
-  top:12px;
-  right:12px;
-  width:fit-content;
-  max-width:calc(100% - 128px);
-  padding:6px 10px;
-  margin:0;
-  color:#fff;
-  background:rgba(0,0,0,.7);
-  border-radius:8px;
-  font-size:12px;
-  line-height:1.7;
-  overflow-wrap:anywhere;
-  pointer-events:none
-}
 .message-region {
   position:absolute;
   inset:auto 16px 16px;
@@ -109,6 +93,7 @@ canvas { display:block; image-rendering:pixelated }
 .startupWelcome { display:block; margin-bottom:.65em; font-size:.8em }
 .startupControl { display:block }
 .startupActions { font-size:.85em }
+.exhibitActions { display:block; margin-top:.65em; font-size:.85em }
 @media (pointer:coarse) {
   .frame { outline:none }
   .menu-link { top:8px; left:8px; padding:6px 10px }
@@ -120,10 +105,8 @@ canvas { display:block; image-rendering:pixelated }
     font-size:11px;
     line-height:1.7
   }
-  .actionPrompt { top:8px; right:8px; font-size:11px }
 }
-.cabinet-connected .dialogueBox,
-.cabinet-connected .actionPrompt {
+.cabinet-connected .dialogueBox {
   font-size:var(--cabinet-font-size,18px);
   line-height:1.5
 }
@@ -133,8 +116,4 @@ canvas { display:block; image-rendering:pixelated }
 .cabinet-connected .message-region {
   left:calc(16px + var(--cabinet-inset-left,0px));
   right:calc(16px + var(--cabinet-inset-right,0px))
-}
-.cabinet-connected .actionPrompt {
-  right:calc(12px + var(--cabinet-inset-right,0px));
-  max-width:calc(100% - 128px - var(--cabinet-inset-left,0px) - var(--cabinet-inset-right,0px))
 }

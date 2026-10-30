@@ -98,7 +98,7 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   // Exercise the real keyboard handler and game loop inside the iframe.
   await page.keyboard.down('ArrowUp');
-  await expect(portfolio.locator('.actionPrompt')).toContainText('exit', { timeout: 10000 });
+  await expect(portfolio.locator('.dialogueBox')).toContainText('X to exit', { timeout: 10000 });
   await page.keyboard.up('ArrowUp');
   await page.keyboard.press('x');
   await expect(start).toBeVisible();

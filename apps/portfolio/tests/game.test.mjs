@@ -32,6 +32,7 @@ test('opposite-wall lamps use mirrored artwork and footprints stay attached when
   const lamps = world.objects.filter(object => object.texture === 'lamp');
   assert.equal(lamps.length, 6);
   for (const lamp of lamps) assert.equal(lamp.flipX, lamp.x < world.width / 2);
+  for (const lamp of lamps) assert.equal(lamp.x, lamp.flipX ? world.tileSize / 2 : world.width - world.tileSize / 2 - lamp.width);
   const flipped = structuredClone(map);
   const mirror = flipped.layers.find(layer => layer.name === 'objects').objects.find(object => object.id === 1);
   mirror.gid = (mirror.gid | 0x80000000) >>> 0;

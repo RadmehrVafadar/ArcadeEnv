@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { gamePath, ready, player, position, approachMirror, approachExhibit } from './game-helpers.js';
+import { gamePath, ready, player, position, approachMirror, approachExhibit, moveTo } from './game-helpers.js';
 
 test('walls and exhibit footprints block the same feet body on every device', async ({ page }) => {
   await page.goto(gamePath);
@@ -10,7 +10,6 @@ test('walls and exhibit footprints block the same feet body on every device', as
   await page.waitForTimeout(200);
   expect((await position(page)).x).toBe(58);
   await page.keyboard.up('ArrowLeft');
-  await page.keyboard.press('z');
   await expect(page.locator('.dialogueBox')).toContainText('Hey a mirror!');
   await page.keyboard.down('ArrowDown');
   await expect.poll(async () => (await position(page)).y, { timeout: 10000 }).toBe(556);
@@ -37,11 +36,25 @@ test('every restored project is reachable and resolves its own description', asy
   await ready(page);
   for (const [id, title] of [['linkedin', 'The looking glass'], ['punch-out', "Mike Tyson's Punch-Out!!"], ['fake-news', 'Fake News Detector'], ['music-orb', 'Music Orb'], ['distributed-video', 'Distributed Video Streaming'], ['minesweeper', 'Minesweeper']]) {
     await approachExhibit(page, id);
-    await expect(page.locator('.actionPrompt')).toContainText(title);
-    await page.keyboard.press('z');
     await expect(page.locator('.dialogueBox')).toContainText(title);
+    await expect(page.locator('.dialogueBox')).toBeVisible();
+    await expect(page.locator('.dialogueBox')).toContainText('X to open');
     await page.screenshot({ path: testInfo.outputPath(`exhibit-${id}.png`) });
   }
+});
+
+test('nearby exhibits open their descriptions automatically with X to open', async ({ page }) => {
+  await page.goto(gamePath);
+  await ready(page);
+  await approachMirror(page);
+  const dialogue = page.locator('.dialogueBox');
+  await expect(dialogue).toBeVisible();
+  await expect(dialogue).toContainText('Hey a mirror!');
+  await expect(dialogue).toContainText('X to open');
+  await expect(dialogue).not.toContainText('Z to read');
+  await expect(page.locator('.actionPrompt')).toHaveCount(0);
+  await moveTo(page, 'right', 'x', 104);
+  await expect(dialogue).toBeHidden();
 });
 
 test('movement speed stays consistent at reduced rendering rates', async ({ browser, baseURL }) => {
@@ -84,9 +97,27 @@ test('exhibits remain reachable at slow rendering rates', async ({ page }) => {
   await page.goto(gamePath);
   await ready(page);
   await approachExhibit(page, 'punch-out');
-  await expect(page.locator('.actionPrompt')).toContainText('Punch-Out');
-  await page.keyboard.press('z');
   await expect(page.locator('.dialogueBox')).toContainText('Punch-Out');
+  await expect(page.locator('.dialogueBox')).toBeVisible();
+});
+
+test('exhibits remain reachable after one delayed rendering frame', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.requestAnimationFrame.bind(window);
+    let stalled = false, resumeAt = 0;
+    window.requestAnimationFrame = callback => original(function frame(time) {
+      if (!stalled && document.querySelector('canvas[data-walking="true"]')) {
+        stalled = true; resumeAt = time + 500;
+      }
+      if (time < resumeAt) original(frame);
+      else callback(time);
+    });
+  });
+  await page.goto(gamePath);
+  await ready(page);
+  await approachExhibit(page, 'punch-out');
+  await expect(page.locator('.dialogueBox')).toContainText('Punch-Out');
+  await expect(page.locator('.dialogueBox')).toBeVisible();
 });
 
 test('failed artwork loading keeps a usable menu link', async ({ page }) => {

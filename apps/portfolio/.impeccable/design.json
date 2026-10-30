@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-30T03:01:44.267Z",
+  "generatedAt": "2026-10-30T13:33:24.238Z",
   "title": "Design System: Pixel Museum",
   "extensions": {
     "colorMeta": {
@@ -74,20 +74,6 @@
           "oklch(95% 0 0)"
         ]
       },
-      "prompt-surface": {
-        "role": "neutral",
-        "displayName": "Prompt surface",
-        "tonalRamp": [
-          "oklch(15% 0 0 / 0.7)",
-          "oklch(25% 0 0 / 0.7)",
-          "oklch(35% 0 0 / 0.7)",
-          "oklch(45% 0 0 / 0.7)",
-          "oklch(58% 0 0 / 0.7)",
-          "oklch(70% 0 0 / 0.7)",
-          "oklch(83% 0 0 / 0.7)",
-          "oklch(95% 0 0 / 0.7)"
-        ]
-      },
       "focus": {
         "role": "primary",
         "displayName": "Focus blue",
@@ -124,15 +110,15 @@
       },
       "compact-body": {
         "displayName": "Coarse-pointer dialogue",
-        "purpose": "Compact dialogue and contextual prompt text before cabinet projection compensation."
+        "purpose": "Compact dialogue text before cabinet projection compensation."
       },
       "startup": {
         "displayName": "Startup guidance",
         "purpose": "Separate welcome, movement, and action lines in the original light dialogue."
       },
-      "prompt": {
-        "displayName": "Prompt and status",
-        "purpose": "Compact contextual instructions and loading guidance."
+      "status": {
+        "displayName": "Loading status",
+        "purpose": "Loading and recovery guidance."
       },
       "navigation": {
         "displayName": "Menu navigation",
@@ -141,6 +127,10 @@
       "shortcut": {
         "displayName": "Q shortcut",
         "purpose": "Smaller key hint beside the Menu label."
+      },
+      "exhibit-action": {
+        "displayName": "Exhibit action",
+        "purpose": "Separate X to open or X to exit line within proximity dialogue."
       }
     },
     "shadows": [],
@@ -173,43 +163,35 @@
       "css": ".ds-menu{display:flex;align-items:center;gap:8px;width:fit-content;min-width:44px;min-height:44px;padding:8px 12px;border:2px solid #000;border-radius:8px;color:#000;background:#f5f5f5;font:11px \"Press Start 2P\",monospace;text-decoration:none}.ds-menu span{font-size:.8em}.ds-menu:hover{background:#fff}.ds-menu:focus-visible{outline:3px solid #175d9f;outline-offset:3px}"
     },
     {
-      "name": "Contextual prompt",
-      "kind": "custom",
-      "refersTo": "action-prompt",
-      "description": "Compact top-right proximity instructions with white text on translucent black.",
-      "html": "<p class=\"ds-prompt\">Music Orb · Z to read · X to open</p>",
-      "css": ".ds-prompt{width:fit-content;max-width:calc(100% - 128px - var(--cabinet-inset-left,0px) - var(--cabinet-inset-right,0px));padding:6px 10px;margin:0;color:#fff;background:rgba(0,0,0,.7);border-radius:8px;font:12px/1.7 \"Press Start 2P\",monospace;overflow-wrap:anywhere;pointer-events:none}"
-    },
-    {
       "name": "Floating dialogue",
       "kind": "custom",
       "refersTo": "dialogue",
-      "description": "Content-sized light dialogue at the bottom left, bounded for scrolling long descriptions.",
-      "html": "<p class=\"ds-dialogue\" role=\"status\" aria-live=\"polite\">Music Orb. A magical orb that visualises my favourite songs.</p>",
-      "css": ".ds-dialogue{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:1em;color:#000;background:#f5f5f5;border:4px solid #000;border-radius:2em;font:14px/1.5 \"Press Start 2P\",monospace;overflow-wrap:anywhere}"
+      "description": "Proximity descriptions with an inline X action in content-sized light dialogue, bounded for scrolling long text.",
+      "html": "<p class=\"ds-dialogue\" role=\"status\" aria-live=\"polite\">Music Orb. A magical orb that visualises my favourite songs.<span class=\"ds-exhibit-actions\">X to open</span></p>",
+      "css": ".ds-dialogue{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:1em;color:#000;background:#f5f5f5;border:4px solid #000;border-radius:2em;font:14px/1.5 \"Press Start 2P\",monospace;overflow-wrap:anywhere}.ds-dialogue .ds-exhibit-actions{display:block;margin-top:.65em;font-size:.85em}"
     },
     {
       "name": "Coarse-pointer dialogue",
       "kind": "custom",
       "refersTo": "dialogue-coarse",
       "description": "Compact 11px dialogue with a thinner black border and 8px corners before cabinet projection compensation.",
-      "html": "<p class=\"ds-dialogue-coarse\" role=\"status\" aria-live=\"polite\">Music Orb. A magical orb that visualises my favourite songs.</p>",
-      "css": ".ds-dialogue-coarse{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:12px;color:#000;background:#f5f5f5;border:2px solid #000;border-radius:8px;font:11px/1.7 \"Press Start 2P\",monospace;overflow-wrap:anywhere}"
+      "html": "<p class=\"ds-dialogue-coarse\" role=\"status\" aria-live=\"polite\">Music Orb. A magical orb that visualises my favourite songs.<span class=\"ds-exhibit-actions\">X to open</span></p>",
+      "css": ".ds-dialogue-coarse{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:12px;color:#000;background:#f5f5f5;border:2px solid #000;border-radius:8px;font:11px/1.7 \"Press Start 2P\",monospace;overflow-wrap:anywhere}.ds-dialogue-coarse .ds-exhibit-actions{display:block;margin-top:.65em;font-size:.85em}"
     },
     {
       "name": "Startup keyboard guidance",
       "kind": "custom",
       "refersTo": "startup",
       "description": "Original welcome above separate keyboard movement and action lines.",
-      "html": "<p class=\"ds-startup\" role=\"status\" aria-live=\"polite\"><span class=\"ds-startup-welcome\">Welcome to my project showcase!</span><span class=\"ds-startup-control\">Move: WASD or arrow keys</span><span class=\"ds-startup-control ds-startup-actions\">Z: read / X: open / Q: exit</span></p>",
+      "html": "<p class=\"ds-startup\" role=\"status\" aria-live=\"polite\"><span class=\"ds-startup-welcome\">Welcome to my project showcase!</span><span class=\"ds-startup-control\">Move: WASD or arrow keys</span><span class=\"ds-startup-control ds-startup-actions\">X: open / Q: exit</span></p>",
       "css": ".ds-startup{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:1em;color:#000;background:#f5f5f5;border:4px solid #000;border-radius:2em;font:16px/1.6 \"Press Start 2P\",monospace;overflow-wrap:anywhere}.ds-startup-welcome{display:block;margin-bottom:.65em;font-size:.8em}.ds-startup-control{display:block}.ds-startup-actions{font-size:.85em}"
     },
     {
       "name": "Startup cabinet guidance",
       "kind": "custom",
       "refersTo": "dialogue-coarse",
-      "description": "Touch cabinet instructions use Joystick, Z/X, and Start lines with projection-compensated text.",
-      "html": "<p class=\"ds-startup-cabinet\" role=\"status\" aria-live=\"polite\"><span class=\"ds-startup-control\">Joystick: move</span><span class=\"ds-startup-control\">Z: read / X: open</span><span class=\"ds-startup-control ds-startup-actions\">Start: menu</span></p>",
+      "description": "Touch cabinet instructions use Joystick, X, and Start lines with projection-compensated text.",
+      "html": "<p class=\"ds-startup-cabinet\" role=\"status\" aria-live=\"polite\"><span class=\"ds-startup-control\">Joystick: move</span><span class=\"ds-startup-control\">X: open</span><span class=\"ds-startup-control ds-startup-actions\">Start: menu</span></p>",
       "css": ".ds-startup-cabinet{width:fit-content;max-width:min(72ch,100%);height:auto;max-height:min(60dvh,calc(100dvh - 132px));overflow:auto;margin:0;padding:12px;color:#000;background:#f5f5f5;border:2px solid #000;border-radius:8px;font:var(--cabinet-font-size,18px)/1.5 \"Press Start 2P\",monospace;overflow-wrap:anywhere}.ds-startup-control{display:block}.ds-startup-actions{font-size:.85em}"
     },
     {
@@ -223,10 +205,10 @@
   ],
   "narrative": {
     "northStar": "The original pixel hallway",
-    "overview": "These rules describe the museum game and its HTML shell.\nThe surrounding landing page, blog, resume, and 3D cabinet retain their existing design.\nThe original hallway and original light dialogue establish the visual character, with newly generated modular artwork and the retained visitor sprite.\nDark olive-brown boards, subdued burgundy carpet, a grey door, taupe panels, and restrained brass closely follow the original hallway, while colored project accents identify individual exhibits.\nThe world fills the frame, while a small floating Menu link, contextual prompt, and content-sized dialogue recede around it.\nProjection-aware text insets keep these overlays inside the visible cabinet screen.",
+    "overview": "These rules describe the museum game and its HTML shell.\nThe surrounding landing page, blog, resume, and 3D cabinet retain their existing design.\nThe original hallway and original light dialogue establish the visual character, with newly generated modular artwork and the retained visitor sprite.\nDark olive-brown boards, subdued burgundy carpet, a grey door, taupe panels, and restrained brass closely follow the original hallway, while colored project accents identify individual exhibits.\nThe world fills the frame, while a small floating Menu link and content-sized dialogue recede around it.\nProjection-aware text insets keep these overlays inside the visible cabinet screen.",
     "keyCharacteristics": [
       "Dark olive-brown horizontal boards surround a broad subdued burgundy runner.",
-      "A tall three-panel grey door and inward-facing yellow lamps preserve the hallway's architecture.",
+      "A tall three-panel grey door and inward-facing yellow lamps attached to stone trim preserve the hallway's architecture.",
       "Light rounded dialogue uses black text and a strong black border.",
       "The full-height world has no title bar or reserved dialogue strip.",
       "Crisp world pixels coexist with readable HTML text and physical cabinet controls."
@@ -234,7 +216,7 @@
     "rules": [],
     "dos": [
       "Do preserve the original hallway architecture, muted material palette, and exhibit pair arrangement with modular assets.",
-      "Do keep wall-mounted lamps facing inward and mirror their authored footprints with the artwork.",
+      "Do attach lamp rails to the stone trim, face lamps inward, and mirror their authored footprints with the artwork.",
       "Do retain the original visitor sprite and locally hosted pixel font.",
       "Do use the original light rounded dialogue, periwinkle surround, and white desktop frame outline.",
       "Do keep dialogue content-sized and protect all overlays with projection-aware text insets.",
@@ -246,6 +228,7 @@
       "Don't replace the original light UI with dark parchment panels.",
       "Don't apply a global exposure lift to the hallway or furnishings.",
       "Don't add an on-screen D-pad or Read/Open buttons on any device.",
+      "Don't add a top-right action prompt or require an action to read exhibit descriptions.",
       "Don't reserve a bottom control or dialogue bar.",
       "Don't use the original hallway image as the runtime world or collision source.",
       "Don't scale collision geometry from CSS or viewport pixels.",

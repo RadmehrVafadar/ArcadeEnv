@@ -45,12 +45,11 @@ test('cabinet source release and disconnect clear movement without releasing key
   }
 });
 
-test('mobile Z reads and X navigates the top-level page without popup support', async ({ page, context }) => {
+test('mobile descriptions open nearby and X navigates the top-level page without popup support', async ({ page, context }) => {
   await context.route('https://www.linkedin.com/**', route => route.fulfill({ contentType: 'text/html', body: '<title>Showcase</title>' }));
   await page.goto(gamePath);
   await ready(page);
   await approachMirror(page);
-  await page.keyboard.press('z');
   await expect(page.locator('.dialogueBox')).toContainText('Hey a mirror!');
   await page.evaluate(() => { window.open = () => { throw new Error('Popups unavailable'); }; });
   await page.keyboard.press('x');
@@ -62,8 +61,8 @@ test('mobile door and Menu link return to the portfolio', async ({ page }) => {
   await page.goto(gamePath);
   await ready(page);
   await moveTo(page, 'up', 'y', 120);
-  await expect(page.locator('.actionPrompt')).toContainText('exit');
-  await page.keyboard.press('z');
+  await expect(page.locator('.dialogueBox')).toContainText('X to exit');
+  await page.keyboard.press('x');
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await page.goto(gamePath);
   await ready(page);

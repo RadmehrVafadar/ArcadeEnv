@@ -87,8 +87,8 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await frame.getByRole('link', { name: 'Start', exact: true }).click();
   await ready(frame);
   await expect(frame.locator('.frame')).toHaveClass(/cabinet-connected/);
+  await frame.locator('.camera').click();
   await approachExhibit(frame, 'punch-out');
-  await page.keyboard.press('z');
   await expect(frame.locator('.dialogueBox')).toContainText('Punch-Out');
   const position = await museumPosition(frame);
   const before = await page.locator('.crt-screen > iframe').boundingBox();

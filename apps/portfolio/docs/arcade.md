@@ -18,6 +18,7 @@ The original character retains its four-direction animation, 32px display size, 
 `world/museum.tmj` defines a 208-by-576 hallway, spawn, door trigger, wall tiles, and reusable furnishings.
 New sprites recall the original grey paneled door, muted olive-brown boards, subdued burgundy runner, golden lamps, and cyan mirror, with colorful project accents.
 Opposite-wall lamps use Tiled horizontal flips so their bracket rails face the wall, with footprints mirrored by the loader.
+Their image frames overlap the wall trim so the mounting rails touch the stone instead of floating over the boards.
 Six exhibits occupy three pairs: LinkedIn and Punch-Out, Fake News Detector and Music Orb, Distributed Video Streaming and Minesweeper.
 Their descriptions and destinations remain separate in `content.ts`.
 The new artwork replaces the former flattened project icons.
@@ -30,11 +31,14 @@ Decoration sits below the visitor; furniture and the visitor sort by their feet.
 Map validation rejects missing references, duplicate IDs, missing markers, malformed layers, and unsupported shapes.
 
 WASD and arrows move in four directions, with the most recently pressed source taking priority.
-Z reads, X opens once per press, and Q or the visible Menu link returns to the portfolio.
-Z or X near the entrance door exits inside the current iframe.
+Nearby exhibit descriptions open automatically, X opens their destination once per press, and Q or the visible Menu link returns to the portfolio.
+The entrance displays X to exit and returns inside the current iframe.
+Z remains a compatibility read alias without an on-screen instruction.
 Keyboard aliases and joystick sources release independently.
 Blur and hidden tabs clear movement and pause physics; focus changes between cabinet hardware and iframe preserve held cabinet input.
-The welcome disappears after the first move, followed by contextual prompts and readable HTML descriptions.
+The welcome disappears after the first move, and a readable HTML description appears whenever the visitor approaches an exhibit.
+It includes X to open, hides on leaving the interaction range, and updates its live text only when the nearby exhibit changes.
+There is no top-right action prompt.
 Dialogue appears over the bottom of the world only while text is visible and reserves no layout space.
 It restores the original whitesmoke surface, black text, black outline, and rounded corners, while width and height fit the content and long text can scroll.
 There is no title bar; a floating Menu link remains available above the full-height world, including during loading or a failed load.
@@ -44,7 +48,7 @@ Touch users use the cabinet joystick, Z/X buttons, and Start; standalone visits 
 The same-origin cabinet connects synchronously through `window.arcadeControls`, preserving popup user activation.
 It reconnects after navigation and cached history restoration.
 Mobile dialogue scales for the projected CRT.
-Projected Menu, prompt, and dialogue insets keep their text inside the visible browser width when the cabinet screen extends offscreen.
+Projected Menu and dialogue insets keep their text inside the visible browser width when the cabinet screen extends offscreen.
 Desktop external projects open a separate tab with `noopener,noreferrer`; coarse-pointer devices navigate the top-level window so in-app browsers need no popup support.
 
 The camera frames one tile less than the hallway width and applies the requested 15% additional zoom.

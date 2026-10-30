@@ -17,12 +17,13 @@ Use `npm run test:build --workspace=portfolio-website` to build it first.
 Museum unit tests import actual TypeScript modules with Node 24 type stripping.
 They validate all six content records, map references, marker uniqueness, unsupported shapes, moved and horizontally mirrored footprints, opposite-wall lamp orientation, nearest interaction selection, source priority, and safe Punch-Out return positions.
 Browser helpers observe real Phaser canvas diagnostics and move through normal keyboard events; there is no teleport API.
-Movement helpers release on the first target crossing so fixed-step catch-up cannot cause oscillation between frames.
-An exhibit interaction regression runs at five rendered frames per second, and cabinet checks wait for museum readiness before asserting reconnected controls.
+Movement helpers observe coordinate mutations directly, allow a target crossing within 12 world pixels, and correct larger misses so fixed-step catch-up cannot cause oscillation or excessive overshoot.
+Exhibit interaction regressions run at five rendered frames per second and after a 500ms frame stall, and cabinet checks wait for museum readiness before asserting reconnected controls.
 The boundary assertion preserves the original regression: the player's feet must remain within authored artwork dimensions on desktop and mobile.
 A travel assertion ensures the character reaches the bottom rather than passing from spawn without moving.
 Collision checks exercise walls and exhibit bases with the same feet body.
-All restored exhibits must be reachable and display their own descriptions.
+All restored exhibits must be reachable and display their own descriptions automatically with X to open, hiding again outside their interaction range.
+The top-right action prompt must be absent, and opposite-wall lamp rails must overlap the stone trim.
 Movement checks compare 60 Hz and throttled 20 Hz rendering.
 Resize and orientation checks preserve position and camera scale without rebuilding geometry.
 Loading failures retain the Menu link; keyboard aliases, blur, and hidden tabs clear correctly.

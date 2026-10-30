@@ -257,7 +257,6 @@ test('joystick moves in four directions, Q reconnects, and Z and X retain their 
   await expect(page.locator('.cabinet-control')).toHaveCount(4);
   await expect(page.getByRole('button', { name: 'Cabinet: Joystick: drag to move', exact: true })).toHaveAttribute('data-input-page', '/portfolio/src/portfolio-game/game.html');
   await approachMirror(game);
-  await page.getByRole('button', { name: 'Cabinet: Z Read', exact: true }).click();
   await expect(game.locator('.dialogueBox')).toContainText('mirror');
   if (isMobile) {
     await page.evaluate(() => { window.open = () => { throw new Error('Popups unavailable'); }; });

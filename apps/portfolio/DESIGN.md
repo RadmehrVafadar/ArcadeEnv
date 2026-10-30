@@ -7,7 +7,6 @@ colors:
   surface: "#f5f5f5"
   ink: "#000"
   white: "#fff"
-  prompt-surface: "rgba(0,0,0,.7)"
   focus: "#175d9f"
   selection: "#b9e9ff"
 typography:
@@ -26,7 +25,7 @@ typography:
     fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.6
-  prompt:
+  status:
     fontFamily: "Press Start 2P, monospace"
     fontSize: "12px"
     fontWeight: 400
@@ -38,6 +37,10 @@ typography:
   shortcut:
     fontFamily: "Press Start 2P, monospace"
     fontSize: ".8em"
+    fontWeight: 400
+  exhibit-action:
+    fontFamily: "Press Start 2P, monospace"
+    fontSize: ".85em"
     fontWeight: 400
 rounded:
   dialogue: "2em"
@@ -56,13 +59,6 @@ components:
     padding: "8px 12px"
   menu-link-hover:
     backgroundColor: "{colors.white}"
-  action-prompt:
-    backgroundColor: "{colors.prompt-surface}"
-    textColor: "{colors.white}"
-    typography: "{typography.prompt}"
-    rounded: "{rounded.compact}"
-    padding: "6px 10px"
-    width: "fit-content"
   dialogue:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -87,7 +83,7 @@ components:
   loading:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    typography: "{typography.prompt}"
+    typography: "{typography.status}"
     rounded: "{rounded.dialogue}"
     padding: "24px"
 ---
@@ -102,13 +98,13 @@ These rules describe the museum game and its HTML shell.
 The surrounding landing page, blog, resume, and 3D cabinet retain their existing design.
 The original hallway and original light dialogue establish the visual character, with newly generated modular artwork and the retained visitor sprite.
 Dark olive-brown boards, subdued burgundy carpet, a grey door, taupe panels, and restrained brass closely follow the original hallway, while colored project accents identify individual exhibits.
-The world fills the frame, while a small floating Menu link, contextual prompt, and content-sized dialogue recede around it.
+The world fills the frame, while a small floating Menu link and content-sized dialogue recede around it.
 Projection-aware text insets keep these overlays inside the visible cabinet screen.
 
 **Key Characteristics:**
 
 - Dark olive-brown horizontal boards surround a broad subdued burgundy runner.
-- A tall three-panel grey door and inward-facing yellow lamps preserve the hallway's architecture.
+- A tall three-panel grey door and inward-facing yellow lamps attached to stone trim preserve the hallway's architecture.
 - Light rounded dialogue uses black text and a strong black border.
 - The full-height world has no title bar or reserved dialogue strip.
 - Crisp world pixels coexist with readable HTML text and physical cabinet controls.
@@ -127,8 +123,7 @@ The original light UI sits over muted warm pixel artwork, with strong black-on-w
 
 - **Whitesmoke surface** carries dialogue, startup guidance, loading, and Menu navigation.
 - **Ink** supplies dialogue text and the strong UI borders.
-- **White** outlines the desktop frame, brightens Menu hover, and carries contextual prompt text.
-- **Prompt surface** is a compact translucent black fill over the artwork.
+- **White** outlines the desktop frame and brightens Menu hover.
 
 World material colors belong to the production tiles and furnishings rather than HTML theme tokens.
 Preserve the original dark olive-brown boards, subdued burgundy runner, grey door, taupe panels, yellow lamps, cyan glass, and restrained brass details.
@@ -140,11 +135,12 @@ Keep existing object identities, silhouettes, proportions, and pixel dimensions 
 The locally hosted Press Start 2P face carries all museum text, with monospace as its fallback.
 Standard exhibit dialogue uses the body role, while the startup box uses a larger line-based hierarchy.
 The welcome line is .8em with .65em bottom spacing, movement occupies its own line, and the action line is .85em.
-The contextual prompt and loading status share the prompt role.
+Exhibit descriptions end with a separate .85em action line and .65em top spacing.
+Loading and recovery guidance use the status role.
 The Menu shortcut is .8em beside its navigation label.
 
-On coarse-pointer devices, dialogue and contextual prompts use 11px text with a 1.7 line height.
-Cabinet-connected dialogue and prompts use the adapter's projection-compensated font size, clamped between 18px and 48px, with a 1.5 line height.
+On coarse-pointer devices, dialogue uses 11px text with a 1.7 line height.
+Cabinet-connected dialogue uses the adapter's projection-compensated font size, clamped between 18px and 48px, with a 1.5 line height.
 Text remains HTML rather than being painted into the game canvas.
 
 ## Layout
@@ -162,22 +158,20 @@ Static floor and wall tiles are cached together at the original world resolution
 Tiled remains the authoring and collision source for these cached layers.
 Resizing changes the viewport and camera framing, never collision geometry, furnishing positions, or the visitor's position.
 
-Menu floats at the top left and the compact contextual prompt floats at the top right, each inset by 12px.
-The prompt reserves horizontal room for Menu through its bounded width.
+Menu floats at the top left with a 12px inset.
 Dialogue sits at the bottom left with 16px side and bottom insets.
 It fits its text width and height, with a maximum width of 72 characters or the available width.
 Long content scrolls within a height bounded by 60dvh and the space left below the top overlays.
-The welcome disappears on the first movement.
+The welcome disappears on the first movement, and nearby exhibit descriptions appear automatically within their footprint-relative interaction ranges.
 
 Coarse-pointer layouts use 8px top and bottom overlay insets and remove the frame outline.
 When connected, measured offscreen portions of the same-origin iframe add projection-aware left and right insets.
-Menu adds the left inset to its 12px baseline, the prompt adds the right inset to its 12px baseline, and dialogue adds both insets to its 16px side edges.
+Menu adds the left inset to its 12px baseline, and dialogue adds both insets to its 16px side edges.
 These text adjustments preserve world geometry, camera zoom, and cabinet pose.
 
 ## Elevation & Depth
 
 HTML overlays use light fills, strong outlines, and rounded corners without shadows.
-The contextual prompt uses a translucent dark fill to remain compact over the artwork.
 World depth comes from the muted raster artwork, dithered lamplight, fixed tile layers, and sorting furniture against the visitor's feet.
 Decorations render below the visitor while foreground tiles can render above the world.
 Collision uses Tiled-authored rectangular footprints around furnishing bases rather than the full visible sprite.
@@ -185,6 +179,7 @@ The retained visitor displays at 32px with a consistent 12-by-8 world-pixel feet
 
 The reusable lamp has its wall-attachment rail on the right and its shelf extending left into the room.
 The three left-wall lamp instances use Tiled horizontal flips, while the three right-wall instances remain unflipped, so every bracket attaches to its wall and faces inward.
+The 28px-wide lamp frames start at x8 on the left and x172 on the right, placing both mounting rails over the stone trim.
 The loader mirrors local collision footprints with the artwork.
 Vertical and diagonal tile-object flips remain unsupported.
 
@@ -192,7 +187,7 @@ Vertical and diagonal tile-object flips remain unsupported.
 
 Dialogue, startup, and loading surfaces retain the original rounded form with a 4px black border and 2em corners.
 Coarse-pointer dialogue uses a 2px border and 8px corners.
-Menu uses a 2px black border and 8px corners, while the contextual prompt uses borderless 8px corners.
+Menu uses a 2px black border and 8px corners.
 The desktop frame has a 4px white outline.
 The world uses chunky pixel clusters, strong object silhouettes, a rectangular runner, a paneled door, and an oval cyan mirror.
 Do not smooth or blur the raster assets when scaling them.
@@ -207,25 +202,21 @@ Hover brightens the fill to white.
 Keyboard focus uses a 3px blue outline with a 3px offset.
 Q and the cabinet's Start action perform the same menu navigation.
 
-### Contextual prompt
-
-The compact white-on-translucent-black prompt names the nearby exhibit and states Z to read and X to open.
-Near the entrance it instead states that Z or X exits.
-It occupies the top right, wraps long text, and ignores pointer input.
-It is informational and never becomes an on-screen action button.
-
 ### Floating dialogue
 
 The light rounded dialogue fits its title and description at the bottom left.
 It reserves no world layout space and announces changes through a polite HTML status region.
 Width and height follow the content until their bounds require wrapping or scrolling.
-Moving away to another interaction clears the previous description.
+Approaching an exhibit shows its description automatically, followed by a separate X to open line.
+The entrance uses the same presentation with X to exit.
+Leaving the interaction range after the first movement hides the description.
+The status text changes only when the nearby exhibit ID changes, keeping live announcements stable while the visitor stays in range.
 
 ### Startup guidance
 
 The original welcome reads "Welcome to my project showcase!" above separate movement and action lines.
-The movement line states WASD or arrow keys, and the action line states Z to read, X to open, and Q to exit.
-Touch cabinet visitors instead see separate Joystick, Z/X, and Start lines.
+The movement line states WASD or arrow keys, and the action line states X to open and Q to exit.
+Touch cabinet visitors instead see separate Joystick, X, and Start lines.
 The first movement hides the startup box.
 
 ### Loading and failure
@@ -237,7 +228,9 @@ A failed load replaces the status text with reload and menu guidance while the f
 
 The original visitor uses four directional walking frames at eight frames per second.
 The latest held keyboard or cabinet direction wins, and movement remains cardinal.
-Z reads and X opens once per press; the game exposes no on-screen D-pad or Read/Open buttons.
+Descriptions appear automatically within each exhibit's authored interaction range, and X opens once per press.
+Z remains a legacy read alias without an on-screen instruction.
+The game exposes no on-screen D-pad or Read/Open buttons.
 Touch visitors use the cabinet joystick and buttons, while standalone visits require a keyboard.
 Desktop external projects open separate tabs and coarse-pointer devices open them in the top-level browser.
 Punch-Out stays in the current iframe and restores a saved session position only when its feet body still fits the map.
@@ -247,7 +240,7 @@ Punch-Out stays in the current iframe and restores a saved session position only
 ### Do:
 
 - Do preserve the original hallway architecture, muted material palette, and exhibit pair arrangement with modular assets.
-- Do keep wall-mounted lamps facing inward and mirror their authored footprints with the artwork.
+- Do attach lamp rails to the stone trim, face lamps inward, and mirror their authored footprints with the artwork.
 - Do retain the original visitor sprite and locally hosted pixel font.
 - Do use the original light rounded dialogue, periwinkle surround, and white desktop frame outline.
 - Do keep dialogue content-sized and protect all overlays with projection-aware text insets.
@@ -260,6 +253,7 @@ Punch-Out stays in the current iframe and restores a saved session position only
 - Don't replace the original light UI with dark parchment panels.
 - Don't apply a global exposure lift to the hallway or furnishings.
 - Don't add an on-screen D-pad or Read/Open buttons on any device.
+- Don't add a top-right action prompt or require an action to read exhibit descriptions.
 - Don't reserve a bottom control or dialogue bar.
 - Don't use the original hallway image as the runtime world or collision source.
 - Don't scale collision geometry from CSS or viewport pixels.

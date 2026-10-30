@@ -6,22 +6,27 @@ export async function position(page) {
 }
 export async function ready(page) { await expect(player(page)).toBeVisible({ timeout: 15000 }); }
 export async function moveTo(page, direction, axis, target) {
-  // Release in the page's animation frame, avoiding driver round trips that overshoot
-  // small footprints when the software-rendered cabinet tests occupy the other worker.
+  // Observe published coordinates directly so throttled animation callbacks cannot delay release.
   await player(page).evaluate((canvas, { axis, target, direction }) => new Promise((resolve, reject) => {
-    const start = performance.now();
     const increasing = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']) < target;
+    let crossed = false;
     let held = '';
     const release = () => { if (held) document.dispatchEvent(new KeyboardEvent('keyup', { key: held, bubbles: true })); held = ''; };
+    const cleanup = () => { release(); observer.disconnect(); clearTimeout(timeout); };
     const step = () => {
       const value = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']);
-      // Fixed-step catch-up can cross the entire target window in one rendered frame.
-      if (Math.abs(value - target) <= 2 || (increasing ? value >= target : value <= target)) { release(); resolve(); return; }
-      if (performance.now() - start > 8000) { release(); reject(new Error(`Could not reach ${direction} ${axis}=${target}; at ${value}`)); return; }
+      // Allow half a 5 FPS movement step, but correct larger stalls back toward the target.
+      crossed ||= increasing ? value >= target : value <= target;
+      if (Math.abs(value - target) <= (crossed ? 12 : 2)) { cleanup(); resolve(); return; }
       const next = axis === 'x' ? (value < target ? 'ArrowRight' : 'ArrowLeft') : (value < target ? 'ArrowDown' : 'ArrowUp');
       if (next !== held) { release(); held = next; document.dispatchEvent(new KeyboardEvent('keydown', { key: next, bubbles: true })); }
-      requestAnimationFrame(step);
     };
+    const observer = new MutationObserver(step);
+    observer.observe(canvas, { attributes: true, attributeFilter: [`data-player-${axis}`] });
+    const timeout = setTimeout(() => {
+      const value = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']);
+      cleanup(); reject(new Error(`Could not reach ${direction} ${axis}=${target}; at ${value}`));
+    }, 8000);
     step();
   }), { axis, target, direction });
   await expect(player(page)).toHaveAttribute('data-walking', 'false');
@@ -29,7 +34,7 @@ export async function moveTo(page, direction, axis, target) {
 export async function approachMirror(page) {
   await moveTo(page, 'down', 'y', 164);
   await moveTo(page, 'left', 'x', 68);
-  await expect(page.locator('.actionPrompt')).toContainText('looking glass');
+  await expect(page.locator('.dialogueBox')).toContainText('looking glass');
 }
 export async function approachExhibit(page, id) {
   await moveTo(page, 'right', 'x', 104);

@@ -96,9 +96,8 @@ test('dialogue overlays the bottom of the world without reserving a bar', async 
   await checkOverlay();
   await page.screenshot({ path: testInfo.outputPath('welcome-overlay.png') });
   await approachMirror(page);
-  await expect(dialogue).toBeHidden();
+  await expect(dialogue).toBeVisible();
   expect(await world.boundingBox()).toEqual(initial);
-  await page.keyboard.press('z');
   await expect(dialogue).toContainText('Hey a mirror!');
   await checkOverlay();
   await page.screenshot({ path: testInfo.outputPath('exhibit-overlay.png') });

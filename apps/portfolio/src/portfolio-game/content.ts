@@ -7,7 +7,7 @@ export interface Exhibit {
 }
 export const exhibits: Exhibit[] = [
   { id: 'linkedin', title: 'The looking glass', description: 'Hey a mirror! Maybe I can see what I look like in it.', url: 'https://www.linkedin.com/in/radmehrv/' },
-  { id: 'punch-out', title: "Mike Tyson's Punch-Out!!", description: "Step into the ring. X: play inside this cabinet.", url: 'src/punch-out/punch-out.html', internal: true },
+  { id: 'punch-out', title: "Mike Tyson's Punch-Out!!", description: 'Step into the ring.', url: 'src/punch-out/punch-out.html', internal: true },
   { id: 'fake-news', title: 'Fake News Detector', description: 'An AI fake news detector? I wonder how it works.', url: 'https://github.com/RadmehrVafadar/AI-fake-news-detector' },
   { id: 'music-orb', title: 'Music Orb', description: 'A magical orb that visualises my favourite songs.', url: 'https://github.com/RadmehrVafadar/voiceEmotionVisualizer' },
   { id: 'distributed-video', title: 'Distributed Video Streaming', description: 'A distributed video player that can play videos from multiple sources.', url: 'https://github.com/RadmehrVafadar/Distributed-Video-Streaming' },
