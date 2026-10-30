@@ -17,6 +17,8 @@ Use `npm run test:build --workspace=portfolio-website` to build it first.
 Museum unit tests import actual TypeScript modules with Node 24 type stripping.
 They validate all six content records, map references, marker uniqueness, unsupported shapes, moved and horizontally mirrored footprints, opposite-wall lamp orientation, nearest interaction selection, source priority, and safe Punch-Out return positions.
 Browser helpers observe real Phaser canvas diagnostics and move through normal keyboard events; there is no teleport API.
+Movement helpers release on the first target crossing so fixed-step catch-up cannot cause oscillation between frames.
+An exhibit interaction regression runs at five rendered frames per second, and cabinet checks wait for museum readiness before asserting reconnected controls.
 The boundary assertion preserves the original regression: the player's feet must remain within authored artwork dimensions on desktop and mobile.
 A travel assertion ensures the character reaches the bottom rather than passing from spawn without moving.
 Collision checks exercise walls and exhibit bases with the same feet body.

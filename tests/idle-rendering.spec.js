@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { ready } from './game-helpers.js';
 
 test('the static cabinet stops drawing between interactions @webgl', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Desktop idle rendering; mobile delayed zoom is covered separately.');
@@ -30,6 +31,7 @@ test('the static cabinet stops drawing between interactions @webgl', async ({ pa
     .toBeGreaterThan(initialWidth * 1.5);
   await expect.poll(drawsWhileIdle, { timeout: 15000 }).toBe(0);
   await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).click();
+  await ready(page.frameLocator('iframe'));
   const control = page.getByRole('button', { name: 'Cabinet: Z Read', exact: true });
   await expect(control).toBeVisible();
   await expect.poll(drawsWhileIdle, { timeout: 15000 }).toBe(0);

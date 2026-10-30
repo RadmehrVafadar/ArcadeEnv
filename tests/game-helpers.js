@@ -10,11 +10,13 @@ export async function moveTo(page, direction, axis, target) {
   // small footprints when the software-rendered cabinet tests occupy the other worker.
   await player(page).evaluate((canvas, { axis, target, direction }) => new Promise((resolve, reject) => {
     const start = performance.now();
+    const increasing = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']) < target;
     let held = '';
     const release = () => { if (held) document.dispatchEvent(new KeyboardEvent('keyup', { key: held, bubbles: true })); held = ''; };
     const step = () => {
       const value = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']);
-      if (Math.abs(value - target) <= 2) { release(); resolve(); return; }
+      // Fixed-step catch-up can cross the entire target window in one rendered frame.
+      if (Math.abs(value - target) <= 2 || (increasing ? value >= target : value <= target)) { release(); resolve(); return; }
       if (performance.now() - start > 8000) { release(); reject(new Error(`Could not reach ${direction} ${axis}=${target}; at ${value}`)); return; }
       const next = axis === 'x' ? (value < target ? 'ArrowRight' : 'ArrowLeft') : (value < target ? 'ArrowDown' : 'ArrowUp');
       if (next !== held) { release(); held = next; document.dispatchEvent(new KeyboardEvent('keydown', { key: next, bubbles: true })); }

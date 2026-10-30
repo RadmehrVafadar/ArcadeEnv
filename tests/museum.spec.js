@@ -72,6 +72,23 @@ test('movement speed stays consistent at reduced rendering rates', async ({ brow
   expect(Math.abs(distances[0] - distances[1])).toBeLessThanOrEqual(10);
 });
 
+test('exhibits remain reachable at slow rendering rates', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.requestAnimationFrame.bind(window);
+    const last = new WeakMap();
+    window.requestAnimationFrame = callback => original(function frame(time) {
+      if (time - (last.get(callback) ?? -Infinity) >= 1000 / 5 - 1) { last.set(callback, time); callback(time); }
+      else original(frame);
+    });
+  });
+  await page.goto(gamePath);
+  await ready(page);
+  await approachExhibit(page, 'punch-out');
+  await expect(page.locator('.actionPrompt')).toContainText('Punch-Out');
+  await page.keyboard.press('z');
+  await expect(page.locator('.dialogueBox')).toContainText('Punch-Out');
+});
+
 test('failed artwork loading keeps a usable menu link', async ({ page }) => {
   await page.route('**/*walk*.png', route => route.abort());
   await page.goto(gamePath);
