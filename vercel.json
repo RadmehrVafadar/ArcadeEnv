@@ -1,0 +1,13 @@
+
+{
+  "rewrites": [
+    {
+      "source": "/youlobme",
+      "destination": "https://youlobme.vercel.app/"
+    },
+    {
+      "source": "/youlobme/:path*",
+      "destination": "https://youlobme.vercel.app/:path*"
+    }
+  ]
+}
