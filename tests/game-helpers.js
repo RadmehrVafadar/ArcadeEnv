@@ -5,9 +5,9 @@ export async function position(page) {
   return player(page).evaluate(element => ({ x: Number(element.dataset.playerX), y: Number(element.dataset.playerY) }));
 }
 export async function ready(page) { await expect(player(page)).toBeVisible({ timeout: 15000 }); }
-export async function moveTo(page, direction, axis, target) {
+export async function moveTo(page, direction, axis, target, crossingTolerance = 12) {
   // Observe published coordinates directly so throttled animation callbacks cannot delay release.
-  await player(page).evaluate((canvas, { axis, target, direction }) => new Promise((resolve, reject) => {
+  await player(page).evaluate((canvas, { axis, target, direction, crossingTolerance }) => new Promise((resolve, reject) => {
     const increasing = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']) < target;
     let crossed = false;
     let held = '';
@@ -17,7 +17,7 @@ export async function moveTo(page, direction, axis, target) {
       const value = Number(canvas.dataset[axis === 'x' ? 'playerX' : 'playerY']);
       // Allow half a 5 FPS movement step, but correct larger stalls back toward the target.
       crossed ||= increasing ? value >= target : value <= target;
-      if (Math.abs(value - target) <= (crossed ? 12 : 2)) { cleanup(); resolve(); return; }
+      if (Math.abs(value - target) <= (crossed ? crossingTolerance : 2)) { cleanup(); resolve(); return; }
       const next = axis === 'x' ? (value < target ? 'ArrowRight' : 'ArrowLeft') : (value < target ? 'ArrowDown' : 'ArrowUp');
       if (next !== held) { release(); held = next; document.dispatchEvent(new KeyboardEvent('keydown', { key: next, bubbles: true })); }
     };
@@ -28,7 +28,7 @@ export async function moveTo(page, direction, axis, target) {
       cleanup(); reject(new Error(`Could not reach ${direction} ${axis}=${target}; at ${value}`));
     }, 8000);
     step();
-  }), { axis, target, direction });
+  }), { axis, target, direction, crossingTolerance });
   await expect(player(page)).toHaveAttribute('data-walking', 'false');
 }
 export async function approachMirror(page) {

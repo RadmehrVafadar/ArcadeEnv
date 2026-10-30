@@ -4,7 +4,9 @@ import { gamePath, ready, player, position, approachMirror, approachExhibit, mov
 test('walls and exhibit footprints block the same feet body on every device', async ({ page }) => {
   await page.goto(gamePath);
   await ready(page);
-  await approachMirror(page);
+  // Collision needs the feet aligned with the base, beyond merely entering its interaction range.
+  await moveTo(page, 'down', 'y', 164, 2);
+  await moveTo(page, 'left', 'x', 68, 2);
   await page.keyboard.down('ArrowLeft');
   await expect.poll(async () => (await position(page)).x).toBe(58);
   await page.waitForTimeout(200);
