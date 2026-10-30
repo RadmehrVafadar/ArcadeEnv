@@ -1,4 +1,8 @@
 import { expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { loadWorld } from '../apps/portfolio/src/portfolio-game/model.ts';
+import { exhibits } from '../apps/portfolio/src/portfolio-game/content.ts';
+const world = loadWorld(JSON.parse(await readFile(new URL('../apps/portfolio/src/portfolio-game/world/museum.tmj', import.meta.url), 'utf8')), exhibits);
 export const gamePath = '/portfolio/src/portfolio-game/game.html';
 export const player = page => page.locator('canvas[data-ready="true"]');
 export async function position(page) {
@@ -32,18 +36,19 @@ export async function moveTo(page, direction, axis, target, crossingTolerance = 
   await expect(player(page)).toHaveAttribute('data-walking', 'false');
 }
 export async function approachMirror(page) {
-  await moveTo(page, 'down', 'y', 164);
-  await moveTo(page, 'left', 'x', 68);
-  await expect(page.locator('.dialogueBox')).toContainText('looking glass');
+  await approachExhibit(page, 'linkedin');
 }
 export async function approachExhibit(page, id) {
-  await moveTo(page, 'right', 'x', 104);
-  const targets = {
-    linkedin: [68, 164], 'punch-out': [140, 164],
-    'fake-news': [68, 356], 'music-orb': [140, 356],
-    'distributed-video': [68, 548], minesweeper: [140, 548],
-  };
-  const [x, y] = targets[id];
+  const object = world.objects.find(object => object.exhibit?.id === id);
+  if (!object) throw new Error(`Unknown exhibit ${id}`);
+  const body = object.bodies[0];
+  const left = body.x < world.width / 2;
+  // Aim at the feet-body contact edge so bounded overshoot stays inside the interaction range.
+  const x = left ? body.x + body.width + 6 : body.x - 6;
+  const y = body.y + body.height / 2;
+  await moveTo(page, 'right', 'x', world.width / 2);
   await moveTo(page, 'down', 'y', y);
-  await moveTo(page, x < 104 ? 'left' : 'right', 'x', x);
+  await moveTo(page, left ? 'left' : 'right', 'x', x);
+  await expect(page.locator('.dialogueBox')).toBeVisible();
+  await expect(page.locator('.dialogueBox')).toContainText(object.exhibit.title);
 }
