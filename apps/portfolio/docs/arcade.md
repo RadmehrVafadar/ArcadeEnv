@@ -65,8 +65,14 @@ Return restores it only if the same feet body still fits the authored geometry.
 The emulator retains master's controls: Z is NES B, X is A, and joystick/arrows/WASD move.
 An overlapping Z+X press within 60 ms sends Select, suppressing punches until release.
 Taps remain pressed for at least 32 ms and actual running core frames so slow renderers sample them.
-Tap Start/Q to send Start on release; hold for 600 ms to return to the exhibit.
+Tap Start/Q to send Start on release; hold for three seconds to return to the exhibit in any state, including loading or paused.
+Loading ignores short Start/Q taps and cancelled holds rather than exiting.
 Enter and Shift provide direct Start and Select.
+The on-screen Pause button or P pauses the emulator itself and clears held inputs.
+Resume with the same button, P, or a short Start/Q press without sending an extra NES Start.
+A manual pause survives hiding and showing the page.
+The Pause/Resume button scales with the cabinet projection to retain a 44px touch target inside the visible CRT.
+P shares the cabinet adapter and works with keyboard focus in the cabinet, wrapper, or emulator runtime.
 Held inputs and pending transitions clear on blur, cancellation, hiding, navigation, and disconnect.
 
 EmulatorJS 4.2.3 loads its NES core from its official CDN.
