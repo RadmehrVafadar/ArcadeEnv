@@ -3,8 +3,6 @@ import { createPunchOutInput } from './input'
 import type { RuntimeWindow } from './runtime'
 
 const status = document.querySelector<HTMLElement>('#status')!
-const pauseButton = document.querySelector<HTMLButtonElement>('#pause-button')!
-const pauseLabel = pauseButton.querySelector<HTMLElement>('span')!
 let state = 'loading'
 let connected = false
 let frame: HTMLIFrameElement | undefined
@@ -15,9 +13,6 @@ const setState = (value: string, message = '') => {
   state = value
   document.body.dataset.state = value
   status.textContent = message
-  pauseButton.hidden = value !== 'playing' && value !== 'paused'
-  pauseLabel.textContent = value === 'paused' ? 'Resume' : 'Pause'
-  pauseButton.setAttribute('aria-label', `${pauseLabel.textContent} game`)
 }
 const clearSession = () => {
   session++
@@ -51,11 +46,6 @@ const togglePause = () => {
     current()?.resume()
   }
 }
-pauseButton.addEventListener('click', togglePause)
-for (const type of ['keydown', 'keyup']) pauseButton.addEventListener(type, event => {
-  // Preserve native button activation instead of routing Enter/Space to the NES or cabinet.
-  if (['Enter', ' '].includes((event as KeyboardEvent).key)) event.stopPropagation()
-})
 const start = () => {
   resetControls()
   clearSession()
@@ -99,7 +89,6 @@ const input: CabinetInput = {
     const height = Math.max(1, Math.min(innerHeight, (window.parent.innerHeight - 16) / scale))
     document.documentElement.style.setProperty('--game-width', `${width}px`)
     document.documentElement.style.setProperty('--game-height', `${height}px`)
-    document.documentElement.style.setProperty('--display-scale', String(scale))
   },
   setDirection(source, direction) { if (state === 'playing' && !document.hidden) controller.setDirection(source, direction) },
   setButton(source, action, pressed, cancelled = false) {
@@ -131,7 +120,7 @@ const input: CabinetInput = {
   },
 }
 const directions: Record<string, string> = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }
-const actions: Record<string, string> = { z: 'read', x: 'open', q: 'menu', p: 'pause', Enter: 'start', Shift: 'select' }
+const actions: Record<string, string> = { z: 'read', x: 'open', q: 'menu', p: 'pause', Escape: 'pause', Enter: 'start', Shift: 'select' }
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
   if (connected) return
   const keyEvent = event as KeyboardEvent

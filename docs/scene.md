@@ -74,15 +74,15 @@ On the menu, each joystick tilt advances or reverses the selected link, wraps at
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Start returns to the main portfolio menu from the menu, blog, or game.
 The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
-Its instruction card pairs Return with Hold Start/Q (3s), Move & dodge with Joystick, Select with z + x, Start with Q, and Pause with Pause button / P on separate amber and cream lines, with space between pairs.
+Its instruction card pairs Return with Hold Start/Q (3s), Move & dodge with Joystick, Select with z + x, Start with Q, and Pause with Esc / P on separate amber and cream lines, with space between pairs.
 Press Start flashes when ready, remaining steady when reduced motion is preferred.
 Tap Start or Q for Start; hold either for three seconds to return to the exhibit without sending Start.
 Short Start/Q taps during loading do nothing, and cancellation clears the pending exit.
 Enter and Shift also send Start and Select.
-Z or X dismisses the instructions after loading, and gameplay displays a centered 4:3 viewport with a small Pause button and no emulator toolbar.
-The Pause button or P freezes the emulator and releases held inputs; Resume, P, or a short Start/Q press continues without another NES Start.
-Manual pause persists across tab visibility changes, and the button retains a 44px touch target within the visible screen as the cabinet projection changes.
-P works with cabinet, wrapper, or runtime keyboard focus, and the instructions share the fitted viewport to prevent cropped text on narrow screens.
+Z or X dismisses the instructions after loading, and gameplay displays a centered 4:3 viewport without an on-screen Pause/Resume button or emulator toolbar.
+Esc or P freezes the emulator and releases held inputs; Esc, P, or a short Start/Q press continues without another NES Start.
+Manual pause persists across tab visibility changes.
+Esc and P work with cabinet, wrapper, or runtime keyboard focus, and the instructions share the fitted viewport to prevent cropped text on narrow screens.
 The existing display-scale connection fits that viewport inside the visible screen on narrow devices, preserving the original cabinet, camera, and CRT geometry.
 Loading failures stay inside the CRT with Z to retry and Start/Q to exit.
 Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.

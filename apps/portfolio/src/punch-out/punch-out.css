@@ -37,25 +37,6 @@ dd { margin: 0; color: #fff0d6; }
 [data-state='paused'] #status { font-size: clamp(28px, 7vw, 42px); color: #fcbd46; }
 #resume-hint { display: none; margin: 0; color: #fff0d6; font-size: clamp(16px, 3.4vw, 22px); line-height: 1.5; }
 [data-state='paused'] #resume-hint { display: block; }
-#pause-button {
-  position: fixed;
-  top: calc((100% - var(--game-height, 100%)) / 2 + 8px);
-  right: calc((100% - var(--game-width, 100%)) / 2 + 8px);
-  min-width: max(44px, calc(44px / var(--display-scale, 1)));
-  min-height: max(44px, calc(44px / var(--display-scale, 1)));
-  padding: max(8px, calc(8px / var(--display-scale, 1)));
-  border: 1px solid #fcbd46;
-  border-radius: 2px;
-  background: #0b0c0f;
-  color: #fff0d6;
-  font: inherit;
-  font-size: max(16px, calc(16px / var(--display-scale, 1)));
-  cursor: pointer;
-  touch-action: manipulation;
-}
-#pause-button kbd { margin-left: .7em; color: #fcbd46; font: inherit; font-size: .75em; }
-#pause-button:hover { background: #28200f; }
-#pause-button:focus-visible { outline: 2px solid #fff0d6; outline-offset: 3px; }
 [data-state='error'] #viewport { visibility: hidden; }
 @media (max-height: 480px) {
   #instructions { padding: 12px; gap: 8px; }
