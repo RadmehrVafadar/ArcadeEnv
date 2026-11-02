@@ -126,6 +126,6 @@ test('failed artwork loading keeps a usable menu link', async ({ page }) => {
   await page.route('**/*walk*.png', route => route.abort());
   await page.goto(gamePath);
   await expect(page.locator('.loading')).toContainText('could not load');
-  await page.getByRole('link', { name: 'Menu Q' }).click();
+  await page.getByRole('link', { name: 'Menu C' }).click();
   await expect(page).toHaveURL(/\/portfolio\/$/);
 });

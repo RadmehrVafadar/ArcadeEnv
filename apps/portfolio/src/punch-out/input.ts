@@ -91,7 +91,7 @@ export function createPunchOutInput(
         hold(action, 'direct:' + action, pressed)
       } else if (action === 'menu') {
         if (pressed) {
-          resetTimer = schedule(() => { reset(); adapter.exit() }, 3000)
+          resetTimer = schedule(() => { reset(); adapter.exit() }, 2000)
         } else {
           cancel(resetTimer)
           resetTimer = undefined

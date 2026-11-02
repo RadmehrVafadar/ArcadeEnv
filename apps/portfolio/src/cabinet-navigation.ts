@@ -57,9 +57,9 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
     if (direction) {
       event.preventDefault()
       input.setDirection('keyboard:' + event.code, direction)
-    } else if (['z', 'Z', 'x', 'X', 'q', 'Q'].includes(event.key)) {
+    } else if (['z', 'Z', 'x', 'X', 'c', 'C'].includes(event.key)) {
       event.preventDefault()
-      if (!event.repeat) input.action(({ z: 'read', x: 'open', q: 'menu' })[event.key.toLowerCase() as 'z' | 'x' | 'q'])
+      if (!event.repeat) input.action(({ z: 'read', x: 'open', c: 'menu' })[event.key.toLowerCase() as 'z' | 'x' | 'c'])
     }
   }
   const keyup = (event: KeyboardEvent) => input.setDirection('keyboard:' + event.code, null)

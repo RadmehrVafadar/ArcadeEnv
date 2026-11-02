@@ -7,7 +7,7 @@ test('game startup instructions fit and disappear on movement', async ({ page },
   await ready(page);
   const dialogue = page.locator('.dialogueBox');
   await expect(dialogue).toContainText('Move: WASD');
-  await expect(dialogue).toContainText('Q: exit');
+  await expect(dialogue).toContainText('C: exit');
   const bounds = await dialogue.boundingBox();
   expect(bounds.y).toBeGreaterThanOrEqual(0);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(page.viewportSize().height);
@@ -86,8 +86,8 @@ test('portfolio entry navigates, loads the game, exits, and opens the resume', {
   await expect(player(portfolio)).toBeVisible({ timeout: 15000 });
   await expect(portfolio.locator('.dialogueBox')).toContainText(isMobile ? 'Joystick: move' : 'Move: WASD');
   if (!isMobile) {
-    await test.step('Q exits only the cabinet iframe from spawn', async () => {
-      await page.keyboard.press('q');
+    await test.step('C exits only the cabinet iframe from spawn', async () => {
+      await page.keyboard.press('c');
       await expect(start).toBeVisible();
       expect(new URL(page.url()).pathname).toBe('/');
       expect(frame.url()).toMatch(/\/portfolio\/$/);

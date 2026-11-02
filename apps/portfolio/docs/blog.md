@@ -19,7 +19,7 @@ While reading an article, holding the joystick, WASD, or arrow keys scrolls cont
 Left and right scroll the first visible overflowing code block or table, or the page when no such block is visible.
 Scrolling stops on release, reset, loss of focus, hidden pages, and navigation.
 X follows `../`, returning from an article to its folder, from a folder to the blog index, and from the index to the portfolio menu.
-The physical X button and keyboard X share this behavior regardless of the selected link; Q still exits directly to the menu.
+The physical X button and keyboard X share this behavior regardless of the selected link; C still exits directly to the menu.
 The selected link takes focus after the heading update, so Enter opens the first article immediately on entering a populated folder.
 The index shows `/tech`, `/hobbies`, and `/work`, including when those folders are empty.
 Folder titles sit at the right of a centered column, with `../` and article links below.

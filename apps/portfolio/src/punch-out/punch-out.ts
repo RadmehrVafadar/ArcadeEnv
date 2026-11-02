@@ -50,12 +50,12 @@ const start = () => {
   resetControls()
   clearSession()
   const attempt = session
-  setState('loading', 'Loading the ring... Hold Start/Q for 3 seconds to return')
+  setState('loading', 'Loading the ring... Hold Start/C for 2 seconds to return')
   const fail = () => {
     if (attempt !== session) return
     resetControls()
     clearSession()
-    setState('error', 'The ring could not load. Z: retry / Hold Start/Q for 3 seconds to return')
+    setState('error', 'The ring could not load. Z: retry / Hold Start/C for 2 seconds to return')
   }
   timeout = window.setTimeout(fail, 45000)
   frame = document.createElement('iframe')
@@ -120,7 +120,7 @@ const input: CabinetInput = {
   },
 }
 const directions: Record<string, string> = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }
-const actions: Record<string, string> = { z: 'read', x: 'open', q: 'menu', p: 'pause', Escape: 'pause', Enter: 'start', Shift: 'select' }
+const actions: Record<string, string> = { z: 'read', x: 'open', c: 'menu', p: 'pause', Escape: 'pause', Enter: 'start', Shift: 'select' }
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
   if (connected) return
   const keyEvent = event as KeyboardEvent

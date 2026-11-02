@@ -46,7 +46,7 @@ Live-source gameplay and audio verification is separate from CI; see [portfolio 
 An idle-rendering regression counts actual WebGL draw calls before and after zooming, while the launcher regression resets a real HMR connection and rejects deprecation or socket-error output.
 Zoom assertions poll for the screen-width threshold with a 15-second allowance, while a regression throttles rendering to one frame per second and requires the same zoom within three seconds.
 Lighting, iframe labels, and CRT layer assertions share an initial scene load; hover zoom and CRT click-through share another.
-The embedded game navigation flow checks Q exit before exercising the exit door, avoiding a separate cabinet load.
+The embedded game navigation flow checks C exit before exercising the exit door, avoiding a separate cabinet load.
 Use `npm run test:browser -- --project=production-mobile` for one profile or `npm run test:browser -- --grep "labels"` for one regression.
 The external override project uses a separate dev server and intercepts only its external portfolio fixture.
 Default tests use the real portfolio and verify navigation, game movement and exit, PDF bytes, desktop scene loading and zoom, mobile scene entry with delayed automatic zoom, tablet and touch-laptop detection, and browser errors.

@@ -60,7 +60,7 @@ Idle-rendering checks ensure cabinet feedback settles without continuous WebGL w
 Punch-Out unit checks cover source ownership, chord timing, tap/hold boundaries, actual core-frame sampling, and cancellation.
 Browser checks substitute only the pinned EmulatorJS loader using a deterministic joypad fixture; CI fetches no ROM.
 They exercise internal exhibit entry, parent/iframe keyboard, cabinet feedback, simultaneous inputs, retry, teardown, and exact return position.
-Loading regressions cover short Start taps, a one-second hold, cancellation, and a three-second hold to exit.
+Loading regressions cover short Start taps, a one-second hold, cancellation, and a two-second hold to exit.
 Pause checks assert that core frames stop, held input clears, manual pause survives tab visibility changes, and Esc, P, and Start resume work.
 Desktop and mobile cabinet checks tap Start during delayed initialization and capture the instructions, gameplay, and paused state without an on-screen Pause/Resume button.
 Small portrait and landscape checks require instructions without overflow and working Esc and P shortcuts.

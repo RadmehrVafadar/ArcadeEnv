@@ -226,7 +226,7 @@ test('focused iframe keyboard navigation shares one-step selection and activatio
   key('keydown', 'z', 'KeyZ');
   assert.equal(links[2].clicks, 1);
   page.location.href = '/portfolio/src/blog-website/blog.html';
-  key('keydown', 'q', 'KeyQ');
+  key('keydown', 'c', 'KeyC');
   assert.equal(page.location.href, '/portfolio/');
   input.disconnect();
   key('keydown', 'ArrowDown');
