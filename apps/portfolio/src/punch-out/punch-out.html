@@ -11,13 +11,16 @@
     <section id="instructions" aria-labelledby="game-title">
       <h1 id="game-title">Mike Tyson's<br>Punch-Out!!</h1>
       <dl>
-        <div><dt>Return</dt><dd>Hold Start/Q</dd></div>
+        <div><dt>Return</dt><dd>Hold Start/Q (3s)</dd></div>
         <div><dt>Move &amp; dodge</dt><dd>Joystick</dd></div>
         <div><dt>Select</dt><dd>z + x</dd></div>
         <div><dt>Start</dt><dd>Q</dd></div>
+        <div><dt>Pause</dt><dd>Pause button / P</dd></div>
       </dl>
       <p id="status" role="status" aria-live="polite">Loading the ring...</p>
+      <p id="resume-hint">P or tap Start to resume</p>
     </section>
+    <button id="pause-button" type="button" aria-label="Pause game" aria-keyshortcuts="P" hidden><span>Pause</span><kbd>P</kbd></button>
     <script type="module" src="./punch-out.ts"></script>
   </body>
 </html>

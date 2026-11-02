@@ -47,7 +47,7 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
       const source = event.code || key;
       const direction = cabinetKeyDirections[key];
-      const mappedAction = cabinetKeyActions[key] || (input.setButton && { Enter: 'start', Shift: 'select' }[key]);
+      const mappedAction = cabinetKeyActions[key] || (input.setButton && { Enter: 'start', Shift: 'select', p: 'pause' }[key]);
       const action = controls.filter(control => control.action && (control.action === mappedAction ||
         (mappedAction === 'start' && control.action === 'menu') ||
         (mappedAction === 'select' && ['read', 'open'].includes(control.action))));
@@ -76,7 +76,7 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
       const source = event.code || key;
       if (input.setButton) {
         input.setDirection('keyboard:' + source, null);
-        const action = cabinetKeyActions[key] || { Enter: 'start', Shift: 'select' }[key];
+        const action = cabinetKeyActions[key] || { Enter: 'start', Shift: 'select', p: 'pause' }[key];
         if (action) input.setButton('keyboard:' + source, action, false);
       }
       const direction = keyboardDirections.current.delete(source);

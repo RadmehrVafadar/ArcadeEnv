@@ -3,6 +3,8 @@ import { createPunchOutInput } from './input'
 import type { RuntimeWindow } from './runtime'
 
 const status = document.querySelector<HTMLElement>('#status')!
+const pauseButton = document.querySelector<HTMLButtonElement>('#pause-button')!
+const pauseLabel = pauseButton.querySelector<HTMLElement>('span')!
 let state = 'loading'
 let connected = false
 let frame: HTMLIFrameElement | undefined
@@ -13,6 +15,9 @@ const setState = (value: string, message = '') => {
   state = value
   document.body.dataset.state = value
   status.textContent = message
+  pauseButton.hidden = value !== 'playing' && value !== 'paused'
+  pauseLabel.textContent = value === 'paused' ? 'Resume' : 'Pause'
+  pauseButton.setAttribute('aria-label', `${pauseLabel.textContent} game`)
 }
 const clearSession = () => {
   session++
@@ -28,22 +33,39 @@ const exit = () => {
 }
 const controller = createPunchOutInput({
   send(button, pressed) {
+    if (state === 'paused' && button === 'start' && pressed) { togglePause(); return }
     if (state === 'ready' && button === 'start' && pressed) { setState('playing'); current()?.resume() }
     if (state === 'playing') current()?.send(button, pressed)
   },
   exit,
 })
 const resetControls = () => { controller.reset(); current()?.reset() }
+const togglePause = () => {
+  if (document.hidden || (state !== 'playing' && state !== 'paused')) return
+  resetControls()
+  if (state === 'playing') {
+    setState('paused', 'Paused')
+    current()?.pause()
+  } else {
+    setState('playing')
+    current()?.resume()
+  }
+}
+pauseButton.addEventListener('click', togglePause)
+for (const type of ['keydown', 'keyup']) pauseButton.addEventListener(type, event => {
+  // Preserve native button activation instead of routing Enter/Space to the NES or cabinet.
+  if (['Enter', ' '].includes((event as KeyboardEvent).key)) event.stopPropagation()
+})
 const start = () => {
   resetControls()
   clearSession()
   const attempt = session
-  setState('loading', 'Loading the ring... Hold Start to reset')
+  setState('loading', 'Loading the ring... Hold Start/Q for 3 seconds to return')
   const fail = () => {
     if (attempt !== session) return
     resetControls()
     clearSession()
-    setState('error', 'The ring could not load. Z: retry / Start: reset')
+    setState('error', 'The ring could not load. Z: retry / Hold Start/Q for 3 seconds to return')
   }
   timeout = window.setTimeout(fail, 45000)
   frame = document.createElement('iframe')
@@ -77,16 +99,23 @@ const input: CabinetInput = {
     const height = Math.max(1, Math.min(innerHeight, (window.parent.innerHeight - 16) / scale))
     document.documentElement.style.setProperty('--game-width', `${width}px`)
     document.documentElement.style.setProperty('--game-height', `${height}px`)
+    document.documentElement.style.setProperty('--display-scale', String(scale))
   },
   setDirection(source, direction) { if (state === 'playing' && !document.hidden) controller.setDirection(source, direction) },
   setButton(source, action, pressed, cancelled = false) {
     if (cancelled) { resetControls(); return }
     if (document.hidden) return
     current()?.unlock()
+    if (action === 'pause') {
+      if (pressed) togglePause()
+      return
+    }
+    if (action === 'menu' || (state === 'paused' && action === 'start')) {
+      controller.setButton(source, action, pressed)
+      return
+    }
     if (state !== 'playing') {
-      if (action === 'menu' && state === 'ready') controller.setButton(source, action, pressed)
-      else if (action === 'menu' && !pressed) exit()
-      else if (state === 'error' && action === 'read' && pressed) start()
+      if (state === 'error' && action === 'read' && pressed) start()
       else if (state === 'ready' && pressed && ['read', 'open', 'start'].includes(action)) {
         setState('playing')
         current()?.resume()
@@ -102,7 +131,7 @@ const input: CabinetInput = {
   },
 }
 const directions: Record<string, string> = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }
-const actions: Record<string, string> = { z: 'read', x: 'open', q: 'menu', Enter: 'start', Shift: 'select' }
+const actions: Record<string, string> = { z: 'read', x: 'open', q: 'menu', p: 'pause', Enter: 'start', Shift: 'select' }
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
   if (connected) return
   const keyEvent = event as KeyboardEvent
