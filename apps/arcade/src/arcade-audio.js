@@ -18,6 +18,8 @@ export function createArcadeAudio(host = globalThis) {
       if (typeof saved?.[key] === 'boolean') settings[key] = saved[key];
     }
   } catch { /* Storage can be unavailable in private or embedded browsers. */ }
+  // Keep saved music off while its control is temporarily unavailable.
+  settings.music = false;
 
   function tone(bus, type, start, from, to, duration, volume) {
     const oscillator = context.createOscillator();

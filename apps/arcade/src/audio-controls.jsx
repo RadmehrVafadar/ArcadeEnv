@@ -31,9 +31,6 @@ export default function AudioControls() {
       <button type="button" aria-pressed={settings.effects} onClick={() => toggle('effects')}>
         Sound FX: {settings.effects ? 'ON' : 'OFF'}
       </button>
-      <button type="button" aria-pressed={settings.music} onClick={() => toggle('music')}>
-        Music: {settings.music ? 'ON' : 'OFF'}
-      </button>
     </div>
   );
 }

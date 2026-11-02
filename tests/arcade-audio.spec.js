@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-test('arcade audio responds to cabinet input and remembers separate music and FX preferences', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
+test('arcade audio keeps music hidden and silent while remembering FX preferences', { tag: '@webgl' }, async ({ page, isMobile }, testInfo) => {
   test.setTimeout(60000);
   await page.addInitScript(() => {
+    if (!localStorage.getItem('arcade-audio')) {
+      localStorage.setItem('arcade-audio', JSON.stringify({ effects: true, music: true }));
+    }
     window.audioNotes = [];
     window.audioContexts = [];
     const NativeAudioContext = window.AudioContext;
@@ -27,7 +30,7 @@ test('arcade audio responds to cabinet input and remembers separate music and FX
   const fx = page.getByRole('button', { name: /Sound FX:/ });
   const music = page.getByRole('button', { name: /Music:/ });
   await expect(fx).toHaveAttribute('aria-pressed', 'true');
-  await expect(music).toHaveAttribute('aria-pressed', 'false');
+  await expect(music).toHaveCount(0);
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
   expect(await page.evaluate(() => window.audioContexts.length)).toBe(0);
   await page.getByRole('button', { name: 'PRESS TO PLAY' }).click();
@@ -52,8 +55,6 @@ test('arcade audio responds to cabinet input and remembers separate music and FX
   await fx.click();
   await page.keyboard.press('x');
   expect(await page.evaluate(() => window.audioNotes.length)).toBe(3);
-  await music.click();
-  await expect.poll(() => page.evaluate(() => window.audioNotes.length)).toBeGreaterThan(3);
   expect(await page.evaluate(() => window.audioContexts[0].state)).toBe('running');
   if (isMobile) await page.setViewportSize({ width: 320, height: 568 });
   const audioBounds = await page.getByRole('group', { name: 'Arcade audio' }).boundingBox();
@@ -61,13 +62,15 @@ test('arcade audio responds to cabinet input and remembers separate music and FX
   const controlBounds = await stick.boundingBox();
   expect(audioBounds.y + audioBounds.height).toBeLessThan(controlBounds.y);
   await page.screenshot({ path: testInfo.outputPath('audio-controls.png') });
+  expect(await page.evaluate(() => window.audioNotes.length)).toBe(3);
   await page.reload();
   await expect(fx).toHaveAttribute('aria-pressed', 'false');
-  await expect(music).toHaveAttribute('aria-pressed', 'true');
+  await expect(music).toHaveCount(0);
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
   expect(await page.evaluate(() => window.audioContexts.length)).toBe(0);
-  await music.click();
-  await expect(music).toHaveAttribute('aria-pressed', 'false');
+  await fx.click();
+  await expect(fx).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => window.audioNotes.length)).toBe(0);
 });
 
 test('a first cabinet touch unlocks iPhone-style audio on release, including inside the iframe', { tag: '@webgl' }, async ({ page, isMobile }) => {
@@ -109,8 +112,7 @@ test('a first cabinet touch unlocks iPhone-style audio on release, including ins
   expect(await page.evaluate(() => window.audioUnlocks.some(type => ['pointerup', 'touchend', 'click'].includes(type)))).toBe(true);
   const before = await page.evaluate(() => window.audioContexts[0].currentTime);
   await expect.poll(() => page.evaluate(() => window.audioContexts[0].currentTime)).toBeGreaterThan(before);
-  await page.getByRole('button', { name: /Music:/ }).tap();
-  await expect(page.getByRole('button', { name: /Music:/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: /Music:/ })).toHaveCount(0);
   // Suspending the context simulates returning from an iPhone interruption.
   await page.evaluate(() => window.audioContexts[0].suspend());
   await page.frameLocator('iframe').getByRole('link', { name: 'Start', exact: true }).tap();

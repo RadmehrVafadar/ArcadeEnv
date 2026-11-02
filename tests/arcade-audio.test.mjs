@@ -57,6 +57,14 @@ test('preferences mute existing effects and persist without enabling music', () 
   assert.deepEqual(createArcadeAudio(f.host).getSettings(), { effects: false, music: false });
 });
 
+test('saved music stays disabled while its control is unavailable', () => {
+  const f = fixture(JSON.stringify({ effects: false, music: true }));
+  assert.deepEqual(f.audio.getSettings(), { effects: false, music: false });
+  f.audio.unlock();
+  assert.equal(f.context(), undefined);
+  assert.equal(f.timers.size, 0);
+});
+
 test('music uses one timer, pauses while hidden, resumes, and cleans up', async () => {
   const f = fixture();
   f.audio.set('music', true);
