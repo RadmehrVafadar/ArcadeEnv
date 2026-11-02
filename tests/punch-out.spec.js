@@ -14,6 +14,24 @@ async function mockEmulator(page, { delay = 0, fail = false } = {}) {
 const events = frame => frame.locator('#emulator-frame').evaluate(element => element.contentWindow.EJS_emulator.events);
 const samples = frame => frame.locator('#emulator-frame').evaluate(element => element.contentWindow.EJS_emulator.samples);
 
+test('Escape and P toggle pause without an on-screen button', async ({ page }) => {
+  await mockEmulator(page);
+  await page.goto(route);
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
+  await expect(page.locator('#pause-button')).toHaveCount(0);
+  await page.keyboard.press('q');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
+  await page.keyboard.press('p');
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
+  await page.locator('#emulator-frame').evaluate(element => {
+    for (const type of ['keydown', 'keyup']) element.contentDocument.dispatchEvent(new KeyboardEvent(type, { key: 'Escape', code: 'Escape', bubbles: true }));
+  });
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
+});
+
 test('loading ignores Start taps and cancelled holds but a three-second hold exits', async ({ page }) => {
   await mockEmulator(page, { delay: 20000 });
   await page.goto(route);
@@ -38,11 +56,11 @@ test('loading ignores Start taps and cancelled holds but a three-second hold exi
   await expect(page.locator('#emulator-frame')).toHaveCount(0);
 });
 
-test('Pause freezes the core, clears held input, and resumes by button or P even from runtime focus', async ({ page }) => {
+test('Pause freezes the core, clears held input, and resumes by Escape or P even from runtime focus', async ({ page }) => {
   await mockEmulator(page);
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
-  await expect(page.getByRole('button', { name: 'Pause game' })).toBeHidden();
+  await expect(page.locator('#pause-button')).toHaveCount(0);
   await page.keyboard.press('q');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   await page.keyboard.down('ArrowLeft');
@@ -66,14 +84,9 @@ test('Pause freezes the core, clears held input, and resumes by button or P even
   });
   await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
   expect(await page.locator('#emulator-frame').evaluate(el => el.contentWindow.EJS_emulator.paused)).toBe(true);
-  await page.getByRole('button', { name: 'Resume game' }).click();
+  await page.keyboard.press('Escape');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   await expect.poll(async () => (await samples(page)).at(-1)).toEqual([]);
-  await page.getByRole('button', { name: 'Pause game' }).focus();
-  await page.keyboard.press('Enter');
-  await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
-  await page.keyboard.press('Space');
-  await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   await page.locator('#emulator-frame').evaluate(element => {
     for (const type of ['keydown', 'keyup']) element.contentDocument.dispatchEvent(new KeyboardEvent(type, { key: 'p', code: 'KeyP', bubbles: true }));
   });
@@ -95,15 +108,10 @@ test('instructions and Pause fit small portrait and landscape screens', async ({
     expect(layout.width).toBeLessThanOrEqual(layout.availableWidth);
     await page.screenshot({ path: testInfo.outputPath(`punch-out-instructions-${viewport.width}.png`), animations: 'disabled' });
     await page.keyboard.press('q');
-    const pause = page.getByRole('button', { name: 'Pause game' });
-    const bounds = await pause.boundingBox();
-    expect(bounds.height).toBeGreaterThanOrEqual(44);
-    expect(bounds.x).toBeGreaterThanOrEqual(0);
-    expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
-    expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
-    await pause.click();
+    await expect(page.locator('#pause-button')).toHaveCount(0);
+    await page.keyboard.press('Escape');
     await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
-    await page.getByRole('button', { name: 'Resume game' }).click();
+    await page.keyboard.press('Escape');
     await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   }
 });
@@ -112,7 +120,7 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   await mockEmulator(page);
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('#instructions dl > div')).toHaveText(['ReturnHold Start/Q (3s)', 'Move & dodgeJoystick', 'Selectz + x', 'StartQ', 'PausePause button / P']);
+  await expect(page.locator('#instructions dl > div')).toHaveText(['ReturnHold Start/Q (3s)', 'Move & dodgeJoystick', 'Selectz + x', 'StartQ', 'PauseEsc / P']);
   await expect(page.locator('#status')).toHaveText('Press Start');
   await expect(page.locator('#status')).toHaveCSS('animation-name', 'press-start-flash');
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -280,14 +288,9 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await reset.click();
   await expect.poll(() => events(frame)).toContainEqual({ player: 0, button: 3, pressed: 1 });
   await page.screenshot({ path: testInfo.outputPath('punch-out-gameplay.png') });
-  const pause = frame.getByRole('button', { name: 'Pause game' });
-  const pauseBounds = await pause.boundingBox();
-  expect(pauseBounds.width).toBeGreaterThanOrEqual(43);
-  expect(pauseBounds.height).toBeGreaterThanOrEqual(43);
-  expect(pauseBounds.x).toBeGreaterThanOrEqual(0);
-  expect(pauseBounds.x + pauseBounds.width).toBeLessThanOrEqual(viewport.width);
-  if (isMobile) await pause.tap();
-  else await pause.click();
+  await expect(frame.locator('#pause-button')).toHaveCount(0);
+  await reset.focus();
+  await page.keyboard.press('Escape');
   await expect(frame.locator('body')).toHaveAttribute('data-state', 'paused');
   const frozen = (await samples(frame)).length;
   await page.waitForTimeout(100);
@@ -301,12 +304,7 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await frame.locator('body').focus();
   await page.keyboard.press('p');
   await expect(frame.locator('body')).toHaveAttribute('data-state', 'playing');
-  await frame.getByRole('button', { name: 'Pause game' }).focus();
-  await page.keyboard.press('Enter');
-  await expect(frame.locator('body')).toHaveAttribute('data-state', 'paused');
-  await page.keyboard.press('Space');
-  await expect(frame.locator('body')).toHaveAttribute('data-state', 'playing');
-  await page.keyboard.press('p');
+  await page.keyboard.press('Escape');
   await expect(frame.locator('body')).toHaveAttribute('data-state', 'paused');
   const after = await page.locator('.crt-screen > iframe').boundingBox();
   expect(Math.abs(after.width - before.width)).toBeLessThan(2);

@@ -61,9 +61,9 @@ Punch-Out unit checks cover source ownership, chord timing, tap/hold boundaries,
 Browser checks substitute only the pinned EmulatorJS loader using a deterministic joypad fixture; CI fetches no ROM.
 They exercise internal exhibit entry, parent/iframe keyboard, cabinet feedback, simultaneous inputs, retry, teardown, and exact return position.
 Loading regressions cover short Start taps, a one-second hold, cancellation, and a three-second hold to exit.
-Pause checks assert that core frames stop, held input clears, manual pause survives tab visibility changes, and pointer, native button keyboard, P, and Start resume work.
-Desktop and mobile cabinet checks tap Start during delayed initialization and capture the instructions, gameplay, and paused state with a projection-scaled touch target.
-Small portrait and landscape checks require instructions without overflow and a working 44px Pause/Resume control.
+Pause checks assert that core frames stop, held input clears, manual pause survives tab visibility changes, and Esc, P, and Start resume work.
+Desktop and mobile cabinet checks tap Start during delayed initialization and capture the instructions, gameplay, and paused state without an on-screen Pause/Resume button.
+Small portrait and landscape checks require instructions without overflow and working Esc and P shortcuts.
 The fixture samples held NES buttons only during running core frames, so canvas keyboard events alone cannot satisfy assertions.
 Instructions must fit, list the cabinet mappings, and keep Press Start steady with reduced motion.
 Run `npm.cmd run test:browser -- tests/punch-out.spec.js --project=production-desktop --project=production-mobile --workers=1` after a root build for focused emulator checks.

@@ -68,11 +68,11 @@ Taps remain pressed for at least 32 ms and actual running core frames so slow re
 Tap Start/Q to send Start on release; hold for three seconds to return to the exhibit in any state, including loading or paused.
 Loading ignores short Start/Q taps and cancelled holds rather than exiting.
 Enter and Shift provide direct Start and Select.
-The on-screen Pause button or P pauses the emulator itself and clears held inputs.
-Resume with the same button, P, or a short Start/Q press without sending an extra NES Start.
+Esc or P pauses the emulator itself and clears held inputs.
+Resume with Esc, P, or a short Start/Q press without sending an extra NES Start.
 A manual pause survives hiding and showing the page.
-The Pause/Resume button scales with the cabinet projection to retain a 44px touch target inside the visible CRT.
-P shares the cabinet adapter and works with keyboard focus in the cabinet, wrapper, or emulator runtime.
+Gameplay has no on-screen Pause/Resume button.
+Esc and P share the cabinet adapter and work with keyboard focus in the cabinet, wrapper, or emulator runtime.
 Held inputs and pending transitions clear on blur, cancellation, hiding, navigation, and disconnect.
 
 EmulatorJS 4.2.3 loads its NES core from its official CDN.
