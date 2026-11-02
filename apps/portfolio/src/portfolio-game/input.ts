@@ -38,6 +38,7 @@ export function bindInput(root: HTMLElement, input: HeldInput, action: (open: bo
   };
   document.addEventListener('keydown', event => {
     const key = event.key.toLowerCase();
+    if (key === 'c' && (event.ctrlKey || event.metaKey || event.altKey)) return;
     if (directionKeys[key]) { event.preventDefault(); input.press(`key:${key}`, directionKeys[key]); }
     if (key === 'z' || key === 'x') { event.preventDefault(); if (!event.repeat) action(key === 'x'); }
     if (key === 'c' && !event.repeat) exit();

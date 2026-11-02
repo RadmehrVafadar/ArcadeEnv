@@ -178,6 +178,13 @@ test('cabinet selects menu links, activates with Z, and exits from the blog and 
   await expect(selected()).toHaveText('Start');
   await frame.getByRole('link', { name: 'Blog', exact: true }).click();
   await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+  for (const target of [frame.getByRole('heading', { name: "rad's blog", exact: true }), page.getByRole('button', { name: 'Cabinet: Start: C Menu', exact: true })]) {
+    await target.focus();
+    for (const shortcut of ['Control+c', 'Meta+c', 'Alt+c']) {
+      await page.keyboard.press(shortcut);
+      await expect(frame.getByRole('heading', { name: "rad's blog", exact: true })).toBeVisible();
+    }
+  }
   await page.getByRole('button', { name: 'Cabinet: Start: C Menu', exact: true }).click();
   await expect(selected()).toHaveText('Start');
 });

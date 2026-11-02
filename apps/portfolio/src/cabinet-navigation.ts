@@ -53,6 +53,7 @@ export function installCabinetNavigation(root: HTMLElement, home: string) {
   const visibility = () => { if (document.hidden) input.reset() }
   const keydown = (event: KeyboardEvent) => {
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
+    if (key === 'c' && (event.ctrlKey || event.metaKey || event.altKey)) return
     const direction = { ArrowDown: 'down', s: 'down', ArrowUp: 'up', w: 'up', ArrowRight: 'right', d: 'right', ArrowLeft: 'left', a: 'left' }[key]
     if (direction) {
       event.preventDefault()

@@ -125,6 +125,7 @@ for (const type of ['keydown', 'keyup']) document.addEventListener(type, event =
   if (connected) return
   const keyEvent = event as KeyboardEvent
   const key = keyEvent.key.length === 1 ? keyEvent.key.toLowerCase() : keyEvent.key
+  if (type === 'keydown' && key === 'c' && (keyEvent.ctrlKey || keyEvent.metaKey || keyEvent.altKey)) return
   if (!directions[key] && !actions[key]) return
   event.preventDefault()
   if (keyEvent.repeat) return

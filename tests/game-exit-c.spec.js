@@ -7,6 +7,10 @@ test('C exits the standalone game from spawn and stays inactive on other pages',
     await expect(player(page)).toBeVisible();
     await page.keyboard.press('q');
     await expect(page).toHaveURL(/portfolio-game\/game.html$/);
+    for (const shortcut of ['Control+c', 'Meta+c', 'Alt+c']) {
+      await page.keyboard.press(shortcut);
+      await expect(page).toHaveURL(/portfolio-game\/game.html$/);
+    }
     if (key === 'C') {
       await page.keyboard.down('s');
       await expect(player(page)).toHaveAttribute('data-walking', 'true');

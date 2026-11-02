@@ -45,6 +45,7 @@ export default function CabinetControls({ scene, input, keyboardDocument }) {
     const keydown = event => {
       if (event.target.closest?.('.cabinet-control') && [' ', 'Enter'].includes(event.key) && !(input.setButton && event.key === 'Enter')) return;
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      if (key === 'c' && (event.ctrlKey || event.metaKey || event.altKey)) return;
       const source = event.code || key;
       const direction = cabinetKeyDirections[key];
       const mappedAction = cabinetKeyActions[key] || (input.setButton && { Enter: 'start', Shift: 'select', p: 'pause', Escape: 'pause' }[key]);
