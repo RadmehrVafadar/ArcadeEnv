@@ -196,11 +196,11 @@ Do not smooth or blur the raster assets when scaling them.
 
 ### Floating Menu
 
-The small native Menu link overlays the world's top left with the Q shortcut beside it.
+The small native Menu link overlays the world's top left with the C shortcut beside it.
 It uses a whitesmoke fill, black text, and a minimum 44px width and height.
 Hover brightens the fill to white.
 Keyboard focus uses a 3px blue outline with a 3px offset.
-Q and the cabinet's Start action perform the same menu navigation.
+C and the cabinet's Start action perform the same menu navigation.
 
 ### Floating dialogue
 
@@ -215,7 +215,7 @@ The status text changes only when the nearby exhibit ID changes, keeping live an
 ### Startup guidance
 
 The original welcome reads "Welcome to my project showcase!" above separate movement and action lines.
-The movement line states WASD or arrow keys, and the action line states X to open and Q to exit.
+The movement line states WASD or arrow keys, and the action line states X to open and C to exit.
 Touch cabinet visitors instead see separate Joystick, X, and Start lines.
 The first movement hides the startup box.
 

@@ -12,7 +12,7 @@ test('mobile museum fits portrait, landscape, and tablet without duplicate touch
     expect(layout.scrollWidth).toBe(layout.width);
     expect(layout.scrollHeight).toBe(layout.height);
     await expect(page.locator('.gameControls, .dpad')).toHaveCount(0);
-    const menu = page.getByRole('link', { name: 'Menu Q' });
+    const menu = page.getByRole('link', { name: 'Menu C' });
     const bounds = await menu.boundingBox();
     expect(bounds.width).toBeGreaterThanOrEqual(44);
     expect(bounds.height).toBeGreaterThanOrEqual(44);
@@ -66,7 +66,7 @@ test('mobile door and Menu link return to the portfolio', async ({ page }) => {
   await expect(page).toHaveURL(/\/portfolio\/$/);
   await page.goto(gamePath);
   await ready(page);
-  await page.getByRole('link', { name: 'Menu Q' }).tap();
+  await page.getByRole('link', { name: 'Menu C' }).tap();
   await expect(page).toHaveURL(/\/portfolio\/$/);
 });
 

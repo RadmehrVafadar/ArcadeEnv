@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { player } from './game-helpers.js';
 
-test('Q exits the standalone game from spawn and stays inactive on other pages', async ({ page }) => {
-  for (const key of ['q', 'Q']) {
+test('C exits the standalone game from spawn and stays inactive on other pages', async ({ page }) => {
+  for (const key of ['c', 'C']) {
     await page.goto('/portfolio/src/portfolio-game/game.html');
     await expect(player(page)).toBeVisible();
-    if (key === 'Q') {
+    await page.keyboard.press('q');
+    await expect(page).toHaveURL(/portfolio-game\/game.html$/);
+    if (key === 'C') {
       await page.keyboard.down('s');
       await expect(player(page)).toHaveAttribute('data-walking', 'true');
       await page.keyboard.up('s');
@@ -18,6 +20,6 @@ test('Q exits the standalone game from spawn and stays inactive on other pages',
   }
   await page.goto('/portfolio/src/blog-website/blog.html');
   await expect(page.getByRole('heading', { name: "rad's blog" })).toBeVisible();
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect(page).toHaveURL(/\/portfolio\/src\/blog-website\/blog.html$/);
 });

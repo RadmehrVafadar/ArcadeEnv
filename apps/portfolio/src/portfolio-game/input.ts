@@ -40,7 +40,7 @@ export function bindInput(root: HTMLElement, input: HeldInput, action: (open: bo
     const key = event.key.toLowerCase();
     if (directionKeys[key]) { event.preventDefault(); input.press(`key:${key}`, directionKeys[key]); }
     if (key === 'z' || key === 'x') { event.preventDefault(); if (!event.repeat) action(key === 'x'); }
-    if (key === 'q' && !event.repeat) exit();
+    if (key === 'c' && !event.repeat) exit();
   }, options);
   document.addEventListener('keyup', event => input.release(`key:${event.key.toLowerCase()}`), options);
   window.addEventListener('blur', () => queueMicrotask(() => {

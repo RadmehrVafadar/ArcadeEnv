@@ -18,8 +18,10 @@ test('Escape and P toggle pause without an on-screen button', async ({ page }) =
   await mockEmulator(page);
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('#pause-button')).toHaveCount(0);
   await page.keyboard.press('q');
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
+  await expect(page.locator('#pause-button')).toHaveCount(0);
+  await page.keyboard.press('c');
   await page.keyboard.press('Escape');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
   await page.keyboard.press('p');
@@ -32,27 +34,27 @@ test('Escape and P toggle pause without an on-screen button', async ({ page }) =
   await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
 });
 
-test('loading ignores Start taps and cancelled holds but a three-second hold exits', async ({ page }) => {
+test('loading ignores Start taps and cancelled holds but a two-second hold exits', async ({ page }) => {
   await mockEmulator(page, { delay: 20000 });
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'loading');
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect(page).toHaveURL(new RegExp(route + '$'));
   await expect(page.locator('body')).toHaveAttribute('data-state', 'loading');
-  await page.keyboard.down('q');
+  await page.keyboard.down('c');
   await page.waitForTimeout(1000);
-  await page.keyboard.up('q');
+  await page.keyboard.up('c');
   await expect(page).toHaveURL(new RegExp(route + '$'));
   await page.evaluate(() => {
     window.arcadeControls.setButton('pointer:1', 'menu', true);
     window.arcadeControls.setButton('pointer:1', 'menu', false, true);
     window.arcadeControls.setButton('pointer:1', 'menu', false);
   });
-  await page.waitForTimeout(3100);
+  await page.waitForTimeout(2100);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'loading');
-  await page.keyboard.down('q');
+  await page.keyboard.down('c');
   await expect(page).toHaveURL(/portfolio-game\/game.html$/);
-  await page.keyboard.up('q');
+  await page.keyboard.up('c');
   await expect(page.locator('#emulator-frame')).toHaveCount(0);
 });
 
@@ -61,7 +63,7 @@ test('Pause freezes the core, clears held input, and resumes by Escape or P even
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
   await expect(page.locator('#pause-button')).toHaveCount(0);
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   await page.keyboard.down('ArrowLeft');
   await page.keyboard.down('z');
@@ -92,7 +94,7 @@ test('Pause freezes the core, clears held input, and resumes by Escape or P even
   });
   await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
   await page.locator('#emulator-frame').evaluate(element => { element.contentWindow.EJS_emulator.events.length = 0; });
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'playing');
   expect((await events(page)).some(event => event.button === 3 && event.pressed)).toBe(false);
 });
@@ -107,7 +109,7 @@ test('instructions and Pause fit small portrait and landscape screens', async ({
     expect(layout.height, `Instructions fit ${viewport.width}x${viewport.height}`).toBeLessThanOrEqual(layout.availableHeight);
     expect(layout.width).toBeLessThanOrEqual(layout.availableWidth);
     await page.screenshot({ path: testInfo.outputPath(`punch-out-instructions-${viewport.width}.png`), animations: 'disabled' });
-    await page.keyboard.press('q');
+    await page.keyboard.press('c');
     await expect(page.locator('#pause-button')).toHaveCount(0);
     await page.keyboard.press('Escape');
     await expect(page.locator('body')).toHaveAttribute('data-state', 'paused');
@@ -120,14 +122,14 @@ test('keyboard directions, punches, Start/Select, visibility and cancellation us
   await mockEmulator(page);
   await page.goto(route);
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
-  await expect(page.locator('#instructions dl > div')).toHaveText(['ReturnHold Start/Q (3s)', 'Move & dodgeJoystick', 'Selectz + x', 'StartQ', 'PauseEsc / P']);
+  await expect(page.locator('#instructions dl > div')).toHaveText(['ReturnHold Start/C (2s)', 'Move & dodgeJoystick', 'Selectz + x', 'StartC', 'PauseEsc / P']);
   await expect(page.locator('#status')).toHaveText('Press Start');
   await expect(page.locator('#status')).toHaveCSS('animation-name', 'press-start-flash');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('#status')).toHaveCSS('animation-name', 'none');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(page.locator('#instructions')).not.toContainText(/WASD|Z: B|X: A|Shift|0\.6 sec|Exit/);
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 3, pressed: 1 });
   await expect.poll(() => events(page)).toContainEqual({ player: 0, button: 3, pressed: 0 });
   await expect(page.locator('#instructions')).toBeHidden();
@@ -314,7 +316,7 @@ test('entry stays in the cabinet, held inputs animate, Start returns to the exhi
   await expect(frame.locator('canvas[data-ready="true"]')).toBeVisible({ timeout: 10000 });
   await page.mouse.up();
   expect(await museumPosition(frame)).toEqual(position);
-  await page.keyboard.press('q');
+  await page.keyboard.press('c');
   await expect(frame.getByRole('link', { name: 'Start', exact: true })).toBeVisible();
 });
 
@@ -328,8 +330,8 @@ test('failure retries with Z and Start cancels pending initialization and exits'
   await page.keyboard.press('z');
   await expect(page.locator('#emulator-frame')).toBeAttached();
   await expect(page.locator('body')).toHaveAttribute('data-state', 'loading');
-  await page.keyboard.down('q');
+  await page.keyboard.down('c');
   await expect(page).toHaveURL(/portfolio-game\/game.html$/);
-  await page.keyboard.up('q');
+  await page.keyboard.up('c');
   await expect(page.locator('#emulator-frame')).toHaveCount(0);
 });

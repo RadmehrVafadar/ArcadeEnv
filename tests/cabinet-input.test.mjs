@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three';
-import { cabinetButtons, joystickDirection } from '../apps/arcade/src/cabinet-input.js';
+import { cabinetButtons, cabinetKeyActions, joystickDirection } from '../apps/arcade/src/cabinet-input.js';
 
 test('red Z/X caps, smaller Start, and slightly left-shifted joystick match the cabinet', () => {
-  assert.equal(cabinetButtons.find(button => button.action === 'menu').label, 'Start: Q Menu');
+  assert.equal(cabinetButtons.find(button => button.action === 'menu').label, 'Start: C Menu');
+  assert.equal(cabinetKeyActions.c, 'menu');
+  assert.equal(cabinetKeyActions.q, undefined, 'Q no longer triggers the cabinet menu');
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)));
   const buttons = ['Cylinder.006', 'Cylinder.007', 'CabinetQuit'].map(name => model.nodes.find(node => node.name === name));
@@ -47,7 +49,7 @@ test('joystick dead zone and dominant axis produce four-direction movement', () 
   ]) assert.equal(joystickDirection(dx, dy), expected, `${dx}, ${dy}`);
 });
 
-test('cabinet model has only Z, X and Q in a row visible from the original camera', () => {
+test('cabinet model has only Z, X and C in a row visible from the original camera', () => {
   const bytes = readFileSync(new URL('../apps/arcade/public/model9.glb', import.meta.url));
   const model = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
   const active = model.scenes[model.scene || 0].nodes.map(index => model.nodes[index]);

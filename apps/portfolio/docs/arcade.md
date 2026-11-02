@@ -31,7 +31,7 @@ Decoration sits below the visitor; furniture and the visitor sort by their feet.
 Map validation rejects missing references, duplicate IDs, missing markers, malformed layers, and unsupported shapes.
 
 WASD and arrows move in four directions, with the most recently pressed source taking priority.
-Nearby exhibit descriptions open automatically, X opens their destination once per press, and Q or the visible Menu link returns to the portfolio.
+Nearby exhibit descriptions open automatically, X opens their destination once per press, and C or the visible Menu link returns to the portfolio.
 The entrance displays X to exit and returns inside the current iframe.
 Z remains a compatibility read alias without an on-screen instruction.
 Keyboard aliases and joystick sources release independently.
@@ -65,11 +65,11 @@ Return restores it only if the same feet body still fits the authored geometry.
 The emulator retains master's controls: Z is NES B, X is A, and joystick/arrows/WASD move.
 An overlapping Z+X press within 60 ms sends Select, suppressing punches until release.
 Taps remain pressed for at least 32 ms and actual running core frames so slow renderers sample them.
-Tap Start/Q to send Start on release; hold for three seconds to return to the exhibit in any state, including loading or paused.
-Loading ignores short Start/Q taps and cancelled holds rather than exiting.
+Tap Start/C to send Start on release; hold for two seconds to return to the exhibit in any state, including loading or paused.
+Loading ignores short Start/C taps and cancelled holds rather than exiting.
 Enter and Shift provide direct Start and Select.
 Esc or P pauses the emulator itself and clears held inputs.
-Resume with Esc, P, or a short Start/Q press without sending an extra NES Start.
+Resume with Esc, P, or a short Start/C press without sending an extra NES Start.
 A manual pause survives hiding and showing the page.
 Gameplay has no on-screen Pause/Resume button.
 Esc and P share the cabinet adapter and work with keyboard focus in the cabinet, wrapper, or emulator runtime.
@@ -78,7 +78,7 @@ Held inputs and pending transitions clear on blur, cancellation, hiding, navigat
 EmulatorJS 4.2.3 loads its NES core from its official CDN.
 The ROM is requested directly from NES Ninja with browser CORS; this deployment never bundles, proxies, or serves ROM bytes.
 A disposable same-origin runtime iframe owns each session and is removed on retry or exit.
-Initialization times out after 45 seconds, with Z to retry and Start/Q to exit.
+Initialization times out after 45 seconds, with Z to retry and Start/C to exit.
 Gesture audio and source-aware input use the existing emulator adapter.
 External source availability and the source's unverified redistribution authorization remain limitations.
 

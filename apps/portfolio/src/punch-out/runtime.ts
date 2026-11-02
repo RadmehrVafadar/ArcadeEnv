@@ -72,7 +72,7 @@ Object.assign(window, { punchOutRuntime: runtime })
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
   if (window.parent === window) return
   const key = event as KeyboardEvent
-  if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'z', 'x', 'q', 'p', 'Escape', 'Enter', 'Shift', ' '].includes(key.key.length === 1 ? key.key.toLowerCase() : key.key)) return
+  if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'z', 'x', 'c', 'p', 'Escape', 'Enter', 'Shift', ' '].includes(key.key.length === 1 ? key.key.toLowerCase() : key.key)) return
   key.preventDefault()
   key.stopImmediatePropagation()
   // Keep native user activation while routing runtime focus through the same adapter and cabinet feedback.

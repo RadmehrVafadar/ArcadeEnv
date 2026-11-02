@@ -21,7 +21,7 @@ TypeScript content records own exhibit descriptions and destinations.
 Geometry stays in world coordinates and never depends on CSS size or device layout.
 
 Six newly illustrated exhibits occupy three pairs: LinkedIn and Punch-Out, Fake News Detector and Music Orb, Distributed Video Streaming and Minesweeper.
-WASD or arrow keys move, X opens the nearby exhibit, and Q or the floating Menu link returns to the portfolio.
+WASD or arrow keys move, X opens the nearby exhibit, and C or the floating Menu link returns to the portfolio.
 The cabinet joystick, X button, and Start button provide movement, opening, and menu navigation on desktop and touch devices.
 Exhibit descriptions show X to open, while the entrance description shows X to exit.
 The game has no on-screen D-pad or Read/Open buttons on any device.
@@ -44,7 +44,7 @@ Every project exhibit uses newly generated artwork, with source images and promp
 The original visitor sprite and locally hosted Press Start 2P font are retained.
 
 The world fills the frame height without a title or header bar.
-A small floating Menu/Q link and light rounded dialogue provide the interface.
+A small floating Menu/C link and light rounded dialogue provide the interface.
 Dialogue fits its content at the bottom left, with bounded scrolling for longer text and no reserved bottom bar.
 Nearby descriptions appear without a read action and hide when the visitor leaves the interaction range.
 The periwinkle surround and white desktop frame outline preserve the original UI character.
@@ -55,7 +55,7 @@ The camera fits one tile less than the hallway width and adds the requested 15% 
 The floating Menu link remains a native keyboard-focusable link with a visible focus outline.
 Dialogue and its action hints use readable HTML outside the canvas.
 Description changes are announced politely, while staying near one exhibit does not repeat the announcement.
-The startup message presents separate welcome, movement, and X/Q action lines, with joystick, X, and Start guidance when using touch cabinet controls.
+The startup message presents separate welcome, movement, and X/C action lines, with joystick, X, and Start guidance when using touch cabinet controls.
 Coarse-pointer layouts and cabinet projection scale the HTML text for readability without changing world geometry.
 Projection-aware left and right insets keep Menu and dialogue within the visible cabinet screen.
 Loading errors preserve access to the Menu link.

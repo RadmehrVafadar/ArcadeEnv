@@ -38,13 +38,13 @@ The mobile delay uses a timer after loading clears, and zoom timing excludes tim
 The HTML portfolio continues to animate and respond independently while the WebGL canvas is idle.
 
 All devices retain the original camera targets, with no additional gameplay zoom-out.
-PC museum instructions describe movement, X to open, and Q to exit, while nearby exhibit descriptions appear automatically.
-The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and Q/Menu from left to right.
-The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies Q.
+PC museum instructions describe movement, X to open, and C to exit, while nearby exhibit descriptions appear automatically.
+The GLB contains three action buttons in a single row on the left: Z/Read, X/Open, and C/Menu from left to right.
+The original five-button cluster is removed, the two buttons formerly beside the joystick are relocated, and a third button supplies C.
 The row sits toward the back of the control deck so all three buttons are visible and clickable from the original camera.
 The joystick sits 0.12 model units left of its original deck position, with its ball aligned with the button faces from the original camera.
 Its moving shaft and ball and its separate fixed base share the same leftward shift.
-Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red START (Q/Menu) button without black collars or borders.
+Two red caps labeled Z (Z/Read) and X (X/Open) sit beside a smaller red START (C/Menu) button without black collars or borders.
 The raised caps have rounded shoulders and a red base lip, matching the supplied classic arcade reference.
 The cap faces match their base lips' deeper red, with glossy materials and tinted reflections to retain saturation under the spotlight; thin, solid-black lettering uses an unlit material.
 Each rounded cap is a separate GLB child node so it depresses together with its modeled lettering while its base lip stays fixed.
@@ -57,7 +57,7 @@ No HTML control overlays or labels are drawn over the buttons or joystick on any
 Targets shrink near viewport edges and shift onto the visible part of the hardware when needed to keep their minimum hit area reachable without moving the model or camera.
 Mouse, keyboard activation, and independent touch pointers share the game input interface, allowing movement while pressing an action.
 Button depression and joystick tilt invalidate frames only while settling, with immediate feedback when reduced motion is preferred.
-Keyboard Z/X/Q presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
+Keyboard Z/X/C presses depress their matching cabinet buttons, and arrow keys or WASD tilt the joystick whether focus is in the cabinet page or its iframe.
 Visual feedback tracks held keys by source, so releasing one movement alias does not cancel another held key, and clears on navigation or focus loss.
 Release, cancellation, lost capture, page hiding, navigation, and focus leaving the browser clear the appropriate held inputs.
 Moving focus between the embedded page and cabinet controls does not cancel a held cabinet gesture or article scroll.
@@ -74,17 +74,17 @@ On the menu, each joystick tilt advances or reverses the selected link, wraps at
 Centering or releasing the stick rearms the next step; holding it does not skip multiple entries.
 Z activates the selected native link synchronously, opening Resume in a new tab on desktop or the current top-level browser on touch devices, while Start returns to the main portfolio menu from the menu, blog, or game.
 The showcase's Punch-Out exhibit opens a same-origin game page in the existing iframe while the cabinet, camera, and CRT stay mounted.
-Its instruction card pairs Return with Hold Start/Q (3s), Move & dodge with Joystick, Select with z + x, Start with Q, and Pause with Esc / P on separate amber and cream lines, with space between pairs.
+Its instruction card pairs Return with Hold Start/C (2s), Move & dodge with Joystick, Select with z + x, Start with C, and Pause with Esc / P on separate amber and cream lines, with space between pairs.
 Press Start flashes when ready, remaining steady when reduced motion is preferred.
-Tap Start or Q for Start; hold either for three seconds to return to the exhibit without sending Start.
-Short Start/Q taps during loading do nothing, and cancellation clears the pending exit.
+Tap Start or C for Start; hold either for two seconds to return to the exhibit without sending Start.
+Short Start/C taps during loading do nothing, and cancellation clears the pending exit.
 Enter and Shift also send Start and Select.
 Z or X dismisses the instructions after loading, and gameplay displays a centered 4:3 viewport without an on-screen Pause/Resume button or emulator toolbar.
-Esc or P freezes the emulator and releases held inputs; Esc, P, or a short Start/Q press continues without another NES Start.
+Esc or P freezes the emulator and releases held inputs; Esc, P, or a short Start/C press continues without another NES Start.
 Manual pause persists across tab visibility changes.
 Esc and P work with cabinet, wrapper, or runtime keyboard focus, and the instructions share the fitted viewport to prevent cropped text on narrow screens.
 The existing display-scale connection fits that viewport inside the visible screen on narrow devices, preserving the original cabinet, camera, and CRT geometry.
-Loading failures stay inside the CRT with Z to retry and Start/Q to exit.
+Loading failures stay inside the CRT with Z to retry and Start/C to exit.
 Blog folders use the same joystick selection and Z activation, with an underline identifying only the selected link.
 Populated folders initially select their first article; empty folders initially select `../`.
 Inside an article, held joystick, WASD, and arrow inputs scroll the page, with left and right moving visible overflowing code blocks or tables.

@@ -86,18 +86,20 @@ test('short taps and rapid alternating punches survive the recognition delay', (
   assert.deepEqual(f.events, [['b', true], ['b', false], ['a', true], ['a', false], ['b', true], ['b', false], ['a', true], ['a', false]]);
 });
 
-test('Start sends a tap only on release and exits exactly at three seconds', () => {
+test('Start sends a tap only on release and exits exactly at two seconds', () => {
   const f = fixture();
-  f.input.setButton('q', 'menu', true);
-  f.tick(2999);
+  f.input.setButton('c', 'menu', true);
+  f.tick(1999);
   assert.equal(f.exits(), 0);
   assert.deepEqual(f.events, []);
-  f.input.setButton('q', 'menu', false);
+  f.input.setButton('c', 'menu', false);
   f.tick(40);
   assert.deepEqual(f.events, [['start', true], ['start', false]]);
   f.events.length = 0;
   f.input.setButton('reset', 'menu', true);
-  f.tick(3000);
+  f.tick(1999);
+  assert.equal(f.exits(), 0);
+  f.tick(1);
   assert.equal(f.exits(), 1);
   f.input.setButton('reset', 'menu', false);
   f.tick(100);
@@ -138,7 +140,7 @@ test('cancellation clears directions, chord timers, Reset holds, and pending tap
     const f = fixture();
     f.input.setDirection('stick', 'left');
     f.input.setButton('z', 'read', true);
-    f.input.setButton('q', 'menu', true);
+    f.input.setButton('c', 'menu', true);
     cancel(f.input);
     f.tick(4000);
     assert.deepEqual(f.events, [['left', true], ['left', false]]);
