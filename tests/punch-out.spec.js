@@ -20,6 +20,16 @@ test('Escape and P toggle pause without an on-screen button', async ({ page }) =
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
   await page.keyboard.press('q');
   await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
+  for (const shortcut of ['Control+c', 'Meta+c', 'Alt+c']) {
+    await page.keyboard.press(shortcut);
+    await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
+  }
+  await page.locator('#emulator-frame').evaluate(element => {
+    for (const modifier of ['ctrlKey', 'metaKey', 'altKey']) for (const type of ['keydown', 'keyup']) {
+      element.contentDocument.dispatchEvent(new KeyboardEvent(type, { key: 'c', code: 'KeyC', [modifier]: true, bubbles: true }));
+    }
+  });
+  await expect(page.locator('body')).toHaveAttribute('data-state', 'ready');
   await expect(page.locator('#pause-button')).toHaveCount(0);
   await page.keyboard.press('c');
   await page.keyboard.press('Escape');

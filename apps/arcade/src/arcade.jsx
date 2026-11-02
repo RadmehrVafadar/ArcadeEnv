@@ -91,6 +91,7 @@ export default function Arcade() {
       if (gameInput.setButton) return;
       if (event.target.closest?.('.cabinet-control') && [' ', 'Enter'].includes(event.key)) return;
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      if (key === 'c' && (event.ctrlKey || event.metaKey || event.altKey)) return;
       const action = cabinetKeyActions[key];
       if (cabinetKeyDirections[key] || action) event.preventDefault();
       if (cabinetKeyDirections[key]) gameInput.setDirection('keyboard:' + event.code, cabinetKeyDirections[key]);

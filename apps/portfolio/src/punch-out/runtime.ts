@@ -72,6 +72,7 @@ Object.assign(window, { punchOutRuntime: runtime })
 for (const type of ['keydown', 'keyup']) document.addEventListener(type, event => {
   if (window.parent === window) return
   const key = event as KeyboardEvent
+  if (key.key.toLowerCase() === 'c' && (key.ctrlKey || key.metaKey || key.altKey)) return
   if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'z', 'x', 'c', 'p', 'Escape', 'Enter', 'Shift', ' '].includes(key.key.length === 1 ? key.key.toLowerCase() : key.key)) return
   key.preventDefault()
   key.stopImmediatePropagation()

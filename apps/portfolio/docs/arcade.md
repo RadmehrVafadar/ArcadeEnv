@@ -32,6 +32,7 @@ Map validation rejects missing references, duplicate IDs, missing markers, malfo
 
 WASD and arrows move in four directions, with the most recently pressed source taking priority.
 Nearby exhibit descriptions open automatically, X opens their destination once per press, and C or the visible Menu link returns to the portfolio.
+Ctrl/Cmd/Alt+C remain browser shortcuts; only plain C or Shift+C triggers the game control.
 The entrance displays X to exit and returns inside the current iframe.
 Z remains a compatibility read alias without an on-screen instruction.
 Keyboard aliases and joystick sources release independently.

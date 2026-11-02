@@ -232,3 +232,16 @@ test('focused iframe keyboard navigation shares one-step selection and activatio
   key('keydown', 'ArrowDown');
   assert.equal(selected(), undefined);
 });
+
+test('modified C shortcuts remain native while plain C returns to the menu', () => {
+  const { page, input } = fixture();
+  input.connect();
+  page.location.href = '/portfolio/src/blog-website/blog.html';
+  for (const modifier of ['ctrlKey', 'metaKey', 'altKey']) {
+    const event = new Event('keydown', { cancelable: true });
+    Object.assign(event, { key: 'c', code: 'KeyC', [modifier]: true });
+    page.document.dispatchEvent(event);
+    assert.equal(event.defaultPrevented, false);
+    assert.equal(page.location.href, '/portfolio/src/blog-website/blog.html');
+  }
+});
